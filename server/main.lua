@@ -12,27 +12,11 @@
 --- Main script.
 --- @script server/main.lua
 
---- @section Dependencies
-
---- Import utility library
-utils = exports.boii_utils:get_utils()
-
---- @section Version check
-
---- Version check options
---- @field resource_name: The name of the resource to check, you can set a value here or use the current resource.
---- @field url_path: The path to your json file.
---- @field callback: Callback to invoking resource version check details *optional*
-local opts = {
-    resource_name = 'boii_drugsales',
-    url_path = 'boiidevelopment/fivem_resource_versions/main/versions.json',
-}
-utils.version.check(opts)
-
 --- @section Global variables
 
 is_dealing = false
 is_delivering = false
+sale_modes = {}
 
 --- @section Global functions.
 
@@ -70,18 +54,15 @@ function get_police_players(job_table, on_duty)
     local duty = on_duty or false
     local players = utils.fw.get_players()
     if not players then 
-        print("No players found") 
-        return 
+        return {}
     end
     local jobs = job_table
     local players_with_jobs = {}
     for _, player in pairs(players) do
         local player_source = type(player) == "table" and player.source or player
         if player_source then
-            print('player_source: '.. player_source)
             local player_has_job = utils.fw.player_has_job(player_source, jobs, duty)
             if player_has_job then 
-                print('player_has_job')
                 players_with_jobs[#players_with_jobs + 1] = player_source
             end
         end
@@ -96,8 +77,10 @@ end
 --- @param drug_id string: The unique ID of the drug being sold.
 --- @param amount number: The amount of the drug being sold.
 --- @return boolean: Returns `true` if the sale was completed successfully `false` if there was an error or the sale could not be completed.
-function complete_sale(_src, sale_data, drug_id, amount)
-    local payment_type = config.dealing.payments.type
+function complete_sale(_src, sale_data, drug_id, amount, sale_type)
+    local payment_config = sale_type == 'delivery' and config.deliveries.payments or config.dealing.payments
+    local payment_type = payment_config.type
+    if type(amount) ~= 'number' or amount < 1 or amount ~= math.floor(amount) then return false end
     local drug_data = nil
     for _, drug in ipairs(sale_data.drugs) do
         if drug.id == drug_id then
@@ -106,9 +89,10 @@ function complete_sale(_src, sale_data, drug_id, amount)
         end
     end
     if not drug_data then
-        DEBUG('err', lang.general.server.invalid_drug_data)
+        debug_log('err', lang.general.server.invalid_drug_data)
         return false
     end
+    if drug_data.quantity and amount ~= drug_data.quantity then return false end
     local inventory_item = utils.fw.get_item(_src, drug_id)
     local quantity = inventory_item and (inventory_item.quantity or inventory_item.count or inventory_item.amount) or 0
     if quantity < amount then
@@ -117,21 +101,23 @@ function complete_sale(_src, sale_data, drug_id, amount)
         TriggerClientEvent('boii_drugsales:cl:stop_dealing', _src)
         return false
     end
-    utils.fw.adjust_inventory(_src, {
+    if not utils.fw.adjust_inventory(_src, {
         items = {{ item_id = drug_data.id, action = 'remove', quantity = amount }},
         note = 'Drug Dealing: Sold drugs.',
         should_save = true
-    })
+    }) then return false end
     local payment = math.ceil(drug_data.price * amount)
     if payment_type == 'balance' then
-        total_value = payment
-        utils.fw.adjust_balance(_src, {
-            operations = {{ balance_type = config.dealing.payments.balance_type, action = 'add', amount = payment }},
+        if not utils.fw.adjust_balance(_src, {
+            operations = {{ balance_type = payment_config.balance_type, action = 'add', amount = payment }},
             reason = 'Drug dealing: Received money.',
             should_save = true
-        })
+        }) then
+            utils.fw.adjust_inventory(_src, { items = {{ item_id = drug_id, action = 'add', quantity = amount }} })
+            return false
+        end
     elseif payment_type == 'item' then
-        local item_config = config.dealing.payments.item
+        local item_config = payment_config.item
         local item_data = nil
         if item_config.data then
             local data_key = next(item_config.data)
@@ -139,13 +125,16 @@ function complete_sale(_src, sale_data, drug_id, amount)
                 item_data = { [data_key] = payment }
             end
         end
-        utils.fw.adjust_inventory(_src, {
+        if not utils.fw.adjust_inventory(_src, {
             items = {{ item_id = item_config.id, action = 'add', quantity = item_data and 1 or payment, data = item_data }},
             note = 'Drug Dealing: Received reward item.',
             should_save = true
-        })
+        }) then
+            utils.fw.adjust_inventory(_src, { items = {{ item_id = drug_id, action = 'add', quantity = amount }} })
+            return false
+        end
     end
-    send_notification(_src, lang.dealing.server.notifications.header, string.format(lang.general.server.sold_drugs, amount, drug_data.label, payment), 'success', 3500)
+    send_notification(_src, lang.dealing.server.notifications.header, string.format(lang.general.server.sold_drugs, payment, amount, drug_data.label), 'success', 3500)
     return true
 end
 
@@ -185,6 +174,7 @@ utils.callback.register('boii_drugsales:sv:request_config', function(_src, data,
     if config.bulk_dealer.enabled then
         client_config.bulk_dealer = config.bulk_dealer
     end
+    client_config.corner = config.dealing.corner
     cb(client_config)
 end)
 
@@ -194,7 +184,7 @@ end)
 --- @param data: Unused parameter for consistency with callback pattern.
 --- @param cb: Callback function to return.
 utils.callback.register('boii_drugsales:sv:perform_phone_action', function(_src, data, cb)
-    local action = data.action
+    local action = type(data) == 'table' and data.action
     if not action then 
         debug_log('err', lang.general.server.action_missing)
         cb(false, lang.general.server.action_missing)
@@ -206,12 +196,19 @@ utils.callback.register('boii_drugsales:sv:perform_phone_action', function(_src,
         cb(false, lang.general.server.phone_action_exploit)
         return
     end
+    if sale_modes[_src] then return cb(false, 'Stop the current sales mode first.') end
     local actions = {
         dealing = {
             header = lang.dealing.server.notifications.header,
             message = lang.dealing.server.notifications.cooldown_message,
             cooldown = 'drug_dealing',
             duration = 600
+        },
+        corner = {
+            header = lang.dealing.server.notifications.header,
+            message = lang.dealing.server.notifications.cooldown_message,
+            cooldown = 'drug_corner',
+            duration = 60
         },
         delivery = {
             header = lang.deliveries.server.notifications.header,
@@ -232,22 +229,21 @@ utils.callback.register('boii_drugsales:sv:perform_phone_action', function(_src,
         return
     end
     utils.cooldowns.add(_src, selected_action.cooldown, selected_action.duration, false)
+    sale_modes[_src] = action
     cb(true, lang.general.server.action_started)
+end)
+
+RegisterNetEvent('boii_drugsales:sv:stop_phone_action', function()
+    sale_modes[source] = nil
+end)
+
+AddEventHandler('playerDropped', function()
+    sale_modes[source] = nil
 end)
 
 --- @section Items
 
---- Hang script until framework is not nil
---- For some reason this was not ready at time of creating items causing an error, messy but it works.
-local framework = utils.fw.get_framework()
-if framework == nil then
-    repeat
-        Wait(100)
-        framework = utils.fw.get_framework()
-    until framework ~= nil
-end
-
---- Register dealer phone as usable through utils.
+--- Register dealer phone as usable.
 utils.fw.register_item('dealer_phone', function(_src)
     if _src and _src ~= 0 then
         TriggerClientEvent('boii_drugsales:cl:open_dealer_phone', _src)

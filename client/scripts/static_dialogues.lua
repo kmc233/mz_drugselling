@@ -89,17 +89,25 @@ dialogues.bulk_dealer = {
 --- Event handler to launch dialogue based on store type.
 -- @param data table: Data 
 RegisterNetEvent('boii_drugsales:cl:start_conversation', function(data)
+    if not data or data.dialogue ~= 'bulk_dealer' then return end
     local location = data.location
-    local ped, coords = utils.entities.get_closest_ped(vector3(location.x, location.y, location.z), 5.0)
-    local fee = tonumber(data.fee)
-    local dialogue = dialogues[data.dialogue]
-    for _, convo in pairs(dialogue.conversation) do
-        for _, option in pairs(convo.options) do
-            if option.action ~= nil and option.action ~= '' then
-                option.params = option.params or {}
-                option.params['location'] = vector3(location.x, location.y, location.z)
-            end
-        end
-    end
-    exports.boii_ui:dialogue(dialogue, ped, coords)
+    lib.registerContext({
+        id = 'mz_drugselling_bulk_dealer',
+        title = dialogues.bulk_dealer.header.message,
+        options = {
+            {
+                title = 'Make a deal', icon = 'store',
+                onSelect = function()
+                    TriggerEvent('boii_drugsales:cl:open_bulk_sales', {
+                        location = vector3(location.x, location.y, location.z)
+                    })
+                end
+            },
+            {
+                title = 'What are you offering?', icon = 'circle-question',
+                description = 'Bulk sales at a lower price per item.'
+            }
+        }
+    })
+    lib.showContext('mz_drugselling_bulk_dealer')
 end)

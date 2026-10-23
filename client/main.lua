@@ -15,11 +15,6 @@
 --- Stores client side relevant config options retrieved from server.
 config = config or {}
 
---- @section Dependencies
-
---- Import utility library
-utils = exports.boii_utils:get_utils()
-
 --- Target System
 TARGET = nil
 
@@ -27,6 +22,7 @@ TARGET = nil
 
 phone_prop = nil
 is_dealing = false
+dealing_mode = nil
 is_delivering = false
 delivery_ped = nil
 delivery_blip = nil
@@ -140,7 +136,7 @@ end
 --- @section NUI Callbacks
 
 --- Removes nui focus on ui close.
-RegisterNUICallback('close_ui', function()
+RegisterNUICallback('close_ui', function(_, cb)
     local player_ped = PlayerPedId()
     ClearPedTasks(player_ped)
     SetNuiFocus(false, false)
@@ -148,6 +144,7 @@ RegisterNUICallback('close_ui', function()
         DeleteObject(phone_prop)
         phone_prop = nil
     end
+    cb(true)
 end)
 
 --- @section Callbacks
@@ -158,7 +155,7 @@ utils.callback.cb('boii_drugsales:sv:request_config', {}, function(client_config
     config = client_config
     config.target = config.target
     config.delivery_peds = config.delivery_peds
-    config.bulk_ped = config.bulk_dealer.ped.model or nil
+    config.bulk_ped = config.bulk_dealer and config.bulk_dealer.ped and config.bulk_dealer.ped.model or nil
     CreateThread(function()
         while not (config and config.target) do Wait(100) end
         TARGET = config.target

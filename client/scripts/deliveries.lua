@@ -31,10 +31,12 @@ RegisterNetEvent('boii_drugsales:cl:spawn_delivery_ped', function(_src, location
     end
     local ped_models = { 'csb_money', 'a_m_y_beachvesp_01' }
     local random_model = ped_models[math.random(#ped_models)]
+    local model_hash = GetHashKey(random_model)
     local scenarios = { 'WORLD_HUMAN_AA_COFFEE', 'WORLD_HUMAN_SMOKING' }
     local random_scenario = scenarios[math.random(#scenarios)]
-    utils.requests.model(random_model)
-    delivery_ped = CreatePed(4, random_model, loc.x, loc.y, loc.z-1, loc.w, false, true)
+    if not utils.requests.model(model_hash) then return end
+    delivery_ped = CreatePed(4, model_hash, loc.x, loc.y, loc.z-1, loc.w, false, true)
+    SetModelAsNoLongerNeeded(model_hash)
     SetEntityInvincible(delivery_ped, true)
     SetBlockingOfNonTemporaryEvents(delivery_ped, true)
     TaskStartScenarioInPlace(delivery_ped, random_scenario, 0, true)
@@ -91,51 +93,30 @@ end)
 
 RegisterNetEvent('boii_drugsales:cl:receive_delivery_data', function(sale_id, player_drugs)
     local drug_options = {}
-    local drug_list = {}
     for _, drug in ipairs(player_drugs) do
+        local selected = drug
         drug_options[#drug_options + 1] = {
             icon = lang.deliveries.client.dialogue.conversation.sale_icon,
-            message = string.format(lang.deliveries.client.dialogue.conversation.sale_message, drug.quantity, drug.label, math.ceil(drug.price * drug.quantity)),
-            next_id = nil,
-            should_end = true,
-            action_type = 'server',
-            action = 'boii_drugsales:sv:delivery_complete_sale',
-            params = { sale_id = sale_id, drug_id = drug.id, amount = drug.quantity }
+            title = string.format(lang.deliveries.client.dialogue.conversation.sale_message,
+                drug.quantity, drug.label, math.ceil(drug.price * drug.quantity)),
+            onSelect = function()
+                TriggerServerEvent('boii_drugsales:sv:delivery_complete_sale', {
+                    sale_id = sale_id, drug_id = selected.id, amount = selected.quantity
+                })
+            end
         }
-        drug_list[#drug_list + 1] = drug.label
     end
     drug_options[#drug_options + 1] = {
         icon = lang.deliveries.client.dialogue.conversation.exit_icon,
-        message = lang.deliveries.client.dialogue.conversation.exit_message,
-        next_id = nil,
-        should_end = true,
-        action_type = 'client',
-        action = 'boii_drugsales:cl:stop_deliveries',
-        params = {}
+        title = lang.deliveries.client.dialogue.conversation.exit_message,
+        onSelect = function() TriggerEvent('boii_drugsales:cl:stop_deliveries') end
     }
-    local first_response
-    if #drug_list == 1 then
-        first_response = string.format(lang.deliveries.client.dialogue.conversation.buy_1_message, drug_list[1])
-    elseif #drug_list == 2 then
-        first_response = string.format(lang.deliveries.client.dialogue.conversation.buy_2_message, drug_list[1], drug_list[2])
-    elseif #drug_list == 3 then
-        first_response = string.format(lang.deliveries.client.dialogue.conversation.buy_3_message, drug_list[1], drug_list[2], drug_list[3])
-    end
-    local dialogue = {
-        header = {
-            message = lang.deliveries.client.dialogue.header.message,
-            icon = lang.deliveries.client.dialogue.header.icon,
-        },
-        conversation = {
-            {
-                id = 1,
-                response = first_response,
-                options = drug_options
-            }
-        }
-    }
-    local target_coords = GetEntityCoords(delivery_ped)
-    exports.boii_ui:dialogue(dialogue, delivery_ped, target_coords)
+    lib.registerContext({
+        id = 'mz_drugselling_delivery',
+        title = lang.deliveries.client.dialogue.header.message,
+        options = drug_options
+    })
+    lib.showContext('mz_drugselling_delivery')
 end)
 
 RegisterNetEvent('boii_drugsales:cl:completed_delivery', function()

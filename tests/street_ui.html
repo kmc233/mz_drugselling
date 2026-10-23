@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../ui/css/root.css">
+  <link rel="stylesheet" href="../ui/css/main.css">
+  <link rel="stylesheet" href="../ui/css/street_deal.css">
+</head>
+<body>
+  <div id="main_container"></div>
+  <script>window.GetParentResourceName = () => 'boii_drugsales';</script>
+  <script src="../ui/scripts/street_deal.js"></script>
+  <script>
+    openStreetOffer({
+      type_label: '街头商人',
+      offers: [
+        { id: 'weed', label: '大麻', count: 12, min: 50, optimal: 80, max: 100 },
+        { id: 'meth', label: '冰毒', count: 7, min: 150, optimal: 180, max: 250 },
+        { id: 'cocaine', label: '可卡因', count: 4, min: 450, optimal: 580, max: 700 }
+      ]
+    });
+  </script>
+</body>
+</html>

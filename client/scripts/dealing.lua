@@ -1,326 +1,246 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
-
---- @section Tables
-
---- Stores sales records for entities.
-local sales_records = {}
-
---- @section Events
-
---- Receives sale data and builds dialogue
--- @param sale_id: Unique ID to match the sale server side when awarding.
--- @param player_drugs: Drugs table of the drugs the player can sell in this single conversation.
-RegisterNetEvent('boii_drugsales:cl:receive_sale_data', function(sale_id, player_drugs, failed, action_chance)
-    local drug_options = {}
-    local drug_list = {}
-    for _, drug in ipairs(player_drugs) do
-        drug_options[#drug_options + 1] = {
-            icon = lang.dealing.client.dialogue.conversation.sale_icon,
-            message = string.format(lang.dealing.client.dialogue.conversation.sale_message, drug.quantity, drug.label, math.ceil(drug.price * drug.quantity)),
-            next_id = nil,
-            should_end = true,
-            action_type = 'server',
-            action = 'boii_drugsales:sv:dealing_complete_sale',
-            params = { sale_id = sale_id, drug_id = drug.id, amount = drug.quantity }
-        }
-        drug_list[#drug_list + 1] = drug.label
-    end
-    drug_options[#drug_options + 1] = {
-        icon = lang.dealing.client.dialogue.conversation.exit_icon,
-        message = lang.dealing.client.dialogue.conversation.exit_message,
-        next_id = nil,
-        should_end = true
-    }
-    local first_response
-    if #drug_list == 1 then
-        first_response = string.format(lang.dealing.client.dialogue.conversation.buy_1_message, drug_list[1])
-    elseif #drug_list == 2 then
-        first_response = string.format(lang.dealing.client.dialogue.conversation.buy_2_message, drug_list[1], drug_list[2])
-    elseif #drug_list == 3 then
-        first_response = string.format(lang.dealing.client.dialogue.conversation.buy_3_message, drug_list[1], drug_list[2], drug_list[3])
-    end
-    local dialogue = {
-        header = {
-            message = lang.dealing.client.dialogue.header.message,
-            icon = lang.dealing.client.dialogue.header.icon,
-        },
-        conversation = {
-            {
-                id = 1,
-                response = first_response,
-                options = drug_options
-            }
-        }
-    }
-    local player_ped = PlayerPedId()
-    dealing_target, target_coords = utils.entities.get_target_ped(player_ped, 45.0, 5.0)
-    if not dealing_target then
-        debug_log('err', lang.general.client.no_valid_target)
-        return
-    end
-    if not NetworkGetEntityIsNetworked(dealing_target) then
-        NetworkRegisterEntityAsNetworked(dealing_target)
-    end
-    local entity_net_id = NetworkGetNetworkIdFromEntity(dealing_target)
-    if sales_records[entity_net_id] then
-        send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.already_tried, 'error', 3500)
-        return
-    end
-    ClearPedTasksImmediately(dealing_target)
-    TaskTurnPedToFaceEntity(dealing_target, player_ped, -1)
-    TaskLookAtEntity(dealing_target, player_ped, -1, 2048, 3)
-    Wait(1000)
-    ClearPedTasksImmediately(dealing_target)
-    Wait(250)
-    TaskTurnPedToFaceEntity(dealing_target, player_ped, -1)
-    local distance_to_stop = 2.0
-    TaskGoToEntity(dealing_target, player_ped, -1, distance_to_stop, 1, 1073741824, 0)
-    CreateThread(function()
-        while true do
-            local target_coords = GetEntityCoords(dealing_target)
-            local player_coords = GetEntityCoords(player_ped)
-            local distance = #(player_coords - target_coords)
-            if distance <= distance_to_stop then
-                break
-            end
-            Wait(100)
-        end
-        ClearPedTasks(dealing_target)
-        TaskStartScenarioInPlace(dealing_target, 'WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT', 0, false)
-        Wait(1000)
-        if failed then
-            ClearPedTasks(dealing_target)
-            TriggerEvent('boii_drugsales:cl:dealing_decline_sale', sale_id, action_chance)
-        else
-            exports.boii_ui:dialogue(dialogue, dealing_target, target_coords)
-            Wait(250)
-            ClearPedTasks(player_ped)
-        end
-        sales_records[entity_net_id] = true
-    end)
-end)
-
-RegisterNetEvent('boii_drugsales:cl:complete_sale_anim', function()
-    utils.requests.anim('mp_common')
-    local player_ped = PlayerPedId()
-    if dealing_target then
-        TaskPlayAnim(player_ped, 'mp_common', 'givetake2_a', 8.0, -8, -1, 0, 0, false, false, false)    
-        TaskPlayAnim(dealing_target, 'mp_common', 'givetake2_a', 8.0, -8, -1, 0, 0, false, false, false)    	
-        Wait(2000)
-        StopAnimTask(player_ped, 'mp_common', 'givetake2_a', 1.0)
-	    StopAnimTask(dealing_target, 'mp_common', 'givetake2_a', 1.0)
-        SetPedAsNoLongerNeeded(dealing_target)
-        ClearPedTasks(dealing_target)
-        dealing_target, target_coords = nil, nil
-    end
-end)
-
-local gang_member_models = {
-    'g_m_y_ballaeast_01',
-    'g_m_y_ballaorig_01',
-    'g_m_y_ballasout_01',
-    'g_m_y_famca_01',
-    'g_m_y_famdnf_01',
-    'g_m_y_famfor_01',
-    'g_m_y_lost_01',
-    'g_m_y_lost_02',
-    'g_m_y_lost_03',
-    'g_m_y_mexgoon_01',
-    'g_m_y_mexgoon_02',
-    'g_m_y_mexgoon_03',
-    'g_m_y_pologoon_01',
-    'g_m_y_pologoon_02',
-    'g_m_y_salvaboss_01',
-    'g_m_y_salvagoon_01',
-    'g_m_y_salvagoon_02',
-    'g_m_y_salvagoon_03',
-    'g_m_y_strpunk_01',
-    'g_m_y_strpunk_02'
+local pending = false
+local pending_id = 0
+local used_peds = {}
+local corner_ped = nil
+local corner_generation = 0
+local schedule_corner_customer
+local gang_models = {
+    'g_m_y_ballaeast_01', 'g_m_y_ballaorig_01', 'g_m_y_ballasout_01',
+    'g_m_y_famca_01', 'g_m_y_famdnf_01', 'g_m_y_famfor_01',
+    'g_m_y_lost_01', 'g_m_y_lost_02', 'g_m_y_lost_03',
+    'g_m_y_mexgoon_01', 'g_m_y_mexgoon_02', 'g_m_y_mexgoon_03',
+    'g_m_y_pologoon_01', 'g_m_y_salvagoon_01', 'g_m_y_strpunk_01'
 }
 
 local function is_gang_member(ped)
     local model = GetEntityModel(ped)
-    for _, gang_model in ipairs(gang_member_models) do
-        if model == GetHashKey(gang_model) then
-            return true
-        end
+    for _, name in ipairs(gang_models) do
+        if model == GetHashKey(name) then return true end
     end
     return false
 end
 
--- Set relationship groups
-local PLAYER_GROUP = GetHashKey('PLAYER')
-local GANG_GROUP = GetHashKey('GANG')
+local function close_offer()
+    SendNUIMessage({ action = 'close_street_offer' })
+    SetNuiFocus(false, false)
+end
 
-AddRelationshipGroup('GANG')
-
---- Steal drugs
--- @param player_ped: PlayerPedId() for player.
--- @param sale_id: Sale ID for the transaction to remove correct drugs.
-local function steal_drugs(player_ped, sale_id)
-    ClearPedTasksImmediately(dealing_target)
-    local cam_x, cam_y, cam_z = table.unpack(GetGameplayCamCoords())
-    TaskTurnPedToFaceCoord(dealing_target, cam_x, cam_y, cam_z, 1000)
-    TaskStandStill(dealing_target, 1000)
-
-    if is_gang_member(dealing_target) then
-        GiveWeaponToPed(dealing_target, GetHashKey("WEAPON_PISTOL"), 50, false, true)
-        SetCurrentPedWeapon(dealing_target, GetHashKey("WEAPON_PISTOL"), true)
-        SetPedAmmo(dealing_target, GetHashKey("WEAPON_PISTOL"), 50)
-        TaskAimGunAtEntity(dealing_target, player_ped, -1, true)
-        FreezeEntityPosition(player_ped, true)
-        Wait(2000)
-        utils.requests.anim('random@mugging3')
-        TaskPlayAnim(player_ped, 'random@mugging3', 'handsup_standing_base', 8.0, -8, -1, 49, 0, false, false, false)
-        Wait(2000)
-        utils.requests.anim('mini@repair')
-        TaskPlayAnim(dealing_target, 'mini@repair', 'fixing_a_ped', 8.0, -8.0, 2000, 0, 0, false, false, false)
-        Wait(2000)
-        StopAnimTask(dealing_target, 'mini@repair', 'fixing_a_ped', 1.0)
-        Wait(2000)
-        StopAnimTask(player_ped, 'random@mugging3', 'handsup_standing_base', 1.0)
-        TaskAimGunAtEntity(dealing_target, player_ped, -1, true)
-        FreezeEntityPosition(player_ped, false)
-        SetPedRelationshipGroupHash(dealing_target, GANG_GROUP)
-        SetRelationshipBetweenGroups(5, GANG_GROUP, PLAYER_GROUP)
-        SetRelationshipBetweenGroups(5, PLAYER_GROUP, GANG_GROUP)
-    else
-        utils.requests.anim('melee@unarmed@streamed_variations')
-        Wait(50)
-        TaskPlayAnim(dealing_target, 'melee@unarmed@streamed_variations', 'plyr_takedown_front_headbutt', 8.0, 8.0, -1, 50, 0, false, false, false)
-        SetPedToRagdoll(player_ped, 5000, 5000, 0, 0, 0, 0)
-        Wait(1000)
-        utils.requests.anim('amb@prop_human_bum_bin@idle_b')
-        FreezeEntityPosition(dealing_target, true)
-        TaskPlayAnim(dealing_target, 'amb@prop_human_bum_bin@idle_b', 'idle_d', 100.0, 200.0, -1, 120, 0.2, false, false, false)
-        Wait(2000)
-        StopAnimTask(dealing_target, 'amb@prop_human_bum_bin@idle_b', 'idle_d', 1.0)
-        FreezeEntityPosition(dealing_target, false)
-        TaskReactAndFleePed(dealing_target, player_ped)
-        Wait(1000)
-    end
-    ClearPedTasks(player_ped)
-    TriggerServerEvent('boii_drugsales:sv:dealing_remove_drugs', sale_id)
-    TriggerEvent('boii_drugsales:cl:stop_dealing')
-
-    CreateThread(function()
-        while true do
-            Wait(1000)
-            if IsPedDeadOrDying(dealing_target, true) then
-                if TARGET == 'boii_target' then
-                    exports.boii_target:add_entity_zone({ dealing_target }, {
-                        id = 'boii_drugsales_steal',
-                        icon = lang.dealing.client.target.retrieve.main_icon,
-                        distance = 2.5,
-                        debug = false,
-                        sprite = false,
-                        actions = {
-                            label = lang.dealing.client.target.retrieve.label,
-                            action_icon = lang.dealing.client.target.retrieve.action_icon,
-                            action_type = 'server',
-                            action = 'boii_drugsales:sv:take_back_drugs',
-                            params = { sale_id = sale_id }
-                        }
-                    })
-                elseif TARGET == 'qb-target' then
-                    exports['qb-target']:AddEntityZone('boii_drugsales_steal', dealing_target, {
-                        name = 'boii_drugsales_steal',
-                        heading = 0.0,
-                        debugPoly = false,
-                    }, {
-                        distance = 2.5,
-                        options = {
-                            {
-                                icon = lang.dealing.client.target.retrieve.action_icon,
-                                label = lang.dealing.client.target.retrieve.label,
-                                action = function()
-                                    TriggerServerEvent('boii_drugsales:sv:take_back_drugs', { sale_id = sale_id })
-                                end
-                            }
-                        }
-                    })
-                elseif TARGET == 'ox_target' then
-                    exports.ox_target:addLocalEntity(dealing_target, {
-                        {
-                            name = 'boii_drugsales_steal',
-                            label = lang.dealing.client.target.retrieve.label,
-                            icon = lang.dealing.client.target.retrieve.action_icon,
-                            onSelect = function()
-                                TriggerServerEvent('boii_drugsales:sv:take_back_drugs', { sale_id = sale_id })
-                            end,
-                            distance = 2.5
-                        }
-                    })
-                end
-                break
+local function begin_sale(ped)
+    if pending or not ped or not DoesEntityExist(ped) or (used_peds[ped] and used_peds[ped] > GetGameTimer()) then return false end
+    if IsPedAPlayer(ped) or IsPedDeadOrDying(ped, true) then return false end
+    if not NetworkGetEntityIsNetworked(ped) then NetworkRegisterEntityAsNetworked(ped) end
+    local net_id = NetworkGetNetworkIdFromEntity(ped)
+    if not net_id or net_id == 0 then return false end
+    dealing_target = ped
+    target_coords = GetEntityCoords(ped)
+    used_peds[ped] = GetGameTimer() + 30000
+    pending = true
+    pending_id = pending_id + 1
+    local current_id = pending_id
+    SetTimeout(65000, function()
+        if pending and pending_id == current_id then
+            TriggerServerEvent('boii_drugsales:sv:cancel_street_sale')
+            close_offer()
+            pending = false
+            dealing_target = nil
+            if corner_ped == ped then
+                if DoesEntityExist(ped) then DeletePed(ped) end
+                corner_ped = nil
             end
+            schedule_corner_customer()
+        end
+    end)
+    CreateThread(function()
+        Wait(150)
+        if pending and dealing_target == ped then
+            TriggerServerEvent('boii_drugsales:sv:prepare_street_sale', net_id)
+        end
+    end)
+    return true
+end
+
+function start_street_sale(ped)
+    if dealing_mode ~= 'dealing' then return end
+    if type(ped) ~= 'number' then
+        ped = utils.entities.get_target_ped(PlayerPedId(), 45.0, 5.0)
+    end
+    begin_sale(ped)
+end
+
+schedule_corner_customer = function()
+    if dealing_mode ~= 'corner' then return end
+    local generation = corner_generation
+    local delay = (config.corner and config.corner.interval or 8) * 1000
+    SetTimeout(delay, function()
+        if dealing_mode == 'corner' and generation == corner_generation then
+            TriggerEvent('boii_drugsales:cl:spawn_corner_customer')
         end
     end)
 end
 
---- Decline sale and walk away
--- @param player_ped: PlayerPedId() for player.
-local function decline_and_walk_away()
-    ClearPedTasksImmediately(dealing_target)
-    utils.requests.anim('gestures@m@standing@casual')
-    TaskPlayAnim(dealing_target, 'gestures@m@standing@casual', 'gesture_no_way', 8.0, -8, -1, 0, 0, false, false, false)   
-    Wait(2000)
-    StopAnimTask(dealing_target, 'gestures@m@standing@casual', 'gesture_no_way', 1.0)
-    TaskWanderStandard(dealing_target, 10.0, 10)
-    dealing_target, target_coords = nil, nil
-end
-
---- Call police
--- @param player_ped: PlayerPedId() for player.
--- @param sale_id: Sale ID for the transaction.
-local function call_police()
-    decline_and_walk_away()
-    TriggerServerEvent('boii_drugsales:sv:alert_police', GetPlayerServerId(PlayerId()), 'dealing')
-    dealing_target, target_coords = nil, nil
-end
-
---- Handles failed sales
--- @param sale_id: Sale ID for the transaction to remove correct drugs.
--- @param chance: The chance to perform different actions.
-RegisterNetEvent('boii_drugsales:cl:dealing_decline_sale', function(sale_id, chance)
+RegisterNetEvent('boii_drugsales:cl:spawn_corner_customer', function()
+    if dealing_mode ~= 'corner' or pending or corner_ped then return end
+    local models = config.corner and config.corner.models or {}
+    if #models == 0 then return end
+    local model_name = models[math.random(#models)]
+    local model = GetHashKey(model_name)
+    utils.requests.model(model_name)
     local player_ped = PlayerPedId()
-    if dealing_target then
-        if chance < 10 then
-            steal_drugs(player_ped, sale_id)
-        elseif chance >= 10 and chance < 30 then
-            call_police(player_ped)
-        else
-            decline_and_walk_away(player_ped)
+    local origin = GetEntityCoords(player_ped)
+    local angle = math.random() * math.pi * 2
+    local x, y = origin.x + math.cos(angle) * 22, origin.y + math.sin(angle) * 22
+    local found, safe = GetSafeCoordForPed(x, y, origin.z, true, 16)
+    local z = origin.z
+    if found then x, y, z = safe.x, safe.y, safe.z end
+    corner_ped = CreatePed(4, model, x, y, z, 0.0, true, true)
+    SetModelAsNoLongerNeeded(model)
+    if not DoesEntityExist(corner_ped) then corner_ped = nil return end
+    SetEntityAsMissionEntity(corner_ped, true, true)
+    TaskGoToEntity(corner_ped, player_ped, -1, 2.0, 1.0, 1073741824, 0)
+    local this_ped = corner_ped
+    local generation = corner_generation
+    CreateThread(function()
+        local expires = GetGameTimer() + 45000
+        while dealing_mode == 'corner' and generation == corner_generation and corner_ped == this_ped
+            and DoesEntityExist(this_ped) and GetGameTimer() < expires do
+            if #(GetEntityCoords(this_ped) - GetEntityCoords(PlayerPedId())) < 3.0 then
+                TaskTurnPedToFaceEntity(this_ped, PlayerPedId(), 1500)
+                if not begin_sale(this_ped) then
+                    DeletePed(this_ped)
+                    corner_ped = nil
+                    schedule_corner_customer()
+                end
+                return
+            end
+            Wait(500)
         end
-    end
+        if corner_ped == this_ped then
+            if DoesEntityExist(this_ped) then DeletePed(this_ped) end
+            corner_ped = nil
+            schedule_corner_customer()
+        end
+    end)
 end)
 
+function start_corner_dealing()
+    corner_generation = corner_generation + 1
+    TriggerEvent('boii_drugsales:cl:spawn_corner_customer')
+end
 
---- Retreive drugs after being stolen.
-RegisterNetEvent('boii_drugsales:cl:take_back_complete', function()
-    print('take back complete')
-    local player_ped = PlayerPedId()
-    FreezeEntityPosition(player_ped, true)
-    utils.requests.anim('amb@prop_human_bum_bin@idle_b')
-    TaskPlayAnim(player_ped, 'amb@prop_human_bum_bin@idle_b', 'idle_d', 100.0, 200.0, -1, 120, 0.2, false, false, false)
-    Wait(2000)
-    StopAnimTask(player_ped, 'amb@prop_human_bum_bin@idle_b', 'idle_d', 1.0)
-    FreezeEntityPosition(player_ped, false)
-    if TARGET == 'boii_target' then
-        exports.boii_target:remove_target('boii_drugsales_steal')
-    elseif TARGET == 'qb-target' then
-        exports['qb-target']:RemoveZone('boii_drugsales_steal')
-    elseif TARGET == 'ox_target' then
-        exports.ox_target:removeGlobalPed({ 'boii_drugsales_steal' })
+function stop_corner_dealing()
+    corner_generation = corner_generation + 1
+    if corner_ped and DoesEntityExist(corner_ped) then DeletePed(corner_ped) end
+    corner_ped = nil
+    if pending then
+        TriggerServerEvent('boii_drugsales:sv:cancel_street_sale')
+        close_offer()
+    end
+    pending = false
+    used_peds = {}
+end
+
+RegisterNetEvent('boii_drugsales:cl:open_street_offer', function(data)
+    if not pending or not dealing_target or not DoesEntityExist(dealing_target) then return end
+    TaskTurnPedToFaceEntity(dealing_target, PlayerPedId(), 1500)
+    SetNuiFocus(true, true)
+    SendNUIMessage({ action = 'open_street_offer', data = data })
+end)
+
+RegisterNUICallback('street_offer', function(data, cb)
+    cb({ success = true })
+    if not pending then return end
+    close_offer()
+    TriggerServerEvent('boii_drugsales:sv:submit_street_offer', data.drug_id, data.price)
+end)
+
+RegisterNUICallback('street_cancel', function(_, cb)
+    cb({ success = true })
+    if not pending then return end
+    TriggerServerEvent('boii_drugsales:sv:cancel_street_sale')
+    close_offer()
+    pending = false
+    if corner_ped then
+        local old_ped = corner_ped
+        TaskWanderStandard(old_ped, 10.0, 10)
+        SetTimeout(2500, function() if DoesEntityExist(old_ped) then DeletePed(old_ped) end end)
+        corner_ped = nil
+    end
+    dealing_target = nil
+    schedule_corner_customer()
+end)
+
+local function watch_stolen_ped(ped, net_id)
+    CreateThread(function()
+        local expires = GetGameTimer() + 120000
+        while DoesEntityExist(ped) and GetGameTimer() < expires do
+            if IsPedDeadOrDying(ped, true) then
+                local action = function()
+                    TriggerServerEvent('boii_drugsales:sv:recover_stolen_drugs', net_id)
+                end
+                if TARGET == 'qb-target' then
+                    exports['qb-target']:AddTargetEntity(ped, {
+                        options = {{ icon = 'fa-solid fa-box-open', label = lang.dealing.client.target.retrieve.label, action = action }},
+                        distance = 2.0
+                    })
+                elseif TARGET == 'ox_target' then
+                    exports.ox_target:addLocalEntity(ped, {
+                        { name = 'drug_recovery_' .. net_id, icon = 'fa-solid fa-box-open',
+                          label = lang.dealing.client.target.retrieve.label, distance = 2.0, onSelect = action }
+                    })
+                elseif TARGET == 'boii_target' then
+                    exports.boii_target:add_entity_zone({ ped }, {
+                        id = 'drug_recovery_' .. net_id, distance = 2.0,
+                        actions = { label = lang.dealing.client.target.retrieve.label,
+                            icon = 'fa-solid fa-box-open', action_type = 'function', action = action }
+                    })
+                end
+                return
+            end
+            Wait(1000)
+        end
+    end)
+end
+
+RegisterNetEvent('boii_drugsales:cl:street_result', function(result)
+    if not pending then return end
+    close_offer()
+    pending = false
+    local ped = dealing_target
+    if ped and DoesEntityExist(ped) then
+        if result.outcome == 'sold' then
+            utils.requests.anim('mp_common')
+            TaskPlayAnim(PlayerPedId(), 'mp_common', 'givetake2_a', 8.0, -8.0, 1800, 0, 0, false, false, false)
+            TaskPlayAnim(ped, 'mp_common', 'givetake2_a', 8.0, -8.0, 1800, 0, 0, false, false, false)
+        elseif result.outcome == 'stolen' then
+            local net_id = NetworkGetNetworkIdFromEntity(ped)
+            if is_gang_member(ped) then
+                GiveWeaponToPed(ped, GetHashKey('WEAPON_PISTOL'), 30, false, true)
+                TaskAimGunAtEntity(ped, PlayerPedId(), 2500, true)
+                Wait(2500)
+            end
+            TaskSmartFleePed(ped, PlayerPedId(), 120.0, 30000, false, false)
+            watch_stolen_ped(ped, net_id)
+        else
+            TaskWanderStandard(ped, 10.0, 10)
+        end
+    end
+    if result.outcome == 'unavailable' and not result.reason then
+        send_notification(lang.dealing.client.notifications.header, '当前无法和这名顾客交易。', 'error', 3500)
+    elseif result.outcome == 'refused' then
+        send_notification(lang.dealing.client.notifications.header, '顾客拒绝了交易。', 'error', 3500)
+    elseif result.outcome == 'stolen' then
+        send_notification(lang.dealing.client.notifications.header, lang.dealing.server.notifications.drugs_stolen, 'error', 3500)
+    end
+    if ped == corner_ped then
+        corner_ped = nil
+        if result.outcome ~= 'stolen' and ped and DoesEntityExist(ped) then
+            SetTimeout(2500, function() if DoesEntityExist(ped) then DeletePed(ped) end end)
+        end
     end
     dealing_target, target_coords = nil, nil
+    if result.reason == 'no_drugs' or result.reason == 'police' then
+        TriggerEvent('boii_drugsales:cl:stop_dealing')
+        return
+    end
+    schedule_corner_customer()
 end)

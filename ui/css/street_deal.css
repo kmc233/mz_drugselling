@@ -1,0 +1,51 @@
+.street-panel {
+    position: fixed;
+    right: max(3vw, 20px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: min(360px, calc(100vw - 40px));
+    box-sizing: border-box;
+    padding: 20px;
+    border: 1px solid #545957;
+    border-left: 3px solid #4dcbc2;
+    border-radius: 6px;
+    background: #202424;
+    color: #f4f5f2;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 12px 36px #0008;
+}
+.street-panel * { box-sizing: border-box; }
+.street-header, .street-pricing > div:first-child, .street-scale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.street-header h2 { font-size: 19px; font-weight: 600; }
+.street-kicker { color: #4dcbc2; font-size: 10px; font-weight: 700; }
+.street-icon {
+    width: 34px; height: 34px; border: 1px solid #555;
+    border-radius: 4px; background: #2d3231; color: #eee; cursor: pointer;
+}
+.street-customer {
+    display: flex; align-items: center; gap: 9px; margin: 18px 0;
+    padding: 11px; border: 1px solid #454b49; color: #e2e7e4; font-size: 13px;
+}
+.street-customer i { color: #e1b568; }
+.street-label { color: #aab2ad; font-size: 12px; margin-bottom: 9px; }
+.street-items { display: grid; gap: 6px; max-height: 150px; overflow-y: auto; }
+.street-item {
+    width: 100%; padding: 10px 12px; text-align: left; color: #ecf1ed;
+    background: #303735; border: 1px solid #4e5854; border-radius: 4px;
+    font-size: 13px; cursor: pointer;
+}
+.street-item.active { border-color: #4dcbc2; background: #34504b; }
+.street-pricing { margin: 20px 0; font-size: 13px; }
+.street-pricing strong { color: #e1b568; font-size: 20px; }
+#street-range { width: 100%; margin: 16px 0 8px; accent-color: #4dcbc2; }
+.street-scale { color: #aab2ad; font-size: 11px; }
+.street-submit {
+    width: 100%; min-height: 42px; color: #122422; background: #4dcbc2;
+    border: 0; border-radius: 4px; font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.street-submit i { margin-left: 8px; }
+.street-submit:hover { background: #6bddd5; }

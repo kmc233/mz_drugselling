@@ -10,7 +10,7 @@ class BulkDealer {
     }
 
     handle_exit(e) {
-        if (e.key === "Escape") {
+        if (e.key === "Escape" && $('.bulk_dealer_header').length) {
             this.close();
         }
     }
@@ -45,7 +45,7 @@ class BulkDealer {
                                 <div class="xp_tooltip">Tooltip text</div>
                             </div>
                         </div>
-                        <span class="level_indicator">1</span>
+                        <span class="level_indicator">${this.skills.level}</span>
                     </div>
                 </div>
                 <div class="bulk_dealer_grid" id="bulk_dealer_grid">
@@ -137,7 +137,7 @@ class BulkDealer {
                     </div>
                 </div>
                 <div class="sell_button_container">
-                    ${drug.quantity > 0 ? '<button id="sell_button" class="sell_button">Sell</button>' : ''}
+                    ${drug.quantity > 0 && this.skills.level >= drug.required_level ? '<button id="sell_button" class="sell_button">Sell</button>' : ''}
                 </div>
             </div>
         `;

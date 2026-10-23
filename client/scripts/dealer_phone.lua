@@ -14,7 +14,10 @@
 --- Stop dealing.
 -- @param player_ped: The players ped id.
 local function stop_dealing(player_ped)
+    stop_corner_dealing()
     is_dealing = false
+    dealing_mode = nil
+    TriggerServerEvent('boii_drugsales:sv:stop_phone_action')
     send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.stopped, 'info', 3500)
 
     if TARGET == 'boii_target' then
@@ -28,10 +31,16 @@ end
 
 --- Start dealing.
 -- @param player_ped: The players ped id.
-local function start_dealing(player_ped)
+local function start_dealing(player_ped, mode)
     is_dealing = true
+    dealing_mode = mode
     SendNUIMessage({ action = 'close_dealer_phone' })
-    send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.started, 'info', 3500)
+    send_notification(lang.dealing.client.notifications.header,
+        mode == 'corner' and '站街模式已开启，顾客会主动走来。' or lang.dealing.client.notifications.started, 'info', 3500)
+    if mode == 'corner' then
+        start_corner_dealing()
+        return
+    end
     if TARGET == 'boii_target' then
         exports.boii_target:add_ped({
             id = 'boii_drugsales_dealing',
@@ -42,13 +51,13 @@ local function start_dealing(player_ped)
                 label = lang.dealing.client.target.sales.label,
                 icon = lang.dealing.client.target.sales.action_icon,
                 action_type = 'function',
-                action = function()
-                    TriggerServerEvent('boii_drugsales:sv:prepare_sale_data')
+                action = function(entity)
+                    start_street_sale(entity)
                 end,
                 can_interact = function(entity)
                     local ped_type = GetPedType(entity)
                     local model = GetEntityModel(entity)
-                    return not (IsPedAPlayer(entity) or model == GetHashKey(config.bulk_ped))
+                    return not (IsPedAPlayer(entity) or (config.bulk_ped and model == GetHashKey(config.bulk_ped)))
                 end
             }
         })
@@ -58,33 +67,32 @@ local function start_dealing(player_ped)
                 {
                     icon = lang.dealing.client.target.sales.action_icon,
                     label = lang.dealing.client.target.sales.label,
-                    action = function()
-                        TriggerServerEvent('boii_drugsales:sv:prepare_sale_data')
+                    action = function(entity)
+                        start_street_sale(entity)
                     end,
                     canInteract = function(entity)
                         local ped_type = GetPedType(entity)
                         local model = GetEntityModel(entity)
-                        print('model = ' .. model)
-                        return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29 or ped_type == 30 or ped_type == 31 or model == GetHashKey(config.bulk_ped))
+                        return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29 or ped_type == 30 or ped_type == 31 or (config.bulk_ped and model == GetHashKey(config.bulk_ped)))
                     end
                 }
             },
             distance = 2.5
         })
     elseif TARGET == 'ox_target' then
-        exports.ox_target:addGlobalPed({
+        exports.ox_target:addGlobalPed({{
             name = 'boii_drugsales_dealing',
             label = lang.dealing.client.target.sales.label,
             distance = 2.5,
             canInteract = function(entity)
                 local ped_type = GetPedType(entity)
                 local model = GetEntityModel(entity)
-                return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29 or ped_type == 30 or ped_type == 31 or model == GetHashKey(config.bulk_ped))
+                return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29 or ped_type == 30 or ped_type == 31 or (config.bulk_ped and model == GetHashKey(config.bulk_ped)))
             end,
-            onSelect = function()
-                TriggerServerEvent('boii_drugsales:sv:prepare_sale_data')
+            onSelect = function(data)
+                start_street_sale(data.entity)
             end
-        })
+        }})
     end
 end
 
@@ -92,6 +100,11 @@ end
 -- @param player_ped: The players ped id.
 local function stop_deliveries(player_ped)
     is_delivering = false
+    TriggerServerEvent('boii_drugsales:sv:stop_phone_action')
+    if delivery_blip then
+        RemoveBlip(delivery_blip)
+        delivery_blip = nil
+    end
     send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.stopped, 'info', 3500)
     if delivery_ped then
         SetPedAsNoLongerNeeded(delivery_ped)
@@ -113,17 +126,19 @@ end
 --- @section NUI callbacks
 
 RegisterNUICallback('dealer_phone_action', function(data, cb)
+    cb(true)
     local action = data.action
     if not action then print('action missing') return end
     local player_ped = PlayerPedId()
-    if action == 'dealing_start' then
+    if action == 'dealing_start' or action == 'corner_start' then
         if is_delivering then 
             send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.is_delivering, 'error', 3500)
             return
         end
-        utils.callback.cb('boii_drugsales:sv:perform_phone_action', { action = 'dealing' }, function(success, message)
+        local mode = action == 'corner_start' and 'corner' or 'dealing'
+        utils.callback.cb('boii_drugsales:sv:perform_phone_action', { action = mode }, function(success, message)
             if success then
-                start_dealing(player_ped)
+                start_dealing(player_ped, mode)
             else
                 print(message)
             end
@@ -145,7 +160,7 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
         end)
     end
 
-    if action == 'dealing_stop' then
+    if action == 'dealing_stop' or action == 'corner_stop' then
         if not is_dealing then 
             send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.not_dealing, 'error', 3500)
             return

@@ -1,6 +1,10 @@
 --- @section Tables
 
 local dealing_data = {}
+local preparing = {}
+local active_locations = {}
+local request_ids = {}
+local pending_requests = {}
 
 --- @section Constants
 
@@ -80,29 +84,41 @@ end
 --- Sends a delivery to client
 RegisterServerEvent('boii_drugsales:sv:request_delivery', function()
     local _src = source
+    if sale_modes[_src] ~= 'delivery' then return end
+    if active_locations[_src] or pending_requests[_src] then return end
+    request_ids[_src] = (request_ids[_src] or 0) + 1
+    local request_id = request_ids[_src]
+    pending_requests[_src] = request_id
     local police = get_police_players(POLICE_JOBS, REQUIRE_ON_DUTY)
     if #police < REQUIRED_POLICE_COUNT then
         send_notification(_src, lang.deliveries.server.notifications.header, string.format(lang.deliveries.server.notifications.not_enough_police, #police, REQUIRED_POLICE_COUNT), 'error', 3500)
         Wait(1000)
         TriggerClientEvent('boii_drugsales:cl:stop_deliveries', _src)
+        pending_requests[_src] = nil
         return
     end
     Wait(10000) -- @todo make a config option and random
+    if sale_modes[_src] ~= 'delivery' or request_ids[_src] ~= request_id then return end
+    pending_requests[_src] = nil
     local delivery_location = config.deliveries.locations[math.random(#config.deliveries.locations)]
-    TriggerClientEvent('boii_drugsales:cl:spawn_delivery_ped', -1, _src, delivery_location)
+    active_locations[_src] = delivery_location
+    TriggerClientEvent('boii_drugsales:cl:spawn_delivery_ped', _src, _src, delivery_location)
 end)
 
 --- Main event to prepare sale data
 RegisterServerEvent('boii_drugsales:sv:prepare_delivery_data', function()
     local _src = source
-    if is_delivering then return end
-    is_delivering = true
+    local location = active_locations[_src]
+    local player_ped = GetPlayerPed(_src)
+    if sale_modes[_src] ~= 'delivery' or preparing[_src] or not location or player_ped == 0
+        or #(GetEntityCoords(player_ped) - vector3(location.x, location.y, location.z)) > 6.0 then return end
+    preparing[_src] = true
     local police = get_police_players(POLICE_JOBS, REQUIRE_ON_DUTY)
     if #police < REQUIRED_POLICE_COUNT then
         send_notification(_src, lang.deliveries.server.notifications.header, string.format(lang.deliveries.server.notifications.not_enough_police, #police, REQUIRED_POLICE_COUNT), 'error', 3500)
         Wait(1000)
         TriggerClientEvent('boii_drugsales:cl:stop_deliveries', _src)
-        is_delivering = false
+        preparing[_src] = nil
         return
     end
     local player_skills = fetch_player_data(_src)
@@ -110,43 +126,73 @@ RegisterServerEvent('boii_drugsales:sv:prepare_delivery_data', function()
     if #player_drugs == 0 then
         send_notification(_src, lang.deliveries.server.notifications.header, lang.deliveries.server.notifications.no_drugs, 'error', 3500)
         TriggerClientEvent('boii_drugsales:cl:stop_deliveries', _src)
-        is_delivering = false
+        preparing[_src] = nil
         return
     end
     local selected_drugs = select_random_drugs(player_drugs)
     local sale_id = GetPlayerName(_src) .. "_" .. os.time() .. "_" .. math.random(100000, 999999)
+    preparing[_src] = sale_id
     dealing_data[sale_id] = {
         source = _src,
         drugs = selected_drugs,
+        location = location,
         timestamp = os.time()
     }
     local alert_chance = config.deliveries.chance.alert
     if math.random(1, 100) <= alert_chance then
-        TriggerEvent('boii_drugsales:sv:alert_police', _src, 'delivery')
-    else
-        TriggerClientEvent('boii_drugsales:cl:delivery_decline_sale', _src)
+        alert_police(_src, 'delivery')
     end
     TriggerClientEvent('boii_drugsales:cl:receive_delivery_data', _src, sale_id, selected_drugs)
+    SetTimeout(60000, function()
+        if preparing[_src] == sale_id then preparing[_src] = nil end
+        dealing_data[sale_id] = nil
+    end)
 end)
 
 --- Event to handle completing deliveries.
 --- @param data table: Table of sale data received from client.
 RegisterServerEvent('boii_drugsales:sv:delivery_complete_sale', function(data)
     local _src = source
+    if type(data) ~= 'table' then return end
     local sale_id = data.sale_id
     local drug_id = data.drug_id
     local amount = data.amount
     local sale_data = dealing_data[sale_id]
-    if not sale_data or sale_data.source ~= _src then
-        DEBUG('err', lang.general.server.invalid_sale_data)
-        is_delivering = false
+    local location = active_locations[_src]
+    local player_ped = GetPlayerPed(_src)
+    if not sale_data or sale_data.source ~= _src or sale_data.location ~= location or sale_modes[_src] ~= 'delivery'
+        or not location or player_ped == 0
+        or #(GetEntityCoords(player_ped) - vector3(location.x, location.y, location.z)) > 6.0 then
+        debug_log('err', lang.general.server.invalid_sale_data)
+        preparing[_src] = nil
         return
     end
-    local success = complete_sale(_src, sale_data, drug_id, amount)
+    local success = complete_sale(_src, sale_data, drug_id, amount, 'delivery')
     if success then
         reward_xp(_src, sale_data.drugs, amount, 'dealing')
         dealing_data[sale_id] = nil
+        active_locations[_src] = nil
         TriggerClientEvent('boii_drugsales:cl:completed_delivery', _src)
     end
-    is_delivering = false
+    preparing[_src] = nil
+end)
+
+AddEventHandler('boii_drugsales:sv:stop_phone_action', function()
+    request_ids[source] = (request_ids[source] or 0) + 1
+    pending_requests[source] = nil
+    active_locations[source] = nil
+    preparing[source] = nil
+    for id, deal in pairs(dealing_data) do
+        if deal.source == source then dealing_data[id] = nil end
+    end
+end)
+
+AddEventHandler('playerDropped', function()
+    preparing[source] = nil
+    active_locations[source] = nil
+    request_ids[source] = nil
+    pending_requests[source] = nil
+    for id, deal in pairs(dealing_data) do
+        if deal.source == source then dealing_data[id] = nil end
+    end
 end)

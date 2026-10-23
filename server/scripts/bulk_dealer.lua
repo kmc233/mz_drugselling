@@ -5,24 +5,19 @@
 utils.callback.register('boii_drugsales:sv:get_bulk_dealer_data', function(_src, data, cb)
     local player_drugs = {}
     local player_skills = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1, current_xp = 0, required_xp = 1000 }
-    local skill_config = config.skills.dealing.bulk
     for _, drug in ipairs(config.drugs) do
-        local inventory_item = utils.fw.get_item(_src, drug.id)
-        local quantity = 0
-        if inventory_item then
-            quantity = inventory_item.quantity or inventory_item.count or inventory_item.amount or 0
+        if drug.bulk then
+            local inventory_item = utils.fw.get_item(_src, drug.id)
+            local quantity = inventory_item and (inventory_item.quantity or inventory_item.count or inventory_item.amount) or 0
+            player_drugs[#player_drugs + 1] = {
+                id = drug.id,
+                label = drug.label,
+                image = drug.image,
+                required_level = drug.bulk.required_level,
+                price = drug.bulk.price,
+                quantity = quantity
+            }
         end
-        local base_price = drug.bulk.price
-        local price_multiplier = 1 + ((player_skills.level - 1) * skill_config.bonus_chance_multiplier)
-        local adjusted_price = math.ceil(base_price * price_multiplier)
-        player_drugs[#player_drugs + 1] = {
-            id = drug.id,
-            label = drug.label,
-            image = drug.image,
-            required_level = drug.bulk.required_level,
-            price = adjusted_price,
-            quantity = quantity
-        }
     end
     cb({ skills = player_skills, drugs = player_drugs }, 'Success')
 end)
@@ -32,10 +27,18 @@ end)
 --- @param data The data containing drug ID and quantity to sell.
 --- @param cb Callback function to return the success status and message.
 utils.callback.register('boii_drugsales:sv:bulk_sell_drugs', function(_src, data, cb)
-    local dealer_location = data.location
+    if type(data) ~= 'table' then return cb(false, lang.general.server.invalid_sale_data) end
     local drug_id = data.drug
     local quantity_to_sell = tonumber(data.quantity)
-    if not drug_id or not quantity_to_sell then return cb(false) end
+    if not drug_id or not quantity_to_sell or quantity_to_sell < 1 or quantity_to_sell ~= math.floor(quantity_to_sell) then
+        return cb(false, lang.general.server.invalid_sale_data)
+    end
+    local dealer = config.bulk_dealer.ped.coords
+    local player_ped = GetPlayerPed(_src)
+    if not config.bulk_dealer.enabled or player_ped == 0
+        or #(GetEntityCoords(player_ped) - vector3(dealer.x, dealer.y, dealer.z)) > 5.0 then
+        return cb(false, lang.general.server.invalid_sale_data)
+    end
     local drug = nil
     for _, d in ipairs(config.drugs) do
         if d.id == drug_id then
@@ -43,7 +46,9 @@ utils.callback.register('boii_drugsales:sv:bulk_sell_drugs', function(_src, data
             break
         end
     end
-    if not drug then return cb(false, lang.general.server.missing_drug_config) end
+    if not drug or not drug.bulk then return cb(false, lang.general.server.missing_drug_config) end
+    local skill = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1 }
+    if skill.level < drug.bulk.required_level then return cb(false, lang.general.server.invalid_sale_data) end
     local inventory_item = utils.fw.get_item(_src, drug_id)
     if not inventory_item or (inventory_item.quantity or inventory_item.amount or inventory_item.count) < quantity_to_sell then
         return cb(false, lang.general.server.insufficient_quantity)
@@ -52,7 +57,8 @@ utils.callback.register('boii_drugsales:sv:bulk_sell_drugs', function(_src, data
     local success = complete_sale(_src, sale_data, drug_id, quantity_to_sell)
     if success then
         reward_xp(_src, drug, quantity_to_sell, 'bulk')
-        cb(true, string.format(lang.bulk_dealer.server.bulk_sell_notification, quantity_to_sell, drug.label, sale_data.drugs[1].price * quantity_to_sell))
+        local updated_skill = utils.skills.get_skill(_src, 'drug_dealing')
+        cb(true, string.format(lang.bulk_dealer.server.bulk_sell_notification, sale_data.drugs[1].price * quantity_to_sell, quantity_to_sell, drug.label), updated_skill)
     else
         cb(false, lang.general.server.invalid_sale_data)
     end

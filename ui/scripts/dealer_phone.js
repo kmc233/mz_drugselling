@@ -14,7 +14,7 @@ class DealerPhone {
     }
 
     handle_exit(e) {
-        if (e.key === "Escape") {
+        if (e.key === "Escape" && $('.dealer_phone_container').length) {
             this.close();
         }
     }
@@ -90,11 +90,13 @@ class DealerPhone {
 
     get_screen_content() {
         if (this.current_screen === 'main') {
-            return `<span class="line">1 - DEALING</span><br><span class="line">2 - DELIVERIES</span><br><span class="line"># - CLOSE</span>`;
+            return `<span class="line">1 - STREET</span><br><span class="line">2 - CORNER</span><br><span class="line">3 - DELIVERIES</span><br><span class="line"># - CLOSE</span>`;
         } else if (this.current_screen === 'street_sell') {
             return `<span class="line">DEALING</span><br><span class="line">1 - START</span><br><span class="line">2 - STOP</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
         } else if (this.current_screen === 'request_delivery') {
             return `<span class="line">DELIVERIES</span><br><span class="line">1 - START</span><br><span class="line">2 - STOP</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
+        } else if (this.current_screen === 'corner_sell') {
+            return `<span class="line">CORNER</span><br><span class="line">1 - START</span><br><span class="line">2 - STOP</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
         } else if (this.current_screen === 'confirmation') {
             return `<span class="line">CONFIRMED</span>`;
         } else if (this.current_screen === 'cancellation') {
@@ -120,10 +122,13 @@ class DealerPhone {
     }
 
     handle_key_press(key) {
+        key = String(key);
         if (this.current_screen === 'main') {
-            if (key === 1) {
+            if (key === '1') {
                 this.current_screen = 'street_sell';
-            } else if (key === 2) {
+            } else if (key === '2') {
+                this.current_screen = 'corner_sell';
+            } else if (key === '3') {
                 this.current_screen = 'request_delivery';
             } else if (key === '*') {
                 this.current_screen = 'code_entry';
@@ -131,9 +136,9 @@ class DealerPhone {
                 this.close();
             }
         } else if (this.current_screen === 'street_sell') {
-            if (key === 1) {
+            if (key === '1') {
                 this.confirm_action('dealing_start');
-            } else if (key === 2) {
+            } else if (key === '2') {
                 this.cancel_action('dealing_stop');
             } else if (key === '#') {
                 this.close();
@@ -141,10 +146,20 @@ class DealerPhone {
                 this.go_home();
             }
         } else if (this.current_screen === 'request_delivery') {
-            if (key === 1) {
+            if (key === '1') {
                 this.confirm_action('delivery_start');
-            } else if (key === 2) {
+            } else if (key === '2') {
                 this.cancel_action('delivery_stop');
+            } else if (key === '#') {
+                this.close();
+            } else if (key === '*') {
+                this.go_home();
+            }
+        } else if (this.current_screen === 'corner_sell') {
+            if (key === '1') {
+                this.confirm_action('corner_start');
+            } else if (key === '2') {
+                this.cancel_action('corner_stop');
             } else if (key === '#') {
                 this.close();
             } else if (key === '*') {
@@ -168,9 +183,9 @@ class DealerPhone {
                 this.sequence_buffer += key;
             }
         } else if (this.current_screen.startsWith('secret_menu')) {
-            if (key === 1) {
+            if (key === '1') {
                 this.confirm_action('secret_option_1');
-            } else if (key === 2) {
+            } else if (key === '2') {
                 this.confirm_action('secret_option_2');
             } else if (key === '#') {
                 this.close();

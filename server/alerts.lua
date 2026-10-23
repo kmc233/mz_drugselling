@@ -11,16 +11,14 @@
 
 --- Alert police with an action
 -- @param action string: The action to alert the police about.
-RegisterServerEvent('boii_drugsales:sv:alert_police', function(_src, action)
-    if not action then print('action missing') return end
+function alert_police(_src, action)
+    if not _src or not action then return end
 
-    local police_jobs = { 'police' }
-    local police = get_police_players(police_jobs)
+    local settings = action == 'delivery' and config.deliveries.police or config.dealing.police
+    local police = get_police_players(settings.jobs, settings.on_duty_required)
     if not police then print('no police found') return end
 
-    print('source: '.. _src)
     local player_coords = GetEntityCoords(GetPlayerPed(_src))
-    print('player_coords: '.. player_coords)
     local alert_data = {
         dealing = {
             code = lang.dealing.server.alerts.code,
@@ -32,10 +30,11 @@ RegisterServerEvent('boii_drugsales:sv:alert_police', function(_src, action)
         }
     }
 
+    if not alert_data[action] then return end
     local label = alert_data[action].code .. ' | ' .. alert_data[action].message
     for _, player_source in pairs(police) do
         --- Replace this event with the handler for your own dispatch in order to change
         -- Or you can modify the client event whatever suits.
         TriggerClientEvent('boii_drugsales:cl:alert_police', player_source, player_coords, label)
     end
-end)
+end

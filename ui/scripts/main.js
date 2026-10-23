@@ -25,5 +25,9 @@ window.addEventListener('message', function (event) {
         if (dealer_phone) {
             dealer_phone.close();
         }
+    } else if (data.action === 'open_street_offer') {
+        openStreetOffer(data.data);
+    } else if (data.action === 'close_street_offer') {
+        closeStreetOffer();
     }
  });

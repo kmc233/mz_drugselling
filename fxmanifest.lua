@@ -22,22 +22,28 @@ lua54 'yes'
 ui_page 'ui/index.html'
 
 files {
-    'ui/**/**/**/**',
+    'ui/index.html',
+    'ui/css/*.css',
+    'ui/scripts/*.js',
+    'ui/assets/images/*',
+    'ui/assets/fonts/*'
 }
 
 shared_scripts {
+    '@ox_lib/init.lua',
     'shared/language/en.lua' -- Change language here 
 }
 
 server_scripts {
-    '@oxmysql/lib/MySQL.lua',
     'server/config.lua',
+    'server/utils.lua',
     'server/main.lua',
     'server/alerts.lua',
     'server/scripts/*'
 }
 
 client_scripts {
+    'client/utils.lua',
     'client/main.lua',
     'client/alerts.lua',
     'client/scripts/*'
@@ -49,4 +55,4 @@ escrow_ignore {
     'shared/**/*'
 }
 
-dependency '/assetpacks'
+dependencies { 'ox_lib', 'ox_inventory', 'qbx_core', 'ox_target' }

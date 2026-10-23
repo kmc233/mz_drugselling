@@ -27,7 +27,7 @@ config.deliveries = config.deliveries or {}
 config.debug = false
 
 --- Target System
-config.target = 'qb-target' --- Set target choice here. Options: boii_target, ox_target, qb-target
+config.target = 'ox_target' --- Set target choice here. Options: boii_target, ox_target, qb-target
 
 --- @section Skills settings
 
@@ -57,9 +57,9 @@ config.drugs = {
         id = 'water', --- Item ID
         label = 'Water', --- Item label
         image = 'water.png', --- Item image to display in UI.
-        dealing = { --- If this section is included items can be sold to npcs.
+        dealing = { --- Street and corner offers; prices are per item.
             required_level = 1, --- Required level to sell to npcs.
-            price = { min = 10, max = 20 },-- Base price for selling this is adjusted based on current cop count and players XP
+            price = { min = 10, optimal = 15, max = 20 },
             quantity = { min = 3, max = 5 } --- Min and max amount that can be sold per single transaction
         },
         delivery = { --- If this section is included items can be dealing sold
@@ -69,16 +69,16 @@ config.drugs = {
         },
         bulk = { --- If this section is included items can be bulk sold
             required_level = 1, --- Required level to bulk sell
-            price = 100, --- Base price for selling this should always be lower than dealing sales to encourage dealing selling
+            price = 8, --- Per-item wholesale price; keep below the street price.
         }
     },
     { 
         id = 'burger',
         label = 'Burger',
         image = 'burger.png',
-        dealing = { required_level = 1, price = { min = 10, max = 20 }, quantity = { min = 3, max = 5 } },
+        dealing = { required_level = 1, price = { min = 10, optimal = 15, max = 20 }, quantity = { min = 3, max = 5 } },
         delivery = { required_level = 1, price = { min = 10, max = 20 }, quantity = { min = 3, max = 5 } },
-        bulk = { required_level = 1, price = 250 }
+        bulk = { required_level = 1, price = 8 }
     }
 }
 
@@ -128,6 +128,61 @@ config.bulk_dealer = {
 
 --- Dealing
 config.dealing = {
+    corner = {
+        interval = 8, --- Seconds between approaching customers.
+        models = { 'a_m_m_business_01', 'a_m_y_hipster_01', 'a_m_m_tramp_01', 'a_m_y_bevhills_01', 'g_m_y_ballaorig_01' }
+    },
+    ped_types = {
+        normal = { label = '普通顾客', buy = 55, steal = 8, refuse = 12, alert = 15, xp = 25 },
+        party = { label = '派对顾客', buy = 75, steal = 8, refuse = 5, alert = 10, xp = 15 },
+        addicted = { label = '成瘾者', buy = 78, steal = 22, refuse = 5, alert = 0, xp = 8 },
+        snitch = { label = '告密者', buy = 25, steal = 0, refuse = 45, alert = 55, xp = 40 },
+        dealer = { label = '街头商人', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 30 },
+        rich = { label = '有钱人', buy = 85, steal = 0, refuse = 2, alert = 12, xp = 12 },
+        junkie = { label = '瘾君子', buy = 65, steal = 35, refuse = 10, alert = 0, xp = 5 },
+        undercover = { label = '卧底', buy = 30, steal = 0, refuse = 0, alert = 100, xp = 50 }
+    },
+    ped_models = {
+        [GetHashKey('a_m_y_hipster_01')] = 'party',
+        [GetHashKey('a_f_y_clubcust_01')] = 'party',
+        [GetHashKey('a_m_y_clubcust_01')] = 'party',
+        [GetHashKey('a_f_y_clubcust_02')] = 'party',
+        [GetHashKey('a_m_y_clubcust_02')] = 'party',
+        [GetHashKey('a_m_y_clubcust_03')] = 'party',
+        [GetHashKey('csb_ramp_hipster')] = 'party',
+        [GetHashKey('a_f_m_skidrow_01')] = 'addicted',
+        [GetHashKey('g_m_y_ballaeast_01')] = 'addicted',
+        [GetHashKey('g_m_y_ballasout_01')] = 'addicted',
+        [GetHashKey('g_m_y_famca_01')] = 'addicted',
+        [GetHashKey('g_m_y_famdnf_01')] = 'addicted',
+        [GetHashKey('g_m_y_mexgoon_03')] = 'addicted',
+        [GetHashKey('g_m_y_salvagoon_01')] = 'addicted',
+        [GetHashKey('a_m_m_business_01')] = 'snitch',
+        [GetHashKey('csb_reporter')] = 'snitch',
+        [GetHashKey('a_f_y_business_01')] = 'snitch',
+        [GetHashKey('a_f_y_business_02')] = 'snitch',
+        [GetHashKey('a_m_m_eastsa_02')] = 'snitch',
+        [GetHashKey('g_m_y_ballaorig_01')] = 'dealer',
+        [GetHashKey('g_m_y_mexgang_01')] = 'dealer',
+        [GetHashKey('g_m_y_mexgoon_01')] = 'dealer',
+        [GetHashKey('g_m_y_famfor_01')] = 'dealer',
+        [GetHashKey('g_m_y_strpunk_02')] = 'dealer',
+        [GetHashKey('a_m_y_bevhills_01')] = 'rich',
+        [GetHashKey('a_f_y_bevhills_01')] = 'rich',
+        [GetHashKey('a_f_y_bevhills_02')] = 'rich',
+        [GetHashKey('u_m_y_imporage')] = 'rich',
+        [GetHashKey('u_m_y_party_01')] = 'rich',
+        [GetHashKey('a_m_m_tramp_01')] = 'junkie',
+        [GetHashKey('a_f_m_tramp_01')] = 'junkie',
+        [GetHashKey('a_m_y_skater_01')] = 'junkie',
+        [GetHashKey('a_m_y_skater_02')] = 'junkie',
+        [GetHashKey('a_m_m_trampbeac_01')] = 'junkie',
+        [GetHashKey('s_m_y_cop_01')] = 'undercover',
+        [GetHashKey('csb_undercover')] = 'undercover',
+        [GetHashKey('s_m_m_ciasec_01')] = 'undercover',
+        [GetHashKey('s_m_m_highsec_01')] = 'undercover'
+    },
+    price_influence = 30, --- Chance points gained/lost at the price limits.
     police = {
         required = 0, --- Required amount of police officers to start dealing or make sales: Use 0 or remove to disable.
         on_duty_required = false, --- Toggle on duty requirements for police officers.
@@ -136,12 +191,7 @@ config.dealing = {
     payments = {
         type = 'item', --- Payment type: money e.g. cash, bank, crypto | item e.g.  
         balance_type = 'cash', --- Balance to add to if type = 'balance' is selected.
-        item = { id = 'markedbills', data = { worth = 0 }} --- Item to give if type = 'item', data can be used optionally to add metadata to items if required.
-    },
-    chance = {
-        fail = 0, --- % chance to fail sales.
-        alert = 10, --- % chance to alert police when fail.
-        steal = 5 --- % chance for npc to run away with drugs.
+        item = { id = 'black_money' } --- One item per dollar of the sale total.
     }
 }
 
@@ -161,7 +211,7 @@ config.deliveries = {
     payments = {
         type = 'item', --- Payment type: money e.g. cash, bank, crypto | item e.g.  
         balance_type = 'cash', --- Balance to add to if type = 'balance' is selected.
-        item = { id = 'markedbills', data = { worth = 0 }} --- Item to give if type = 'item', data can be used optionally to add metadata to items if required.
+        item = { id = 'black_money' } --- One item per dollar of the sale total.
     },
     chance = {
         alert = 10 --- % chance to alert police when fail.
