@@ -1,0 +1,52 @@
+/*
+     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
+    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
+    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
+    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
+    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
+    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
+                              | |                                                                                
+                              |_|               DRUG SALES
+*/
+
+/* 
+    Import fonts:
+    You can import additional fonts here  
+*/
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+
+/* 
+    Importing custom fonts:
+    Place your font into html/assets/fonts/.. and follow format below 
+*/
+@font-face {
+    font-family: 'Nokia';
+    src: url('../assets/fonts/nokiafc22.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+/* 
+    Root settings:
+
+    Here you can change the colour pallette of the UI
+
+*/
+:root {
+    --main_font_family: 'Kanit';
+    --secondary_font_family: 'Roboto';
+    --background_colour: #1f1e1e;
+    --accent_colour: #4dcbc2;
+    --secondary_accent_colour: #b53232;
+    --text_colour: white;
+    --secondary_text_colour: #b4b4b4;
+    --tertiary_text_colour: #666;
+    --disabled_colour: #323030;
+    --disabled_text_colour: #b4b4b4;
+    --text_shadow: -1px -1px 0px rgba(0, 0, 0, 1), 1px -1px 0px rgba(0, 0, 0, 1), -1px 1px 0px rgba(0, 0, 0, 1), 1px 1px 0px rgba(0, 0, 0, 1);
+    --timer_background_colour: rgba(0, 0, 0, 0.1);
+    --input_background_colour: #323030;
+}

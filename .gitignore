@@ -1,0 +1,27 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local dependencies and temporary output
+node_modules/
+.cache/
+*.log
+npm-debug.log*
+
+# Fonts and images
+*.ttf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.bmp
+*.ico
+*.avif
+*.svg
+
