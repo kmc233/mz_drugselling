@@ -19,6 +19,10 @@ config.debug = false
 --- Target System
 config.target = 'ox_target' --- Set target choice here. Options: ox_target, qb-target
 
+--- Police alerts: auto selects the first started integration below.
+--- Use a resource name to select one explicitly, or 'none' to disable alerts.
+config.dispatch = 'auto' --- cd_dispatch, codem-dispatch, origen_police, ps-dispatch, rcore_dispatch
+
 --- @section Skills settings
 
 --- Skills
