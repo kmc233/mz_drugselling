@@ -73,7 +73,7 @@ local function begin_sale(ped)
     local current_id = pending_id
     SetTimeout(65000, function()
         if pending and pending_id == current_id then
-            TriggerServerEvent('boii_drugsales:sv:cancel_street_sale')
+            TriggerServerEvent('mz_drugselling:sv:cancel_street_sale')
             close_offer()
             pending = false
             dealing_target = nil
@@ -88,7 +88,7 @@ local function begin_sale(ped)
     CreateThread(function()
         Wait(150)
         if pending and dealing_target == ped then
-            TriggerServerEvent('boii_drugsales:sv:prepare_street_sale', net_id)
+            TriggerServerEvent('mz_drugselling:sv:prepare_street_sale', net_id)
         end
     end)
     return true
@@ -108,12 +108,12 @@ schedule_corner_customer = function()
     local delay = (config.corner and config.corner.interval or 8) * 1000
     SetTimeout(delay, function()
         if dealing_mode == 'corner' and generation == corner_generation then
-            TriggerEvent('boii_drugsales:cl:spawn_corner_customer')
+            TriggerEvent('mz_drugselling:cl:spawn_corner_customer')
         end
     end)
 end
 
-RegisterNetEvent('boii_drugsales:cl:spawn_corner_customer', function()
+RegisterNetEvent('mz_drugselling:cl:spawn_corner_customer', function()
     if dealing_mode ~= 'corner' or pending or corner_ped then return end
     local models = config.corner and config.corner.models or {}
     if #models == 0 then return end
@@ -159,7 +159,7 @@ end)
 
 function start_corner_dealing()
     corner_generation = corner_generation + 1
-    TriggerEvent('boii_drugsales:cl:spawn_corner_customer')
+    TriggerEvent('mz_drugselling:cl:spawn_corner_customer')
 end
 
 function stop_corner_dealing()
@@ -168,7 +168,7 @@ function stop_corner_dealing()
     if corner_ped and DoesEntityExist(corner_ped) then DeletePed(corner_ped) end
     corner_ped = nil
     if pending then
-        TriggerServerEvent('boii_drugsales:sv:cancel_street_sale')
+        TriggerServerEvent('mz_drugselling:sv:cancel_street_sale')
         close_offer()
     end
     pending = false
@@ -176,7 +176,7 @@ function stop_corner_dealing()
     used_peds = {}
 end
 
-RegisterNetEvent('boii_drugsales:cl:open_street_offer', function(data)
+RegisterNetEvent('mz_drugselling:cl:open_street_offer', function(data)
     if not pending or not dealing_target or not DoesEntityExist(dealing_target) then return end
     SetNuiFocus(true, true)
     SendNUIMessage({ action = 'open_street_offer', data = data })
@@ -186,13 +186,13 @@ RegisterNUICallback('street_offer', function(data, cb)
     cb({ success = true })
     if not pending then return end
     close_offer()
-    TriggerServerEvent('boii_drugsales:sv:submit_street_offer', data.drug_id, data.price)
+    TriggerServerEvent('mz_drugselling:sv:submit_street_offer', data.drug_id, data.price)
 end)
 
 RegisterNUICallback('street_cancel', function(_, cb)
     cb({ success = true })
     if not pending then return end
-    TriggerServerEvent('boii_drugsales:sv:cancel_street_sale')
+    TriggerServerEvent('mz_drugselling:sv:cancel_street_sale')
     close_offer()
     pending = false
     local ped = dealing_target
@@ -212,7 +212,7 @@ local function watch_stolen_ped(ped, net_id)
         while DoesEntityExist(ped) and GetGameTimer() < expires do
             if IsPedDeadOrDying(ped, true) then
                 local action = function()
-                    TriggerServerEvent('boii_drugsales:sv:recover_stolen_drugs', net_id)
+                    TriggerServerEvent('mz_drugselling:sv:recover_stolen_drugs', net_id)
                 end
                 if TARGET == 'qb-target' then
                     exports['qb-target']:AddTargetEntity(ped, {
@@ -224,12 +224,6 @@ local function watch_stolen_ped(ped, net_id)
                         { name = 'drug_recovery_' .. net_id, icon = 'fa-solid fa-box-open',
                           label = lang.dealing.client.target.retrieve.label, distance = 2.0, onSelect = action }
                     })
-                elseif TARGET == 'boii_target' then
-                    exports.boii_target:add_entity_zone({ ped }, {
-                        id = 'drug_recovery_' .. net_id, distance = 2.0,
-                        actions = { label = lang.dealing.client.target.retrieve.label,
-                            icon = 'fa-solid fa-box-open', action_type = 'function', action = action }
-                    })
                 end
                 return
             end
@@ -238,7 +232,7 @@ local function watch_stolen_ped(ped, net_id)
     end)
 end
 
-RegisterNetEvent('boii_drugsales:cl:street_result', function(result)
+RegisterNetEvent('mz_drugselling:cl:street_result', function(result)
     if not pending then return end
     close_offer()
     pending = false
@@ -281,7 +275,7 @@ RegisterNetEvent('boii_drugsales:cl:street_result', function(result)
     end
     dealing_target, target_coords = nil, nil
     if result.reason == 'no_drugs' or result.reason == 'police' then
-        TriggerEvent('boii_drugsales:cl:stop_dealing')
+        TriggerEvent('mz_drugselling:cl:stop_dealing')
         return
     end
     schedule_corner_customer()

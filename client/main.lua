@@ -1,13 +1,3 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
 
 --- Hobo life main functions.
 -- @script client/main.lua
@@ -88,16 +78,7 @@ local function script_setup(client_config)
                 }
             }
             local created_ped = utils.peds.create_ped(ped_data)
-            if TARGET == 'boii_target' then
-                exports.boii_target:add_entity_zone({ created_ped }, {
-                    id = 'zone_' .. p.id,
-                    icon = p.icon,
-                    distance = p.distance,
-                    debug = p.debug,
-                    sprite = p.sprite,
-                    actions = p.actions
-                })
-            elseif TARGET == 'qb-target' then
+            if TARGET == 'qb-target' then
                 local zone_name = 'zone_' .. p.id
                 exports['qb-target']:AddEntityZone(zone_name, created_ped, {
                     name = zone_name,
@@ -151,7 +132,7 @@ end)
 
 --- Fetches and sets up target zones upon callback.
 -- @param config table: The configuration data for targets received from the server.
-utils.callback.cb('boii_drugsales:sv:request_config', {}, function(client_config)
+utils.callback.cb('mz_drugselling:sv:request_config', {}, function(client_config)
     config = client_config
     config.target = config.target
     config.delivery_peds = config.delivery_peds

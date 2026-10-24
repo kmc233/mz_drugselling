@@ -82,13 +82,13 @@ complete_sale = function(_, _, id, amount)
 end
 
 dofile('server/scripts/dealing.lua')
-local prepare = handlers['boii_drugsales:sv:prepare_street_sale']
-local submit = handlers['boii_drugsales:sv:submit_street_offer']
-local recover = handlers['boii_drugsales:sv:recover_stolen_drugs']
+local prepare = handlers['mz_drugselling:sv:prepare_street_sale']
+local submit = handlers['mz_drugselling:sv:submit_street_offer']
+local recover = handlers['mz_drugselling:sv:recover_stolen_drugs']
 
 random_values(10000)
 prepare(1)
-assert(sent.name == 'boii_drugsales:cl:open_street_offer')
+assert(sent.name == 'mz_drugselling:cl:open_street_offer')
 assert(sent.data.offers[1].optimal == 15)
 submit('water', 999)
 assert(sent.data.outcome == 'unavailable' and #sales == 0)

@@ -82,7 +82,7 @@ end
 --- @section Events
 
 --- Sends a delivery to client
-RegisterServerEvent('boii_drugsales:sv:request_delivery', function()
+RegisterServerEvent('mz_drugselling:sv:request_delivery', function()
     local _src = source
     if sale_modes[_src] ~= 'delivery' then return end
     if active_locations[_src] or pending_requests[_src] then return end
@@ -93,7 +93,7 @@ RegisterServerEvent('boii_drugsales:sv:request_delivery', function()
     if #police < REQUIRED_POLICE_COUNT then
         send_notification(_src, lang.deliveries.server.notifications.header, string.format(lang.deliveries.server.notifications.not_enough_police, #police, REQUIRED_POLICE_COUNT), 'error', 3500)
         Wait(1000)
-        TriggerClientEvent('boii_drugsales:cl:stop_deliveries', _src)
+        TriggerClientEvent('mz_drugselling:cl:stop_deliveries', _src)
         pending_requests[_src] = nil
         return
     end
@@ -102,11 +102,11 @@ RegisterServerEvent('boii_drugsales:sv:request_delivery', function()
     pending_requests[_src] = nil
     local delivery_location = config.deliveries.locations[math.random(#config.deliveries.locations)]
     active_locations[_src] = delivery_location
-    TriggerClientEvent('boii_drugsales:cl:spawn_delivery_ped', _src, _src, delivery_location)
+    TriggerClientEvent('mz_drugselling:cl:spawn_delivery_ped', _src, _src, delivery_location)
 end)
 
 --- Main event to prepare sale data
-RegisterServerEvent('boii_drugsales:sv:prepare_delivery_data', function()
+RegisterServerEvent('mz_drugselling:sv:prepare_delivery_data', function()
     local _src = source
     local location = active_locations[_src]
     local player_ped = GetPlayerPed(_src)
@@ -117,7 +117,7 @@ RegisterServerEvent('boii_drugsales:sv:prepare_delivery_data', function()
     if #police < REQUIRED_POLICE_COUNT then
         send_notification(_src, lang.deliveries.server.notifications.header, string.format(lang.deliveries.server.notifications.not_enough_police, #police, REQUIRED_POLICE_COUNT), 'error', 3500)
         Wait(1000)
-        TriggerClientEvent('boii_drugsales:cl:stop_deliveries', _src)
+        TriggerClientEvent('mz_drugselling:cl:stop_deliveries', _src)
         preparing[_src] = nil
         return
     end
@@ -125,7 +125,7 @@ RegisterServerEvent('boii_drugsales:sv:prepare_delivery_data', function()
     local player_drugs = process_player_drugs(_src, player_skills)
     if #player_drugs == 0 then
         send_notification(_src, lang.deliveries.server.notifications.header, lang.deliveries.server.notifications.no_drugs, 'error', 3500)
-        TriggerClientEvent('boii_drugsales:cl:stop_deliveries', _src)
+        TriggerClientEvent('mz_drugselling:cl:stop_deliveries', _src)
         preparing[_src] = nil
         return
     end
@@ -142,7 +142,7 @@ RegisterServerEvent('boii_drugsales:sv:prepare_delivery_data', function()
     if math.random(1, 100) <= alert_chance then
         alert_police(_src, 'delivery')
     end
-    TriggerClientEvent('boii_drugsales:cl:receive_delivery_data', _src, sale_id, selected_drugs)
+    TriggerClientEvent('mz_drugselling:cl:receive_delivery_data', _src, sale_id, selected_drugs)
     SetTimeout(60000, function()
         if preparing[_src] == sale_id then preparing[_src] = nil end
         dealing_data[sale_id] = nil
@@ -151,7 +151,7 @@ end)
 
 --- Event to handle completing deliveries.
 --- @param data table: Table of sale data received from client.
-RegisterServerEvent('boii_drugsales:sv:delivery_complete_sale', function(data)
+RegisterServerEvent('mz_drugselling:sv:delivery_complete_sale', function(data)
     local _src = source
     if type(data) ~= 'table' then return end
     local sale_id = data.sale_id
@@ -172,12 +172,12 @@ RegisterServerEvent('boii_drugsales:sv:delivery_complete_sale', function(data)
         reward_xp(_src, sale_data.drugs, amount, 'dealing')
         dealing_data[sale_id] = nil
         active_locations[_src] = nil
-        TriggerClientEvent('boii_drugsales:cl:completed_delivery', _src)
+        TriggerClientEvent('mz_drugselling:cl:completed_delivery', _src)
     end
     preparing[_src] = nil
 end)
 
-AddEventHandler('boii_drugsales:sv:stop_phone_action', function()
+AddEventHandler('mz_drugselling:sv:stop_phone_action', function()
     request_ids[source] = (request_ids[source] or 0) + 1
     pending_requests[source] = nil
     active_locations[source] = nil

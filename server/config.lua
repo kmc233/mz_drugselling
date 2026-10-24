@@ -1,13 +1,3 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
 
 --- Server configuration.
 --- @script server/config.lua
@@ -27,7 +17,7 @@ config.deliveries = config.deliveries or {}
 config.debug = false
 
 --- Target System
-config.target = 'ox_target' --- Set target choice here. Options: boii_target, ox_target, qb-target
+config.target = 'ox_target' --- Set target choice here. Options: ox_target, qb-target
 
 --- @section Skills settings
 
@@ -114,7 +104,7 @@ config.bulk_dealer = {
                 icon = 'fa-solid fa-comments',
                 colour = '#4dcbc2',
                 action_type = 'client',
-                action = 'boii_drugsales:cl:start_conversation',
+                action = 'mz_drugselling:cl:start_conversation',
                 params = {
                     dialogue = 'bulk_dealer',
                     location = vector4(-1757.21, 427.49, 127.70, 70.28), 

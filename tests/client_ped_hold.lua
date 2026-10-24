@@ -40,7 +40,7 @@ dofile('client/scripts/dealing.lua')
 
 start_street_sale(1)
 assert(kept[1] and blocked[1] and standing[1] and not wandering[1])
-events['boii_drugsales:cl:open_street_offer']({ offers = {{ id = 'water' }} })
+events['mz_drugselling:cl:open_street_offer']({ offers = {{ id = 'water' }} })
 assert(standing[1] and blocked[1])
 nui.street_cancel({}, function() end)
 assert(not kept[1] and not blocked[1] and not standing[1] and wandering[1])
@@ -49,7 +49,7 @@ game_time = 31000
 wandering[1] = false
 start_street_sale(1)
 assert(kept[1] and blocked[1] and standing[1])
-events['boii_drugsales:cl:street_result']({ outcome = 'sold' })
+events['mz_drugselling:cl:street_result']({ outcome = 'sold' })
 assert(kept[1] and blocked[1])
 start_street_sale(3)
 assert(kept[3] and blocked[3] and standing[3])

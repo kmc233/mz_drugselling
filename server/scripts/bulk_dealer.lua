@@ -2,7 +2,7 @@
 -- @param _src The player's server ID requesting the data.
 -- @param data Unused parameter for consistency with callback pattern.
 -- @param cb Callback function to return the configurations.
-utils.callback.register('boii_drugsales:sv:get_bulk_dealer_data', function(_src, data, cb)
+utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src, data, cb)
     local player_drugs = {}
     local player_skills = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1, current_xp = 0, required_xp = 1000 }
     for _, drug in ipairs(config.drugs) do
@@ -26,7 +26,7 @@ end)
 --- @param _src The players server ID.
 --- @param data The data containing drug ID and quantity to sell.
 --- @param cb Callback function to return the success status and message.
-utils.callback.register('boii_drugsales:sv:bulk_sell_drugs', function(_src, data, cb)
+utils.callback.register('mz_drugselling:sv:bulk_sell_drugs', function(_src, data, cb)
     if type(data) ~= 'table' then return cb(false, lang.general.server.invalid_sale_data) end
     local drug_id = data.drug
     local quantity_to_sell = tonumber(data.quantity)

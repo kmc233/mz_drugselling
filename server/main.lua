@@ -1,13 +1,3 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
 
 --- Main script.
 --- @script server/main.lua
@@ -98,7 +88,7 @@ function complete_sale(_src, sale_data, drug_id, amount, sale_type)
     if quantity < amount then
         send_notification(_src, lang.dealing.server.notifications.header, lang.dealing.server.notifications.not_enough_drugs, 'error', 3500)
         Wait(1000)
-        TriggerClientEvent('boii_drugsales:cl:stop_dealing', _src)
+        TriggerClientEvent('mz_drugselling:cl:stop_dealing', _src)
         return false
     end
     if not utils.fw.adjust_inventory(_src, {
@@ -167,7 +157,7 @@ end
 --- @param _src: The players server ID requesting the data.
 --- @param data: Unused parameter for consistency with callback pattern.
 --- @param cb: Callback function to return.
-utils.callback.register('boii_drugsales:sv:request_config', function(_src, data, cb)
+utils.callback.register('mz_drugselling:sv:request_config', function(_src, data, cb)
     local client_config = {}
     client_config.debug = config.debug
     client_config.target = config.target
@@ -183,7 +173,7 @@ end)
 --- @param _src: The players server ID requesting the data.
 --- @param data: Unused parameter for consistency with callback pattern.
 --- @param cb: Callback function to return.
-utils.callback.register('boii_drugsales:sv:perform_phone_action', function(_src, data, cb)
+utils.callback.register('mz_drugselling:sv:perform_phone_action', function(_src, data, cb)
     local action = type(data) == 'table' and data.action
     if not action then 
         debug_log('err', lang.general.server.action_missing)
@@ -233,7 +223,7 @@ utils.callback.register('boii_drugsales:sv:perform_phone_action', function(_src,
     cb(true, lang.general.server.action_started)
 end)
 
-RegisterNetEvent('boii_drugsales:sv:stop_phone_action', function()
+RegisterNetEvent('mz_drugselling:sv:stop_phone_action', function()
     sale_modes[source] = nil
 end)
 
@@ -246,6 +236,6 @@ end)
 --- Register dealer phone as usable.
 utils.fw.register_item('dealer_phone', function(_src)
     if _src and _src ~= 0 then
-        TriggerClientEvent('boii_drugsales:cl:open_dealer_phone', _src)
+        TriggerClientEvent('mz_drugselling:cl:open_dealer_phone', _src)
     end
 end)

@@ -3,7 +3,7 @@ local used_peds = {}
 local stolen_drugs = {}
 
 local function unavailable(player, reason)
-    TriggerClientEvent('boii_drugsales:cl:street_result', player, { outcome = 'unavailable', reason = reason })
+    TriggerClientEvent('mz_drugselling:cl:street_result', player, { outcome = 'unavailable', reason = reason })
 end
 
 local function chance(percent)
@@ -48,7 +48,7 @@ local function get_offers(player)
     return offers
 end
 
-RegisterNetEvent('boii_drugsales:sv:prepare_street_sale', function(net_id)
+RegisterNetEvent('mz_drugselling:sv:prepare_street_sale', function(net_id)
     local player = source
     local mode = sale_modes[player]
     if mode ~= 'dealing' and mode ~= 'corner' then return unavailable(player) end
@@ -79,27 +79,27 @@ RegisterNetEvent('boii_drugsales:sv:prepare_street_sale', function(net_id)
     used_peds[player][net_id] = os.time()
     if chance(personality.refuse) then
         if chance(personality.alert) then alert_police(player, 'dealing') end
-        TriggerClientEvent('boii_drugsales:cl:street_result', player, { outcome = 'refused', early = true })
+        TriggerClientEvent('mz_drugselling:cl:street_result', player, { outcome = 'refused', early = true })
         return
     end
 
     active_deals[player] = { ped = net_id, type_id = type_id, offers = offers, created = os.time(), mode = mode }
-    TriggerClientEvent('boii_drugsales:cl:open_street_offer', player, {
+    TriggerClientEvent('mz_drugselling:cl:open_street_offer', player, {
         type_label = personality.label,
         offers = offers
     })
 end)
 
-RegisterNetEvent('boii_drugsales:sv:cancel_street_sale', function()
+RegisterNetEvent('mz_drugselling:sv:cancel_street_sale', function()
     active_deals[source] = nil
 end)
 
-AddEventHandler('boii_drugsales:sv:stop_phone_action', function()
+AddEventHandler('mz_drugselling:sv:stop_phone_action', function()
     active_deals[source] = nil
     used_peds[source] = nil
 end)
 
-RegisterNetEvent('boii_drugsales:sv:submit_street_offer', function(drug_id, asking_price)
+RegisterNetEvent('mz_drugselling:sv:submit_street_offer', function(drug_id, asking_price)
     local player = source
     local deal = active_deals[player]
     if not deal then return end
@@ -158,10 +158,10 @@ RegisterNetEvent('boii_drugsales:sv:submit_street_offer', function(drug_id, aski
         result.outcome = 'refused'
     end
     if chance(personality.alert) then alert_police(player, 'dealing') end
-    TriggerClientEvent('boii_drugsales:cl:street_result', player, result)
+    TriggerClientEvent('mz_drugselling:cl:street_result', player, result)
 end)
 
-RegisterNetEvent('boii_drugsales:sv:recover_stolen_drugs', function(net_id)
+RegisterNetEvent('mz_drugselling:sv:recover_stolen_drugs', function(net_id)
     local player = source
     local stolen = stolen_drugs[player] and stolen_drugs[player][net_id]
     if not stolen then return end

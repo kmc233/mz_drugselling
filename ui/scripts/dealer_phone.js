@@ -6,7 +6,6 @@ class DealerPhone {
         this.secret_codes = {
             '5801': 'secret_menu_1',
             '2312': 'secret_menu_2',
-            '1337': 'boii_dev',
         };
         $(document).ready(() => {
             $(document).keyup((e) => this.handle_exit(e));
@@ -34,7 +33,7 @@ class DealerPhone {
                 <div class="dealer_phone_screen_container">
                     <div class="dealer_phone_header">
                         <div class="phone_speaker"></div>    
-                        <div class="phone_name">BOII</div>
+                        <div class="phone_name">MZ</div>
                     </div>
                     <div class="dealer_phone_screen">
                         <div class="signal_bars">
@@ -109,15 +108,6 @@ class DealerPhone {
             return `<span class="line">SECRET 1</span><br><span class="line">1 - OPTION 1</span><br><span class="line">2 - OPTION 2</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
         } else if (this.current_screen === 'secret_menu_2') {
             return `<span class="line">SECRET 2</span><br><span class="line">1 - OPTION A</span><br><span class="line">2 - OPTION B</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
-        } else if (this.current_screen === 'boii_dev') {
-            return `<pre>
- __  .---------------.
-|=.| |.-------------.|
-|--| ||    BOII     ||
-|--| || DEVELOPMENT ||
-| :| |'-------------'|
-|__|~')_____________('
-      </pre><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
         }
     }
 
@@ -188,12 +178,6 @@ class DealerPhone {
             } else if (key === '2') {
                 this.confirm_action('secret_option_2');
             } else if (key === '#') {
-                this.close();
-            } else if (key === '*') {
-                this.go_home();
-            }
-        } else if (this.current_screen === 'boii_dev') {
-            if (key === '#') {
                 this.close();
             } else if (key === '*') {
                 this.go_home();

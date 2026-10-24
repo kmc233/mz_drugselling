@@ -1,13 +1,3 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
 
 --- Drug Dealer Dialogues.
 -- @script client/dialogues.lua
@@ -35,7 +25,7 @@ dialogues.bulk_dealer = {
                     next_id = nil,
                     should_end = true,
                     action_type = 'client',
-                    action = 'boii_drugsales:cl:open_bulk_sales',
+                    action = 'mz_drugselling:cl:open_bulk_sales',
                     params = {}
                 },
                 {
@@ -65,7 +55,7 @@ dialogues.bulk_dealer = {
                     next_id = nil,
                     should_end = true,
                     action_type = 'client',
-                    action = 'boii_drugsales:cl:open_bulk_sales',
+                    action = 'mz_drugselling:cl:open_bulk_sales',
                     params = {}
                 },
                 {
@@ -88,7 +78,7 @@ dialogues.bulk_dealer = {
 
 --- Event handler to launch dialogue based on store type.
 -- @param data table: Data 
-RegisterNetEvent('boii_drugsales:cl:start_conversation', function(data)
+RegisterNetEvent('mz_drugselling:cl:start_conversation', function(data)
     if not data or data.dialogue ~= 'bulk_dealer' then return end
     local location = data.location
     lib.registerContext({
@@ -98,7 +88,7 @@ RegisterNetEvent('boii_drugsales:cl:start_conversation', function(data)
             {
                 title = 'Make a deal', icon = 'store',
                 onSelect = function()
-                    TriggerEvent('boii_drugsales:cl:open_bulk_sales', {
+                    TriggerEvent('mz_drugselling:cl:open_bulk_sales', {
                         location = vector3(location.x, location.y, location.z)
                     })
                 end

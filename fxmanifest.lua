@@ -1,22 +1,10 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
 
 fx_version 'cerulean'
 games { 'gta5', 'rdr3' }
 
-name 'boii_drugsales'
+name 'mz_drugselling'
 version '1.1.0'
-description 'BOII | Development - Drug Sales'
-author 'boiidevelopment'
-repository 'https://github.com/boiidevelopment'
+description 'MZ Drug Selling'
 lua54 'yes'
 
 ui_page 'ui/index.html'

@@ -1,13 +1,3 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
 
 --- Alert police with an action
 -- @param action string: The action to alert the police about.
@@ -35,6 +25,6 @@ function alert_police(_src, action)
     for _, player_source in pairs(police) do
         --- Replace this event with the handler for your own dispatch in order to change
         -- Or you can modify the client event whatever suits.
-        TriggerClientEvent('boii_drugsales:cl:alert_police', player_source, player_coords, label)
+        TriggerClientEvent('mz_drugselling:cl:alert_police', player_source, player_coords, label)
     end
 end

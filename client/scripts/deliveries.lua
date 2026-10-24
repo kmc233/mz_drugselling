@@ -1,17 +1,7 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
 
 --- @section Events
 
-RegisterNetEvent('boii_drugsales:cl:spawn_delivery_ped', function(_src, location)
+RegisterNetEvent('mz_drugselling:cl:spawn_delivery_ped', function(_src, location)
     local player_id = PlayerId()
     local loc = location
     if not loc then print('location missing') return end
@@ -44,24 +34,9 @@ RegisterNetEvent('boii_drugsales:cl:spawn_delivery_ped', function(_src, location
         NetworkRegisterEntityAsNetworked(delivery_ped)
     end
     
-    if TARGET == 'boii_target' then
-        exports.boii_target:add_entity_zone({ delivery_ped }, {
-            id = 'boii_drugsales_delivery',
-            main_icon = lang.deliveries.client.target.main_icon,
-            distance = 2.5,
-            debug = false,
-            sprite = false,
-            actions = {
-                label = lang.deliveries.client.target.label,
-                action_icon = lang.deliveries.client.target.action_icon,
-                action_type = 'server',
-                action = 'boii_drugsales:sv:prepare_delivery_data',
-                params = {}
-            }
-        })
-    elseif TARGET == 'qb-target' then
-        exports['qb-target']:AddEntityZone('boii_drugsales_delivery', delivery_ped, {
-            name = 'boii_drugsales_delivery',
+    if TARGET == 'qb-target' then
+        exports['qb-target']:AddEntityZone('mz_drugselling_delivery', delivery_ped, {
+            name = 'mz_drugselling_delivery',
             heading = 0.0,
             debugPoly = false,
         }, {
@@ -71,7 +46,7 @@ RegisterNetEvent('boii_drugsales:cl:spawn_delivery_ped', function(_src, location
                     icon = lang.deliveries.client.target.action_icon,
                     label = lang.deliveries.client.target.label,
                     action = function()
-                        TriggerServerEvent('boii_drugsales:sv:prepare_delivery_data')
+                        TriggerServerEvent('mz_drugselling:sv:prepare_delivery_data')
                     end
                 }
             }
@@ -79,11 +54,11 @@ RegisterNetEvent('boii_drugsales:cl:spawn_delivery_ped', function(_src, location
     elseif TARGET == 'ox_target' then
         exports.ox_target:addLocalEntity(delivery_ped, {
             {
-                name = 'boii_drugsales_delivery',
+                name = 'mz_drugselling_delivery',
                 label = lang.deliveries.client.target.label,
                 icon = lang.deliveries.client.target.action_icon,
                 onSelect = function()
-                    TriggerServerEvent('boii_drugsales:sv:prepare_delivery_data')
+                    TriggerServerEvent('mz_drugselling:sv:prepare_delivery_data')
                 end,
                 distance = 2.5
             }
@@ -91,7 +66,7 @@ RegisterNetEvent('boii_drugsales:cl:spawn_delivery_ped', function(_src, location
     end
 end)
 
-RegisterNetEvent('boii_drugsales:cl:receive_delivery_data', function(sale_id, player_drugs)
+RegisterNetEvent('mz_drugselling:cl:receive_delivery_data', function(sale_id, player_drugs)
     local drug_options = {}
     for _, drug in ipairs(player_drugs) do
         local selected = drug
@@ -100,7 +75,7 @@ RegisterNetEvent('boii_drugsales:cl:receive_delivery_data', function(sale_id, pl
             title = string.format(lang.deliveries.client.dialogue.conversation.sale_message,
                 drug.quantity, drug.label, math.ceil(drug.price * drug.quantity)),
             onSelect = function()
-                TriggerServerEvent('boii_drugsales:sv:delivery_complete_sale', {
+                TriggerServerEvent('mz_drugselling:sv:delivery_complete_sale', {
                     sale_id = sale_id, drug_id = selected.id, amount = selected.quantity
                 })
             end
@@ -109,7 +84,7 @@ RegisterNetEvent('boii_drugsales:cl:receive_delivery_data', function(sale_id, pl
     drug_options[#drug_options + 1] = {
         icon = lang.deliveries.client.dialogue.conversation.exit_icon,
         title = lang.deliveries.client.dialogue.conversation.exit_message,
-        onSelect = function() TriggerEvent('boii_drugsales:cl:stop_deliveries') end
+        onSelect = function() TriggerEvent('mz_drugselling:cl:stop_deliveries') end
     }
     lib.registerContext({
         id = 'mz_drugselling_delivery',
@@ -119,7 +94,7 @@ RegisterNetEvent('boii_drugsales:cl:receive_delivery_data', function(sale_id, pl
     lib.showContext('mz_drugselling_delivery')
 end)
 
-RegisterNetEvent('boii_drugsales:cl:completed_delivery', function()
+RegisterNetEvent('mz_drugselling:cl:completed_delivery', function()
     if delivery_blip then
         RemoveBlip(delivery_blip)
         delivery_blip = nil
@@ -136,6 +111,6 @@ RegisterNetEvent('boii_drugsales:cl:completed_delivery', function()
         Wait(10000)
         DeletePed(delivery_ped)
         delivery_ped = nil
-        TriggerServerEvent('boii_drugsales:sv:request_delivery')
+        TriggerServerEvent('mz_drugselling:sv:request_delivery')
     end
 end)

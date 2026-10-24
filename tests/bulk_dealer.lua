@@ -36,8 +36,8 @@ end
 reward_xp = function() end
 
 dofile('server/scripts/bulk_dealer.lua')
-local get_data = callbacks['boii_drugsales:sv:get_bulk_dealer_data']
-local sell = callbacks['boii_drugsales:sv:bulk_sell_drugs']
+local get_data = callbacks['mz_drugselling:sv:get_bulk_dealer_data']
+local sell = callbacks['mz_drugselling:sv:bulk_sell_drugs']
 
 local data
 get_data(1, {}, function(result) data = result end)
