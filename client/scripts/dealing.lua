@@ -3,6 +3,7 @@ local pending_id = 0
 local used_peds = {}
 local corner_ped = nil
 local corner_generation = 0
+local held_peds = {}
 local schedule_corner_customer
 local gang_models = {
     'g_m_y_ballaeast_01', 'g_m_y_ballaorig_01', 'g_m_y_ballasout_01',
@@ -25,12 +26,45 @@ local function close_offer()
     SetNuiFocus(false, false)
 end
 
+local function hold_ped(ped)
+    if NetworkGetEntityIsNetworked(ped) then
+        for _ = 1, 15 do
+            if NetworkHasControlOfEntity(ped) then break end
+            NetworkRequestControlOfEntity(ped)
+            Wait(50)
+        end
+        if not NetworkHasControlOfEntity(ped) then return false end
+    end
+
+    ClearPedTasksImmediately(ped)
+    ClearPedSecondaryTask(ped)
+    SetPedKeepTask(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    local coords = GetEntityCoords(ped)
+    local player_coords = GetEntityCoords(PlayerPedId())
+    SetEntityHeading(ped, GetHeadingFromVector_2d(player_coords.x - coords.x, player_coords.y - coords.y))
+    TaskStandStill(ped, -1)
+    held_peds[ped] = true
+    return true
+end
+
+local function release_ped(ped, walk_away)
+    if not held_peds[ped] then return end
+    held_peds[ped] = nil
+    if not DoesEntityExist(ped) then return end
+    ClearPedTasks(ped)
+    SetPedKeepTask(ped, false)
+    SetBlockingOfNonTemporaryEvents(ped, false)
+    if walk_away then TaskWanderStandard(ped, 10.0, 10) end
+end
+
 local function begin_sale(ped)
     if pending or not ped or not DoesEntityExist(ped) or (used_peds[ped] and used_peds[ped] > GetGameTimer()) then return false end
     if IsPedAPlayer(ped) or IsPedDeadOrDying(ped, true) then return false end
     if not NetworkGetEntityIsNetworked(ped) then NetworkRegisterEntityAsNetworked(ped) end
     local net_id = NetworkGetNetworkIdFromEntity(ped)
     if not net_id or net_id == 0 then return false end
+    if not hold_ped(ped) then return false end
     dealing_target = ped
     target_coords = GetEntityCoords(ped)
     used_peds[ped] = GetGameTimer() + 30000
@@ -43,6 +77,7 @@ local function begin_sale(ped)
             close_offer()
             pending = false
             dealing_target = nil
+            release_ped(ped, corner_ped ~= ped)
             if corner_ped == ped then
                 if DoesEntityExist(ped) then DeletePed(ped) end
                 corner_ped = nil
@@ -129,6 +164,7 @@ end
 
 function stop_corner_dealing()
     corner_generation = corner_generation + 1
+    release_ped(dealing_target, dealing_target ~= corner_ped)
     if corner_ped and DoesEntityExist(corner_ped) then DeletePed(corner_ped) end
     corner_ped = nil
     if pending then
@@ -136,12 +172,12 @@ function stop_corner_dealing()
         close_offer()
     end
     pending = false
+    dealing_target, target_coords = nil, nil
     used_peds = {}
 end
 
 RegisterNetEvent('boii_drugsales:cl:open_street_offer', function(data)
     if not pending or not dealing_target or not DoesEntityExist(dealing_target) then return end
-    TaskTurnPedToFaceEntity(dealing_target, PlayerPedId(), 1500)
     SetNuiFocus(true, true)
     SendNUIMessage({ action = 'open_street_offer', data = data })
 end)
@@ -159,9 +195,10 @@ RegisterNUICallback('street_cancel', function(_, cb)
     TriggerServerEvent('boii_drugsales:sv:cancel_street_sale')
     close_offer()
     pending = false
+    local ped = dealing_target
+    release_ped(ped, corner_ped ~= ped)
     if corner_ped then
         local old_ped = corner_ped
-        TaskWanderStandard(old_ped, 10.0, 10)
         SetTimeout(2500, function() if DoesEntityExist(old_ped) then DeletePed(old_ped) end end)
         corner_ped = nil
     end
@@ -206,12 +243,15 @@ RegisterNetEvent('boii_drugsales:cl:street_result', function(result)
     close_offer()
     pending = false
     local ped = dealing_target
+    local is_corner_customer = ped == corner_ped
     if ped and DoesEntityExist(ped) then
         if result.outcome == 'sold' then
             utils.requests.anim('mp_common')
             TaskPlayAnim(PlayerPedId(), 'mp_common', 'givetake2_a', 8.0, -8.0, 1800, 0, 0, false, false, false)
             TaskPlayAnim(ped, 'mp_common', 'givetake2_a', 8.0, -8.0, 1800, 0, 0, false, false, false)
+            SetTimeout(1800, function() release_ped(ped, not is_corner_customer) end)
         elseif result.outcome == 'stolen' then
+            release_ped(ped, false)
             local net_id = NetworkGetNetworkIdFromEntity(ped)
             if is_gang_member(ped) then
                 GiveWeaponToPed(ped, GetHashKey('WEAPON_PISTOL'), 30, false, true)
@@ -221,8 +261,10 @@ RegisterNetEvent('boii_drugsales:cl:street_result', function(result)
             TaskSmartFleePed(ped, PlayerPedId(), 120.0, 30000, false, false)
             watch_stolen_ped(ped, net_id)
         else
-            TaskWanderStandard(ped, 10.0, 10)
+            release_ped(ped, not is_corner_customer)
         end
+    else
+        release_ped(ped, false)
     end
     if result.outcome == 'unavailable' and not result.reason then
         send_notification(lang.dealing.client.notifications.header, '当前无法和这名顾客交易。', 'error', 3500)
@@ -243,4 +285,10 @@ RegisterNetEvent('boii_drugsales:cl:street_result', function(result)
         return
     end
     schedule_corner_customer()
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+    for ped in pairs(held_peds) do release_ped(ped, true) end
+    if corner_ped and DoesEntityExist(corner_ped) then DeletePed(corner_ped) end
 end)
