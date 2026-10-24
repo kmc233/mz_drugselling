@@ -50,8 +50,8 @@ end
 
 RegisterNetEvent('mz_drugselling:sv:prepare_street_sale', function(net_id)
     local player = source
-    local mode = sale_modes[player]
-    if mode ~= 'dealing' and mode ~= 'corner' then return unavailable(player) end
+    local mode = sale_modes[player] or (not config.dealing.require_phone_for_street and 'direct')
+    if mode ~= 'dealing' and mode ~= 'corner' and mode ~= 'direct' then return unavailable(player) end
     if active_deals[player] then return unavailable(player) end
     local ped = get_ped(player, net_id)
     if not ped then return unavailable(player) end
@@ -104,7 +104,8 @@ RegisterNetEvent('mz_drugselling:sv:submit_street_offer', function(drug_id, aski
     local deal = active_deals[player]
     if not deal then return end
     active_deals[player] = nil
-    if sale_modes[player] ~= deal.mode or os.time() - deal.created > 60 or not get_ped(player, deal.ped) then
+    local mode = sale_modes[player] or (not config.dealing.require_phone_for_street and 'direct')
+    if mode ~= deal.mode or os.time() - deal.created > 60 or not get_ped(player, deal.ped) then
         return unavailable(player)
     end
 

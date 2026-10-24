@@ -113,5 +113,17 @@ assert(inventory == 7)
 recover(4)
 assert(inventory == 7)
 
+sale_modes[1] = nil
+config.dealing.require_phone_for_street = false
+random_values(10000, 1, 5000, 10000)
+prepare(5)
+assert(sent.name == 'mz_drugselling:cl:open_street_offer')
+submit('water', 10)
+assert(sent.data.outcome == 'sold' and sales[#sales].amount == 1)
+
+config.dealing.require_phone_for_street = true
+prepare(6)
+assert(sent.data.outcome == 'unavailable')
+
 math.random = original_random
 print('street_dealing: ok')

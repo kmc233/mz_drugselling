@@ -142,6 +142,7 @@ utils.callback.cb('mz_drugselling:sv:request_config', {}, function(client_config
         TARGET = config.target
         while not TARGET do Wait(100) end
         script_setup(client_config)
+        if not config.require_phone_for_street then setup_street_target() end
     end)
 end)
 

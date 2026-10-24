@@ -122,6 +122,7 @@ config.bulk_dealer = {
 
 --- Dealing
 config.dealing = {
+    require_phone_for_street = false, --- false: interact with NPCs directly; true: enable active selling on the phone first.
     corner = {
         interval = 8, --- Seconds between approaching customers.
         models = { 'a_m_m_business_01', 'a_m_y_hipster_01', 'a_m_m_tramp_01', 'a_m_y_bevhills_01', 'g_m_y_ballaorig_01' }

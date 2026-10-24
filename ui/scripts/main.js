@@ -20,7 +20,7 @@ window.addEventListener('message', function (event) {
         bulk_dealer.init(data.data);
     } else if (data.action === 'open_dealer_phone') {
         dealer_phone = new DealerPhone();
-        dealer_phone.init();
+        dealer_phone.init(data.data);
     } else if (data.action === 'close_dealer_phone') {
         if (dealer_phone) {
             dealer_phone.close();

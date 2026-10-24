@@ -10,10 +10,50 @@ local function stop_dealing(player_ped)
     TriggerServerEvent('mz_drugselling:sv:stop_phone_action')
     send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.stopped, 'info', 3500)
 
+    if config.require_phone_for_street then
+        if TARGET == 'qb-target' then
+            exports['qb-target']:RemoveGlobalPed(lang.dealing.client.target.sales.label)
+        elseif TARGET == 'ox_target' then
+            exports.ox_target:removeGlobalPed({ 'mz_drugselling_dealing' })
+        end
+    end
+end
+
+local function can_sell_to_ped(entity)
+    if is_delivering or dealing_mode == 'corner' then return false end
+    if config.require_phone_for_street and dealing_mode ~= 'dealing' then return false end
+    local ped_type = GetPedType(entity)
+    local model = GetEntityModel(entity)
+    return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29
+        or ped_type == 30 or ped_type == 31
+        or (config.bulk_ped and model == GetHashKey(config.bulk_ped)))
+end
+
+function setup_street_target()
     if TARGET == 'qb-target' then
-        exports['qb-target']:RemoveGlobalPed(lang.dealing.client.target.sales.label)
+        exports['qb-target']:AddGlobalPed({
+            options = {
+                {
+                    icon = lang.dealing.client.target.sales.action_icon,
+                    label = lang.dealing.client.target.sales.label,
+                    action = function(entity)
+                        start_street_sale(entity)
+                    end,
+                    canInteract = can_sell_to_ped
+                }
+            },
+            distance = 2.5
+        })
     elseif TARGET == 'ox_target' then
-        exports.ox_target:removeGlobalPed({ 'mz_drugselling_dealing' })
+        exports.ox_target:addGlobalPed({{
+            name = 'mz_drugselling_dealing',
+            label = lang.dealing.client.target.sales.label,
+            distance = 2.5,
+            canInteract = can_sell_to_ped,
+            onSelect = function(data)
+                start_street_sale(data.entity)
+            end
+        }})
     end
 end
 
@@ -27,40 +67,8 @@ local function start_dealing(player_ped, mode)
         mode == 'corner' and '站街模式已开启，顾客会主动走来。' or lang.dealing.client.notifications.started, 'info', 3500)
     if mode == 'corner' then
         start_corner_dealing()
-        return
-    end
-    if TARGET == 'qb-target' then
-        exports['qb-target']:AddGlobalPed({
-            options = {
-                {
-                    icon = lang.dealing.client.target.sales.action_icon,
-                    label = lang.dealing.client.target.sales.label,
-                    action = function(entity)
-                        start_street_sale(entity)
-                    end,
-                    canInteract = function(entity)
-                        local ped_type = GetPedType(entity)
-                        local model = GetEntityModel(entity)
-                        return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29 or ped_type == 30 or ped_type == 31 or (config.bulk_ped and model == GetHashKey(config.bulk_ped)))
-                    end
-                }
-            },
-            distance = 2.5
-        })
-    elseif TARGET == 'ox_target' then
-        exports.ox_target:addGlobalPed({{
-            name = 'mz_drugselling_dealing',
-            label = lang.dealing.client.target.sales.label,
-            distance = 2.5,
-            canInteract = function(entity)
-                local ped_type = GetPedType(entity)
-                local model = GetEntityModel(entity)
-                return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29 or ped_type == 30 or ped_type == 31 or (config.bulk_ped and model == GetHashKey(config.bulk_ped)))
-            end,
-            onSelect = function(data)
-                start_street_sale(data.entity)
-            end
-        }})
+    else
+        setup_street_target()
     end
 end
 
@@ -99,6 +107,7 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     if not action then print('action missing') return end
     local player_ped = PlayerPedId()
     if action == 'dealing_start' or action == 'corner_start' then
+        if action == 'dealing_start' and not config.require_phone_for_street then return end
         if is_delivering then 
             send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.is_delivering, 'error', 3500)
             return
@@ -129,6 +138,7 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     end
 
     if action == 'dealing_stop' or action == 'corner_stop' then
+        if action == 'dealing_stop' and not config.require_phone_for_street then return end
         if not is_dealing then 
             send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.not_dealing, 'error', 3500)
             return
@@ -162,7 +172,8 @@ RegisterNetEvent('mz_drugselling:cl:open_dealer_phone', function()
     TaskPlayAnim(player_ped, 'cellphone@', 'cellphone_text_in', 3.0, 3.0, -1, 50, 0, false, false, false)
     SetNuiFocus(true, true)
     SendNUIMessage({
-        action = 'open_dealer_phone'
+        action = 'open_dealer_phone',
+        data = { require_phone_for_street = config.require_phone_for_street }
     })
 end)
 
