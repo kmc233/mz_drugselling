@@ -89,25 +89,25 @@ class DealerPhone {
 
     get_screen_content() {
         if (this.current_screen === 'main') {
-            return `<span class="line">1 - STREET</span><br><span class="line">2 - CORNER</span><br><span class="line">3 - DELIVERIES</span><br><span class="line"># - CLOSE</span>`;
+            return `<span class="line">1 - 主动街卖</span><br><span class="line">2 - 站街模式</span><br><span class="line">3 - 请求送货</span><br><span class="line"># - 关闭</span>`;
         } else if (this.current_screen === 'street_sell') {
-            return `<span class="line">DEALING</span><br><span class="line">1 - START</span><br><span class="line">2 - STOP</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
+            return `<span class="line">主动街卖</span><br><span class="line">1 - 开始</span><br><span class="line">2 - 停止</span><br><span class="line">* - 返回</span><br><span class="line"># - 关闭</span>`;
         } else if (this.current_screen === 'request_delivery') {
-            return `<span class="line">DELIVERIES</span><br><span class="line">1 - START</span><br><span class="line">2 - STOP</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
+            return `<span class="line">请求送货</span><br><span class="line">1 - 开始</span><br><span class="line">2 - 停止</span><br><span class="line">* - 返回</span><br><span class="line"># - 关闭</span>`;
         } else if (this.current_screen === 'corner_sell') {
-            return `<span class="line">CORNER</span><br><span class="line">1 - START</span><br><span class="line">2 - STOP</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
+            return `<span class="line">站街模式</span><br><span class="line">1 - 开始</span><br><span class="line">2 - 停止</span><br><span class="line">* - 返回</span><br><span class="line"># - 关闭</span>`;
         } else if (this.current_screen === 'confirmation') {
-            return `<span class="line">CONFIRMED</span>`;
+            return `<span class="line">已确认</span>`;
         } else if (this.current_screen === 'cancellation') {
-            return `<span class="line">CANCELLED</span>`;
+            return `<span class="line">已取消</span>`;
         } else if (this.current_screen === 'code_entry') {
-            return `<span class="line">ENTER CODE:</span><br><span class="line">${this.sequence_buffer}</span><br><span class="line"># - SUBMIT</span><br><span class="line">* - HOME</span>`;
+            return `<span class="line">输入代码：</span><br><span class="line">${this.sequence_buffer}</span><br><span class="line"># - 确认</span><br><span class="line">* - 返回</span>`;
         } else if (this.current_screen === 'invalid_code') {
-            return `<span class="line">CODE INVALID</span>`;
+            return `<span class="line">代码无效</span>`;
         } else if (this.current_screen === 'secret_menu_1') {
-            return `<span class="line">SECRET 1</span><br><span class="line">1 - OPTION 1</span><br><span class="line">2 - OPTION 2</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
+            return `<span class="line">隐藏菜单 1</span><br><span class="line">1 - 选项 1</span><br><span class="line">2 - 选项 2</span><br><span class="line">* - 返回</span><br><span class="line"># - 关闭</span>`;
         } else if (this.current_screen === 'secret_menu_2') {
-            return `<span class="line">SECRET 2</span><br><span class="line">1 - OPTION A</span><br><span class="line">2 - OPTION B</span><br><span class="line">* - HOME</span><br><span class="line"># - CLOSE</span>`;
+            return `<span class="line">隐藏菜单 2</span><br><span class="line">1 - 选项 A</span><br><span class="line">2 - 选项 B</span><br><span class="line">* - 返回</span><br><span class="line"># - 关闭</span>`;
         }
     }
 

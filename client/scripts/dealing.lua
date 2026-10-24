@@ -2,8 +2,10 @@ local pending = false
 local pending_id = 0
 local used_peds = {}
 local corner_ped = nil
+local corner_spawned = false
 local corner_generation = 0
 local held_peds = {}
+local spawned_peds = {}
 local schedule_corner_customer
 local gang_models = {
     'g_m_y_ballaeast_01', 'g_m_y_ballaorig_01', 'g_m_y_ballasout_01',
@@ -58,6 +60,51 @@ local function release_ped(ped, walk_away)
     if walk_away then TaskWanderStandard(ped, 10.0, 10) end
 end
 
+local function schedule_corner_cleanup(ped)
+    if not ped or not spawned_peds[ped] then return end
+    CreateThread(function()
+        local expires = GetGameTimer() + 90000
+        while DoesEntityExist(ped) and GetGameTimer() < expires do
+            if #(GetEntityCoords(ped) - GetEntityCoords(PlayerPedId())) > 40.0
+                and not IsEntityOnScreen(ped) then break end
+            Wait(2000)
+        end
+        if DoesEntityExist(ped) then DeletePed(ped) end
+        spawned_peds[ped] = nil
+    end)
+end
+
+local function find_corner_ped(player_ped)
+    local origin = GetEntityCoords(player_ped)
+    local candidates = {}
+    for _, ped in ipairs(GetGamePool('CPed')) do
+        if ped ~= player_ped and DoesEntityExist(ped) and not IsPedAPlayer(ped)
+            and IsPedHuman(ped) and not IsPedDeadOrDying(ped, true)
+            and not IsPedInAnyVehicle(ped, false)
+            and not IsPedInCombat(ped, player_ped) and GetPedType(ped) ~= 6
+            and not IsEntityAMissionEntity(ped) and not spawned_peds[ped]
+            and not (used_peds[ped] and used_peds[ped] > GetGameTimer()) then
+            local distance = #(GetEntityCoords(ped) - origin)
+            if distance >= 6.0 and distance <= 35.0 then
+                candidates[#candidates + 1] = ped
+            end
+        end
+    end
+    while #candidates > 0 do
+        local index = math.random(#candidates)
+        local ped = table.remove(candidates, index)
+        if not NetworkGetEntityIsNetworked(ped) or NetworkHasControlOfEntity(ped) then
+            return ped
+        end
+        NetworkRequestControlOfEntity(ped)
+        for _ = 1, 10 do
+            if NetworkHasControlOfEntity(ped) then return ped end
+            Wait(50)
+        end
+    end
+    return nil
+end
+
 local function begin_sale(ped)
     if pending or not ped or not DoesEntityExist(ped) or (used_peds[ped] and used_peds[ped] > GetGameTimer()) then return false end
     if IsPedAPlayer(ped) or IsPedDeadOrDying(ped, true) then return false end
@@ -67,7 +114,7 @@ local function begin_sale(ped)
     if not hold_ped(ped) then return false end
     dealing_target = ped
     target_coords = GetEntityCoords(ped)
-    used_peds[ped] = GetGameTimer() + 30000
+    used_peds[ped] = GetGameTimer() + (dealing_mode == 'corner' and 300000 or 30000)
     pending = true
     pending_id = pending_id + 1
     local current_id = pending_id
@@ -77,10 +124,11 @@ local function begin_sale(ped)
             close_offer()
             pending = false
             dealing_target = nil
-            release_ped(ped, corner_ped ~= ped)
+            release_ped(ped, true)
             if corner_ped == ped then
-                if DoesEntityExist(ped) then DeletePed(ped) end
+                if corner_spawned then schedule_corner_cleanup(ped) end
                 corner_ped = nil
+                corner_spawned = false
             end
             schedule_corner_customer()
         end
@@ -115,24 +163,44 @@ end
 
 RegisterNetEvent('mz_drugselling:cl:spawn_corner_customer', function()
     if dealing_mode ~= 'corner' or pending or corner_ped then return end
-    local models = config.corner and config.corner.models or {}
-    if #models == 0 then return end
-    local model_name = models[math.random(#models)]
-    local model = GetHashKey(model_name)
-    utils.requests.model(model_name)
     local player_ped = PlayerPedId()
-    local origin = GetEntityCoords(player_ped)
-    local angle = math.random() * math.pi * 2
-    local x, y = origin.x + math.cos(angle) * 22, origin.y + math.sin(angle) * 22
-    local found, safe = GetSafeCoordForPed(x, y, origin.z, true, 16)
-    local z = origin.z
-    if found then x, y, z = safe.x, safe.y, safe.z end
-    corner_ped = CreatePed(4, model, x, y, z, 0.0, true, true)
-    SetModelAsNoLongerNeeded(model)
+    corner_ped = find_corner_ped(player_ped)
+    corner_spawned = false
+    if not corner_ped then
+        local models = config.corner and config.corner.models or {}
+        if #models == 0 then return end
+        local model_name = models[math.random(#models)]
+        local model = GetHashKey(model_name)
+        utils.requests.model(model_name)
+        local origin = GetEntityCoords(player_ped)
+        local x, y, z
+        for _ = 1, 12 do
+            local angle = math.random() * math.pi * 2
+            local distance = math.random(22, 30)
+            local candidate_x = origin.x + math.cos(angle) * distance
+            local candidate_y = origin.y + math.sin(angle) * distance
+            local found, safe = GetSafeCoordForPed(candidate_x, candidate_y, origin.z, true, 16)
+            if found and safe and not IsSphereVisible(safe.x, safe.y, safe.z, 2.0) then
+                x, y, z = safe.x, safe.y, safe.z
+                break
+            end
+        end
+        if not x then
+            SetModelAsNoLongerNeeded(model)
+            schedule_corner_customer()
+            return
+        end
+        corner_ped = CreatePed(4, model, x, y, z, 0.0, true, true)
+        SetModelAsNoLongerNeeded(model)
+        if not DoesEntityExist(corner_ped) then corner_ped = nil return end
+        SetEntityAsMissionEntity(corner_ped, true, true)
+        spawned_peds[corner_ped] = true
+        corner_spawned = true
+    end
     if not DoesEntityExist(corner_ped) then corner_ped = nil return end
-    SetEntityAsMissionEntity(corner_ped, true, true)
     TaskGoToEntity(corner_ped, player_ped, -1, 2.0, 1.0, 1073741824, 0)
     local this_ped = corner_ped
+    local was_spawned = corner_spawned
     local generation = corner_generation
     CreateThread(function()
         local expires = GetGameTimer() + 45000
@@ -141,8 +209,10 @@ RegisterNetEvent('mz_drugselling:cl:spawn_corner_customer', function()
             if #(GetEntityCoords(this_ped) - GetEntityCoords(PlayerPedId())) < 3.0 then
                 TaskTurnPedToFaceEntity(this_ped, PlayerPedId(), 1500)
                 if not begin_sale(this_ped) then
-                    DeletePed(this_ped)
+                    TaskWanderStandard(this_ped, 10.0, 10)
+                    if was_spawned then schedule_corner_cleanup(this_ped) end
                     corner_ped = nil
+                    corner_spawned = false
                     schedule_corner_customer()
                 end
                 return
@@ -150,8 +220,12 @@ RegisterNetEvent('mz_drugselling:cl:spawn_corner_customer', function()
             Wait(500)
         end
         if corner_ped == this_ped then
-            if DoesEntityExist(this_ped) then DeletePed(this_ped) end
+            if DoesEntityExist(this_ped) then
+                TaskWanderStandard(this_ped, 10.0, 10)
+                if was_spawned then schedule_corner_cleanup(this_ped) end
+            end
             corner_ped = nil
+            corner_spawned = false
             schedule_corner_customer()
         end
     end)
@@ -164,9 +238,13 @@ end
 
 function stop_corner_dealing()
     corner_generation = corner_generation + 1
-    release_ped(dealing_target, dealing_target ~= corner_ped)
-    if corner_ped and DoesEntityExist(corner_ped) then DeletePed(corner_ped) end
+    release_ped(dealing_target, true)
+    if corner_ped and DoesEntityExist(corner_ped) then
+        TaskWanderStandard(corner_ped, 10.0, 10)
+        if corner_spawned then schedule_corner_cleanup(corner_ped) end
+    end
     corner_ped = nil
+    corner_spawned = false
     if pending then
         TriggerServerEvent('mz_drugselling:sv:cancel_street_sale')
         close_offer()
@@ -196,11 +274,11 @@ RegisterNUICallback('street_cancel', function(_, cb)
     close_offer()
     pending = false
     local ped = dealing_target
-    release_ped(ped, corner_ped ~= ped)
+    release_ped(ped, true)
     if corner_ped then
-        local old_ped = corner_ped
-        SetTimeout(2500, function() if DoesEntityExist(old_ped) then DeletePed(old_ped) end end)
+        if corner_spawned then schedule_corner_cleanup(corner_ped) end
         corner_ped = nil
+        corner_spawned = false
     end
     dealing_target = nil
     schedule_corner_customer()
@@ -237,13 +315,12 @@ RegisterNetEvent('mz_drugselling:cl:street_result', function(result)
     close_offer()
     pending = false
     local ped = dealing_target
-    local is_corner_customer = ped == corner_ped
     if ped and DoesEntityExist(ped) then
         if result.outcome == 'sold' then
             utils.requests.anim('mp_common')
             TaskPlayAnim(PlayerPedId(), 'mp_common', 'givetake2_a', 8.0, -8.0, 1800, 0, 0, false, false, false)
             TaskPlayAnim(ped, 'mp_common', 'givetake2_a', 8.0, -8.0, 1800, 0, 0, false, false, false)
-            SetTimeout(1800, function() release_ped(ped, not is_corner_customer) end)
+            SetTimeout(1800, function() release_ped(ped, true) end)
         elseif result.outcome == 'stolen' then
             release_ped(ped, false)
             local net_id = NetworkGetNetworkIdFromEntity(ped)
@@ -255,7 +332,7 @@ RegisterNetEvent('mz_drugselling:cl:street_result', function(result)
             TaskSmartFleePed(ped, PlayerPedId(), 120.0, 30000, false, false)
             watch_stolen_ped(ped, net_id)
         else
-            release_ped(ped, not is_corner_customer)
+            release_ped(ped, true)
         end
     else
         release_ped(ped, false)
@@ -269,9 +346,14 @@ RegisterNetEvent('mz_drugselling:cl:street_result', function(result)
     end
     if ped == corner_ped then
         corner_ped = nil
-        if result.outcome ~= 'stolen' and ped and DoesEntityExist(ped) then
-            SetTimeout(2500, function() if DoesEntityExist(ped) then DeletePed(ped) end end)
+        if corner_spawned then
+            if result.outcome == 'stolen' then
+                SetTimeout(120000, function() schedule_corner_cleanup(ped) end)
+            else
+                schedule_corner_cleanup(ped)
+            end
         end
+        corner_spawned = false
     end
     dealing_target, target_coords = nil, nil
     if result.reason == 'no_drugs' or result.reason == 'police' then
@@ -284,5 +366,7 @@ end)
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     for ped in pairs(held_peds) do release_ped(ped, true) end
-    if corner_ped and DoesEntityExist(corner_ped) then DeletePed(corner_ped) end
+    for ped in pairs(spawned_peds) do
+        if DoesEntityExist(ped) then DeletePed(ped) end
+    end
 end)

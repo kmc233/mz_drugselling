@@ -198,7 +198,7 @@ config.deliveries = {
         vector4(298.64, -1360.96, 31.94, 230.58)
     },
     police = {
-        required = 1, --- Required amount of police officers to start deliveries or receive new deliveries: Use 0 or remove to disable.
+        required = 0, --- Required amount of police officers to start deliveries or receive new deliveries: Use 0 or remove to disable.
         on_duty_required = false, --- Toggle on duty requirements for police officers.
         jobs = { 'police', 'fib' } --- Table of jobs to receive alerts for dealing.
     },
