@@ -34,9 +34,10 @@ local function process_player_drugs(_src, player_skills)
             local inventory_item = utils.fw.get_item(_src, drug.id)
             local inventory_quantity = inventory_item and (inventory_item.quantity or inventory_item.count or inventory_item.amount) or 0
             if inventory_quantity > 0 and player_skills.level >= drug.delivery.required_level then
-                local base_price = math.random(drug.delivery.price.min, drug.delivery.price.max)
                 local price_multiplier = 1 + ((player_skills.level - 1) * skill_config.bonus_chance_multiplier)
-                local adjusted_price = math.ceil(base_price * price_multiplier)
+                local min_price = math.ceil(drug.delivery.price.min * price_multiplier)
+                local max_price = math.ceil(drug.delivery.price.max * price_multiplier)
+                local optimal_price = math.random(min_price, max_price)
                 local min_quantity = drug.delivery.quantity.min
                 local max_quantity = math.min(drug.delivery.quantity.max, inventory_quantity)
                 if max_quantity < min_quantity then
@@ -48,8 +49,12 @@ local function process_player_drugs(_src, player_skills)
                         id = drug.id,
                         label = drug.label,
                         image = drug.image,
+                        count = sell_quantity,
                         required_level = drug.delivery.required_level,
-                        price = adjusted_price,
+                        price = optimal_price,
+                        min = min_price,
+                        optimal = optimal_price,
+                        max = max_price,
                         quantity = sell_quantity
                     }
                 end
@@ -103,6 +108,38 @@ RegisterServerEvent('mz_drugselling:sv:request_delivery', function()
     local delivery_location = config.deliveries.locations[math.random(#config.deliveries.locations)]
     active_locations[_src] = delivery_location
     TriggerClientEvent('mz_drugselling:cl:spawn_delivery_ped', _src, _src, delivery_location)
+end)
+
+RegisterServerEvent('mz_drugselling:sv:delivery_submit_offer', function(data)
+    local _src = source
+    if type(data) ~= 'table' then return end
+    local sale_id, drug_id = data.sale_id, data.drug_id
+    local price = tonumber(data.price)
+    local sale_data = dealing_data[sale_id]
+    local location = active_locations[_src]
+    local player_ped = GetPlayerPed(_src)
+    if not sale_data or sale_data.source ~= _src or sale_data.location ~= location
+        or sale_modes[_src] ~= 'delivery' or not location or player_ped == 0
+        or #(GetEntityCoords(player_ped) - vector3(location.x, location.y, location.z)) > 6.0
+        or not price or price ~= math.floor(price) then return end
+    local selected
+    for _, offer in ipairs(sale_data.drugs) do
+        if offer.id == drug_id then selected = offer break end
+    end
+    if not selected or price < selected.min or price > selected.max then return end
+    if not complete_sale(_src, { drugs = {{ id = selected.id, label = selected.label, price = price, quantity = selected.quantity }} }, selected.id, selected.quantity, 'delivery') then return end
+    reward_xp(_src, sale_data.drugs, selected.quantity, 'dealing')
+    dealing_data[sale_id] = nil
+    active_locations[_src] = nil
+    preparing[_src] = nil
+    TriggerClientEvent('mz_drugselling:cl:completed_delivery', _src)
+end)
+
+RegisterServerEvent('mz_drugselling:sv:delivery_cancel_offer', function()
+    local _src = source
+    local sale_id = preparing[_src]
+    if sale_id then dealing_data[sale_id] = nil end
+    preparing[_src] = nil
 end)
 
 --- Main event to prepare sale data

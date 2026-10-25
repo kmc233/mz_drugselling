@@ -67,31 +67,23 @@ RegisterNetEvent('mz_drugselling:cl:spawn_delivery_ped', function(_src, location
 end)
 
 RegisterNetEvent('mz_drugselling:cl:receive_delivery_data', function(sale_id, player_drugs)
-    local drug_options = {}
-    for _, drug in ipairs(player_drugs) do
-        local selected = drug
-        drug_options[#drug_options + 1] = {
-            icon = lang.deliveries.client.dialogue.conversation.sale_icon,
-            title = string.format(lang.deliveries.client.dialogue.conversation.sale_message,
-                drug.quantity, drug.label, math.ceil(drug.price * drug.quantity)),
-            onSelect = function()
-                TriggerServerEvent('mz_drugselling:sv:delivery_complete_sale', {
-                    sale_id = sale_id, drug_id = selected.id, amount = selected.quantity
-                })
-            end
-        }
-    end
-    drug_options[#drug_options + 1] = {
-        icon = lang.deliveries.client.dialogue.conversation.exit_icon,
-        title = lang.deliveries.client.dialogue.conversation.exit_message,
-        onSelect = function() TriggerEvent('mz_drugselling:cl:stop_deliveries') end
-    }
-    lib.registerContext({
-        id = 'mz_drugselling_delivery',
-        title = lang.deliveries.client.dialogue.header.message,
-        options = drug_options
-    })
-    lib.showContext('mz_drugselling_delivery')
+    SendNUIMessage({ action = 'open_street_offer', data = {
+        type_label = lang.deliveries.client.dialogue.header.message,
+        offers = player_drugs, mode = 'delivery', sale_id = sale_id
+    } })
+    SetNuiFocus(true, true)
+end)
+
+RegisterNUICallback('delivery_offer', function(data, cb)
+    cb({ success = true })
+    TriggerServerEvent('mz_drugselling:sv:delivery_submit_offer', data)
+    SetNuiFocus(false, false)
+end)
+
+RegisterNUICallback('delivery_cancel', function(_, cb)
+    cb({ success = true })
+    TriggerServerEvent('mz_drugselling:sv:delivery_cancel_offer')
+    SetNuiFocus(false, false)
 end)
 
 RegisterNetEvent('mz_drugselling:cl:completed_delivery', function()

@@ -16,12 +16,13 @@ function closeStreetOffer() {
 function openStreetOffer(data) {
     const offers = Array.isArray(data.offers) ? data.offers : [];
     if (!offers.length) return;
-    streetDeal = { offers, selected: offers[0], price: offers[0].optimal, submitted: false };
+    streetDeal = { offers, selected: offers[0], price: offers[0].optimal, submitted: false,
+        mode: data.mode || 'street', saleId: data.sale_id };
     const root = document.getElementById('main_container');
     root.innerHTML = `
         <section class="street-panel" aria-label="Street sale">
             <header class="street-header">
-                <div><span class="street-kicker">STREET DEAL</span><h2>报价交易</h2></div>
+                <div><span class="street-kicker">${streetDeal.mode === 'delivery' ? 'DELIVERY' : 'STREET DEAL'}</span><h2>报价交易</h2></div>
                 <button type="button" class="street-icon" id="street-close" title="取消交易" aria-label="取消交易">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -55,15 +56,15 @@ function openStreetOffer(data) {
         document.getElementById('street-price').textContent = `$${streetDeal.price}`;
     };
     document.getElementById('street-close').onclick = () => {
-        postStreetAction('street_cancel');
+        postStreetAction(streetDeal.mode === 'delivery' ? 'delivery_cancel' : 'street_cancel');
         closeStreetOffer();
     };
     document.getElementById('street-submit').onclick = () => {
         if (!streetDeal || streetDeal.submitted) return;
         streetDeal.submitted = true;
-        postStreetAction('street_offer', {
+        postStreetAction(streetDeal.mode === 'delivery' ? 'delivery_offer' : 'street_offer', {
             drug_id: streetDeal.selected.id,
-            price: streetDeal.price
+            price: streetDeal.price, sale_id: streetDeal.saleId
         });
         closeStreetOffer();
     };
@@ -87,7 +88,7 @@ function renderStreetSelection() {
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && streetDeal) {
-        postStreetAction('street_cancel');
+        postStreetAction(streetDeal.mode === 'delivery' ? 'delivery_cancel' : 'street_cancel');
         closeStreetOffer();
     }
 });
