@@ -24,7 +24,7 @@ class DealerPhone {
     }
 
     init(data = {}) {
-        this.require_phone_for_street = data.require_phone_for_street === true;
+        this.street_phone = data.street_phone === true;
         this.build();
     }
 
@@ -90,7 +90,7 @@ class DealerPhone {
 
     get_screen_content() {
         if (this.current_screen === 'main') {
-            return this.require_phone_for_street
+            return this.street_phone
                 ? `<span class="line">1 - 主动街卖</span><br><span class="line">2 - 站街模式</span><br><span class="line">3 - 请求送货</span><br><span class="line"># - 关闭</span>`
                 : `<span class="line">1 - 站街模式</span><br><span class="line">2 - 请求送货</span><br><span class="line"># - 关闭</span>`;
         } else if (this.current_screen === 'street_sell') {
@@ -118,10 +118,10 @@ class DealerPhone {
         key = String(key);
         if (this.current_screen === 'main') {
             if (key === '1') {
-                this.current_screen = this.require_phone_for_street ? 'street_sell' : 'corner_sell';
+                this.current_screen = this.street_phone ? 'street_sell' : 'corner_sell';
             } else if (key === '2') {
-                this.current_screen = this.require_phone_for_street ? 'corner_sell' : 'request_delivery';
-            } else if (key === '3' && this.require_phone_for_street) {
+                this.current_screen = this.street_phone ? 'corner_sell' : 'request_delivery';
+            } else if (key === '3' && this.street_phone) {
                 this.current_screen = 'request_delivery';
             } else if (key === '*') {
                 this.current_screen = 'code_entry';

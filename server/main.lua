@@ -165,7 +165,7 @@ utils.callback.register('mz_drugselling:sv:request_config', function(_src, data,
         client_config.bulk_dealer = config.bulk_dealer
     end
     client_config.corner = config.dealing.corner
-    client_config.require_phone_for_street = config.dealing.require_phone_for_street
+    client_config.street_phone = config.dealing.street_phone
     cb(client_config)
 end)
 
@@ -215,7 +215,7 @@ utils.callback.register('mz_drugselling:sv:perform_phone_action', function(_src,
         return
     end
 
-    if action == 'dealing' and not config.dealing.require_phone_for_street then
+    if action == 'dealing' and not config.dealing.street_phone then
         cb(false, 'Active selling does not require the phone.')
         return
     end

@@ -3,7 +3,7 @@ local kept, blocked, standing, wandering = {}, {}, {}, {}
 local game_time = 0
 
 dealing_mode = 'dealing'
-config = { require_phone_for_street = true }
+config = { street_phone = true }
 TARGET = 'ox_target'
 utils = { requests = { anim = function() end } }
 RegisterNetEvent = function(name, handler) events[name] = handler end

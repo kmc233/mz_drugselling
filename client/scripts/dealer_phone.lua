@@ -10,7 +10,7 @@ local function stop_dealing(player_ped)
     TriggerServerEvent('mz_drugselling:sv:stop_phone_action')
     send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.stopped, 'info', 3500)
 
-    if config.require_phone_for_street then
+    if config.street_phone then
         if TARGET == 'qb-target' then
             exports['qb-target']:RemoveGlobalPed(lang.dealing.client.target.sales.label)
         elseif TARGET == 'ox_target' then
@@ -21,7 +21,7 @@ end
 
 local function can_sell_to_ped(entity)
     if is_delivering or dealing_mode == 'corner' then return false end
-    if config.require_phone_for_street and dealing_mode ~= 'dealing' then return false end
+    if config.street_phone and dealing_mode ~= 'dealing' then return false end
     local ped_type = GetPedType(entity)
     local model = GetEntityModel(entity)
     return not (IsPedAPlayer(entity) or ped_type == 28 or ped_type == 29
@@ -107,7 +107,7 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     if not action then print('action missing') return end
     local player_ped = PlayerPedId()
     if action == 'dealing_start' or action == 'corner_start' then
-        if action == 'dealing_start' and not config.require_phone_for_street then return end
+        if action == 'dealing_start' and not config.street_phone then return end
         if is_delivering then 
             send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.is_delivering, 'error', 3500)
             return
@@ -138,7 +138,7 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     end
 
     if action == 'dealing_stop' or action == 'corner_stop' then
-        if action == 'dealing_stop' and not config.require_phone_for_street then return end
+        if action == 'dealing_stop' and not config.street_phone then return end
         if not is_dealing then 
             send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.not_dealing, 'error', 3500)
             return
@@ -173,7 +173,7 @@ RegisterNetEvent('mz_drugselling:cl:open_dealer_phone', function()
     SetNuiFocus(true, true)
     SendNUIMessage({
         action = 'open_dealer_phone',
-        data = { require_phone_for_street = config.require_phone_for_street }
+        data = { street_phone = config.street_phone }
     })
 end)
 

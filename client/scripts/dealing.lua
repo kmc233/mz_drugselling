@@ -144,7 +144,7 @@ end
 
 function start_street_sale(ped)
     if is_delivering or dealing_mode == 'corner' then return end
-    if config.require_phone_for_street and dealing_mode ~= 'dealing' then return end
+    if config.street_phone and dealing_mode ~= 'dealing' then return end
     if type(ped) ~= 'number' then
         ped = utils.entities.get_target_ped(PlayerPedId(), 45.0, 5.0)
     end
@@ -358,7 +358,7 @@ RegisterNetEvent('mz_drugselling:cl:street_result', function(result)
     end
     dealing_target, target_coords = nil, nil
     if (result.reason == 'no_drugs' or result.reason == 'police')
-        and (config.require_phone_for_street or dealing_mode == 'corner') then
+        and (config.street_phone or dealing_mode == 'corner') then
         TriggerEvent('mz_drugselling:cl:stop_dealing')
         return
     end
