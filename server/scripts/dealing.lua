@@ -74,7 +74,7 @@ RegisterNetEvent('mz_drugselling:sv:prepare_street_sale', function(net_id)
         return
     end
 
-    local type_id = config.dealing.ped_models[GetEntityModel(ped)] or 'normal'
+    local type_id = config.dealing.ped_model_types[GetEntityModel(ped)] or 'normal'
     local personality = config.dealing.ped_types[type_id]
     used_peds[player][net_id] = os.time()
     if chance(personality.refuse) then

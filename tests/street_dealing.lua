@@ -38,7 +38,7 @@ config = {
     dealing = {
         police = { jobs = {}, required = 0 },
         price_influence = 30,
-        ped_models = {},
+        ped_model_types = {},
         ped_types = { normal = { label = 'Normal', buy = 55, steal = 8, refuse = 12, alert = 15, xp = 25 } }
     }
 }

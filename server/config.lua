@@ -131,6 +131,7 @@ config.dealing = {
         normal = { label = '普通顾客', buy = 55, steal = 8, refuse = 12, alert = 15, xp = 25 },
         party = { label = '派对顾客', buy = 75, steal = 8, refuse = 5, alert = 10, xp = 15 },
         addicted = { label = '成瘾者', buy = 78, steal = 22, refuse = 5, alert = 0, xp = 8 },
+        gang = { label = '帮派成员', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 30, gang = true },
         snitch = { label = '告密者', buy = 25, steal = 0, refuse = 45, alert = 55, xp = 40 },
         dealer = { label = '街头商人', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 30 },
         rich = { label = '有钱人', buy = 85, steal = 0, refuse = 2, alert = 12, xp = 12 },
@@ -138,44 +139,23 @@ config.dealing = {
         undercover = { label = '卧底', buy = 30, steal = 0, refuse = 0, alert = 100, xp = 50 }
     },
     ped_models = {
-        [GetHashKey('a_m_y_hipster_01')] = 'party',
-        [GetHashKey('a_f_y_clubcust_01')] = 'party',
-        [GetHashKey('a_m_y_clubcust_01')] = 'party',
-        [GetHashKey('a_f_y_clubcust_02')] = 'party',
-        [GetHashKey('a_m_y_clubcust_02')] = 'party',
-        [GetHashKey('a_m_y_clubcust_03')] = 'party',
-        [GetHashKey('csb_ramp_hipster')] = 'party',
-        [GetHashKey('a_f_m_skidrow_01')] = 'addicted',
-        [GetHashKey('g_m_y_ballaeast_01')] = 'addicted',
-        [GetHashKey('g_m_y_ballasout_01')] = 'addicted',
-        [GetHashKey('g_m_y_famca_01')] = 'addicted',
-        [GetHashKey('g_m_y_famdnf_01')] = 'addicted',
-        [GetHashKey('g_m_y_mexgoon_03')] = 'addicted',
-        [GetHashKey('g_m_y_salvagoon_01')] = 'addicted',
-        [GetHashKey('a_m_m_business_01')] = 'snitch',
-        [GetHashKey('csb_reporter')] = 'snitch',
-        [GetHashKey('a_f_y_business_01')] = 'snitch',
-        [GetHashKey('a_f_y_business_02')] = 'snitch',
-        [GetHashKey('a_m_m_eastsa_02')] = 'snitch',
-        [GetHashKey('g_m_y_ballaorig_01')] = 'dealer',
-        [GetHashKey('g_m_y_mexgang_01')] = 'dealer',
-        [GetHashKey('g_m_y_mexgoon_01')] = 'dealer',
-        [GetHashKey('g_m_y_famfor_01')] = 'dealer',
-        [GetHashKey('g_m_y_strpunk_02')] = 'dealer',
-        [GetHashKey('a_m_y_bevhills_01')] = 'rich',
-        [GetHashKey('a_f_y_bevhills_01')] = 'rich',
-        [GetHashKey('a_f_y_bevhills_02')] = 'rich',
-        [GetHashKey('u_m_y_imporage')] = 'rich',
-        [GetHashKey('u_m_y_party_01')] = 'rich',
-        [GetHashKey('a_m_m_tramp_01')] = 'junkie',
-        [GetHashKey('a_f_m_tramp_01')] = 'junkie',
-        [GetHashKey('a_m_y_skater_01')] = 'junkie',
-        [GetHashKey('a_m_y_skater_02')] = 'junkie',
-        [GetHashKey('a_m_m_trampbeac_01')] = 'junkie',
-        [GetHashKey('s_m_y_cop_01')] = 'undercover',
-        [GetHashKey('csb_undercover')] = 'undercover',
-        [GetHashKey('s_m_m_ciasec_01')] = 'undercover',
-        [GetHashKey('s_m_m_highsec_01')] = 'undercover'
+        party = {
+            'a_m_y_hipster_01', 'a_f_y_clubcust_01', 'a_m_y_clubcust_01',
+            'a_f_y_clubcust_02', 'a_m_y_clubcust_02', 'a_m_y_clubcust_03', 'csb_ramp_hipster'
+        },
+        addicted = { 'a_f_m_skidrow_01' },
+        gang = {
+            'g_m_y_ballaeast_01', 'g_m_y_ballasout_01', 'g_m_y_famca_01',
+            'g_m_y_famdnf_01', 'g_m_y_mexgoon_01', 'g_m_y_mexgoon_02',
+            'g_m_y_mexgoon_03', 'g_m_y_ballaorig_01', 'g_m_y_famfor_01',
+            'g_m_y_strpunk_01', 'g_m_y_strpunk_02', 'g_m_y_lost_01',
+            'g_m_y_lost_02', 'g_m_y_lost_03', 'g_m_y_pologoon_01', 'g_m_y_salvagoon_01'
+        },
+        snitch = { 'a_m_m_business_01', 'csb_reporter', 'a_f_y_business_01', 'a_f_y_business_02', 'a_m_m_eastsa_02' },
+        dealer = { 'g_m_y_mexgang_01' },
+        rich = { 'a_m_y_bevhills_01', 'a_f_y_bevhills_01', 'a_f_y_bevhills_02', 'u_m_y_imporage', 'u_m_y_party_01' },
+        junkie = { 'a_m_m_tramp_01', 'a_f_m_tramp_01', 'a_m_y_skater_01', 'a_m_y_skater_02', 'a_m_m_trampbeac_01' },
+        undercover = { 's_m_y_cop_01', 'csb_undercover', 's_m_m_ciasec_01', 's_m_m_highsec_01' }
     },
     price_influence = 30, --- Chance points gained/lost at the price limits.
     police = {
@@ -189,6 +169,14 @@ config.dealing = {
         item = { id = 'black_money' } --- One item per dollar of the sale total.
     }
 }
+
+--- Build the runtime model -> personality lookup from the grouped configuration.
+config.dealing.ped_model_types = {}
+for type_id, models in pairs(config.dealing.ped_models) do
+    for _, model_name in ipairs(models) do
+        config.dealing.ped_model_types[GetHashKey(model_name)] = type_id
+    end
+end
 
 --- @section Delivery settings
 

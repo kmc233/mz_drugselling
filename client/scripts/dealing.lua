@@ -7,20 +7,10 @@ local corner_generation = 0
 local held_peds = {}
 local spawned_peds = {}
 local schedule_corner_customer
-local gang_models = {
-    'g_m_y_ballaeast_01', 'g_m_y_ballaorig_01', 'g_m_y_ballasout_01',
-    'g_m_y_famca_01', 'g_m_y_famdnf_01', 'g_m_y_famfor_01',
-    'g_m_y_lost_01', 'g_m_y_lost_02', 'g_m_y_lost_03',
-    'g_m_y_mexgoon_01', 'g_m_y_mexgoon_02', 'g_m_y_mexgoon_03',
-    'g_m_y_pologoon_01', 'g_m_y_salvagoon_01', 'g_m_y_strpunk_01'
-}
-
 local function is_gang_member(ped)
-    local model = GetEntityModel(ped)
-    for _, name in ipairs(gang_models) do
-        if model == GetHashKey(name) then return true end
-    end
-    return false
+    local type_id = config.ped_model_types and config.ped_model_types[GetEntityModel(ped)]
+    local personality = type_id and config.ped_types and config.ped_types[type_id]
+    return personality and personality.gang == true or false
 end
 
 local function close_offer()
