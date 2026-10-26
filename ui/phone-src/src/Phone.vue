@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, ChevronRight,
-  House, MapPin, Radio, RotateCcw, ShoppingBag, X
+  House, MapPin, Phone, PhoneOff, Radio, RotateCcw, ShoppingBag, X
 } from 'lucide-vue-next';
 
 const visible = ref(false);
@@ -184,7 +184,10 @@ defineExpose({ open, close, setMode });
       </div>
       <div class="phone-controls">
         <div class="control-cluster">
-          <button type="button" class="utility-key" title="返回" aria-label="返回" @click="goBack"><RotateCcw :size="18" /></button>
+          <div class="side-keys">
+            <button type="button" class="utility-key" title="返回" aria-label="返回" @click="goBack"><RotateCcw :size="18" /></button>
+            <span class="call-key answer-key" aria-hidden="true"><Phone :size="17" /></span>
+          </div>
           <div class="direction-pad" aria-label="导航键">
             <button type="button" class="nav-key up" title="向上" aria-label="向上" @click="navigate('up')"><ArrowUp :size="18" /></button>
             <button type="button" class="nav-key left" title="向左" aria-label="向左" @click="navigate('left')"><ArrowLeft :size="18" /></button>
@@ -192,7 +195,10 @@ defineExpose({ open, close, setMode });
             <button type="button" class="nav-key right" title="向右" aria-label="向右" @click="navigate('right')"><ArrowRight :size="18" /></button>
             <button type="button" class="nav-key down" title="向下" aria-label="向下" @click="navigate('down')"><ArrowDown :size="18" /></button>
           </div>
-          <button type="button" class="utility-key" title="主页" aria-label="主页" @click="goHome"><House :size="18" /></button>
+          <div class="side-keys">
+            <button type="button" class="utility-key" title="主页" aria-label="主页" @click="goHome"><House :size="18" /></button>
+            <span class="call-key decline-key" aria-hidden="true"><PhoneOff :size="17" /></span>
+          </div>
         </div>
         <div class="number-pad" aria-hidden="true">
           <span>1<small></small></span><span>2<small>ABC</small></span><span>3<small>DEF</small></span>
