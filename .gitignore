@@ -9,6 +9,7 @@ Desktop.ini
 
 # Local dependencies and temporary output
 node_modules/
+.npm-cache/
 .cache/
 *.log
 npm-debug.log*
