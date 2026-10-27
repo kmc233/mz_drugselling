@@ -10,7 +10,9 @@ Desktop.ini
 # Local dependencies and temporary output
 node_modules/
 .npm-cache/
+.vite/
 .cache/
+web/dist/
 *.log
 npm-debug.log*
 

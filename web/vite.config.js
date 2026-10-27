@@ -7,8 +7,8 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify('production')
   },
   build: {
-    outDir: '..',
-    emptyOutDir: false,
+    outDir: 'dist',
+    emptyOutDir: true,
     cssCodeSplit: false,
     lib: {
       entry: 'src/main.js',

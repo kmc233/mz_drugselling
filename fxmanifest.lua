@@ -7,14 +7,16 @@ version '1.1.0'
 description 'MZ Drug Selling'
 lua54 'yes'
 
-ui_page 'ui/index.html'
+ui_page 'web/index.html'
 
 files {
-    'ui/index.html',
-    'ui/css/*.css',
-    'ui/scripts/*.js',
-    'ui/assets/images/*',
-    'ui/assets/fonts/*'
+    'web/index.html',
+    'web/css/*.css',
+    'web/scripts/*.js',
+    'web/assets/images/*',
+    'web/assets/fonts/*',
+    'web/dist/css/*.css',
+    'web/dist/scripts/*.js'
 }
 
 shared_scripts {
