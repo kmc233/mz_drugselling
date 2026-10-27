@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
-  ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, ChevronRight,
-  House, MapPin, Phone, PhoneOff, Radio, RotateCcw, ShoppingBag, X
+  ArrowLeft, Check, ChevronRight, MapPin, Phone, PhoneOff,
+  Radio, ShoppingBag, X
 } from 'lucide-vue-next';
 
 const visible = ref(false);
@@ -185,18 +185,18 @@ defineExpose({ open, close, setMode });
       <div class="phone-controls">
         <div class="control-cluster">
           <div class="side-keys">
-            <button type="button" class="utility-key" title="返回" aria-label="返回" @click="goBack"><RotateCcw :size="18" /></button>
+            <button type="button" class="utility-key" title="返回" aria-label="返回" @click="goBack"><span class="soft-key-mark"></span></button>
             <span class="call-key answer-key" aria-hidden="true"><Phone :size="17" /></span>
           </div>
           <div class="direction-pad" aria-label="导航键">
-            <button type="button" class="nav-key up" title="向上" aria-label="向上" @click="navigate('up')"><ArrowUp :size="18" /></button>
-            <button type="button" class="nav-key left" title="向左" aria-label="向左" @click="navigate('left')"><ArrowLeft :size="18" /></button>
+            <button type="button" class="nav-key up" title="向上" aria-label="向上" @click="navigate('up')"><span class="direction-mark"></span></button>
+            <button type="button" class="nav-key left" title="向左" aria-label="向左" @click="navigate('left')"><span class="direction-mark"></span></button>
             <button type="button" class="nav-key center" title="确认" aria-label="确认" @click="confirmSelection"><Check :size="19" /></button>
-            <button type="button" class="nav-key right" title="向右" aria-label="向右" @click="navigate('right')"><ArrowRight :size="18" /></button>
-            <button type="button" class="nav-key down" title="向下" aria-label="向下" @click="navigate('down')"><ArrowDown :size="18" /></button>
+            <button type="button" class="nav-key right" title="向右" aria-label="向右" @click="navigate('right')"><span class="direction-mark"></span></button>
+            <button type="button" class="nav-key down" title="向下" aria-label="向下" @click="navigate('down')"><span class="direction-mark"></span></button>
           </div>
           <div class="side-keys">
-            <button type="button" class="utility-key" title="主页" aria-label="主页" @click="goHome"><House :size="18" /></button>
+            <button type="button" class="utility-key" title="主页" aria-label="主页" @click="goHome"><span class="soft-key-mark"></span></button>
             <span class="call-key decline-key" aria-hidden="true"><PhoneOff :size="17" /></span>
           </div>
         </div>
