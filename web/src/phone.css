@@ -203,8 +203,8 @@
 .number-pad span {
   min-height: 0; display: flex; align-items: center; justify-content: center; gap: 4px;
   border: 0; border-radius: 0;
-  background: linear-gradient(#4b4d4e, #3b3d3e 65%, #353738);
-  box-shadow: inset 0 1px #666869, inset 0 -1px #2c2e2f;
+  background: linear-gradient(#4e5051, #393b3c 55%, #303233);
+  box-shadow: inset 0 1px 1px #777a7b, inset 0 -2px 2px #202223, 0 1px 1px #121415;
   color: #eeeeeb; font-size: 16px; font-weight: 700; text-shadow: 0 1px #141617;
   user-select: none;
 }
