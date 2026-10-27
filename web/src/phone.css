@@ -195,20 +195,20 @@
 .number-pad {
   width: 100%; min-height: 0; display: grid;
   grid-template: repeat(4, 1fr) / repeat(3, 1fr);
-  gap: 2px 3px; padding: 6px 7px;
+  gap: 1px; padding: 0; overflow: hidden;
   justify-self: center; border: 1px solid #151718; border-radius: 12px;
-  background: linear-gradient(#303233, #27292a);
-  box-shadow: inset 0 1px 2px #111213, 0 1px 1px #4c4e4f;
+  background: #242627;
+  box-shadow: 0 1px 1px #4c4e4f;
 }
 .number-pad span {
   min-height: 0; display: flex; align-items: center; justify-content: center; gap: 4px;
-  border: 1px solid #292b2c; border-radius: 5px;
-  background: linear-gradient(#4e5051, #393b3c 58%, #303233);
-  box-shadow: inset 0 1px 1px #777a7b, inset 0 -1px 1px #222425;
+  border: 0; border-radius: 0;
+  background: linear-gradient(#4b4d4e, #3b3d3e 65%, #353738);
+  box-shadow: inset 0 1px #666869, inset 0 -1px #2c2e2f;
   color: #eeeeeb; font-size: 16px; font-weight: 700; text-shadow: 0 1px #141617;
   user-select: none;
 }
-.number-pad span:active { transform: translateY(1px); background: #303233; box-shadow: inset 0 1px 2px #161819; }
+.number-pad span:active { background: #303233; box-shadow: inset 0 1px 2px #161819; }
 .number-pad small { font-size: 7px; font-weight: 700; }
 
 body.phone-preview { min-height: 100vh; background: #303231; }
@@ -234,5 +234,5 @@ body.phone-preview { min-height: 100vh; background: #303231; }
   .control-cluster { grid-template-columns: 1fr minmax(82px, 98px) 1fr; }
   .direction-pad { --center-width: 42px; --center-height: 34px; height: 76px; border-radius: 13px; }
   .side-keys { gap: 6px; }.utility-key, .call-key { height: 27px; }
-  .number-pad { gap: 2px; padding: 4px 5px; }.number-pad span { font-size: 13px; }
+  .number-pad span { font-size: 13px; }
 }
