@@ -193,7 +193,7 @@
 .nav-key.right .direction-mark { border-left: 6px solid currentColor; transform: translateX(2px); }
 
 .number-pad {
-  width: min(100%, 240px); min-height: 0; display: grid;
+  width: 100%; min-height: 0; display: grid;
   grid-template: repeat(4, 1fr) / repeat(3, 1fr);
   gap: 2px 3px; padding: 6px 7px;
   justify-self: center; border: 1px solid #151718; border-radius: 12px;
