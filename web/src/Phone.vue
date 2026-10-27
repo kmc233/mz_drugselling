@@ -143,7 +143,7 @@ defineExpose({ open, close, setMode });
 <template>
   <div v-if="visible" class="mz-phone" aria-label="MZ 手机">
     <div class="phone-shell">
-      <div class="shell-top"><span class="earpiece"></span><strong>MZ</strong><span class="model-mark">105</span></div>
+      <div class="shell-top"><span class="earpiece"></span><strong>MUZIA</strong></div>
       <div class="phone-screen">
         <div class="screen-status"><span>09:41</span><span class="status-icons"><Radio :size="13" /><span class="battery"><span></span></span></span></div>
         <div class="screen-heading">

@@ -55,7 +55,6 @@
   box-shadow: inset 0 1px 2px #000;
 }
 .shell-top strong { align-self: end; margin-bottom: 4px; font-size: 15px; letter-spacing: 0; }
-.model-mark { align-self: end; margin-bottom: 5px; font-size: 9px; color: #aeb0b0; }
 .shell-bottom { justify-self: center; align-self: center; width: 46px; height: 4px; border-radius: 4px; background: #111314; box-shadow: 0 1px #626466; }
 
 .phone-screen {
@@ -63,10 +62,10 @@
   display: grid;
   grid-template-rows: 25px 61px minmax(0, 1fr) 27px;
   overflow: hidden;
-  border: 8px solid #17191b;
+  border: 5px solid #17191b;
   border-radius: 16px 16px 12px 12px;
   background: #c3d1a7;
-  box-shadow: 0 0 0 2px #737779, 0 0 0 4px #1b1d1f, inset 0 2px 9px #6e795c;
+  box-shadow: 0 0 0 1px #737779, 0 0 0 3px #1b1d1f, inset 0 2px 9px #6e795c;
   color: #253b2b;
 }
 
@@ -139,10 +138,10 @@
 .phone-controls button {
   display: grid; place-items: center; color: #e3e3e0;
   border: 1px solid #111315;
-  background: linear-gradient(#55585a, #3a3d40 55%, #303335);
-  box-shadow: inset 0 1px 1px #8c8f90, inset 0 -1px 1px #202325, 0 1px 2px #121415;
+  background: linear-gradient(#4e5051, #393b3c 55%, #303233);
+  box-shadow: inset 0 1px 1px #777a7b, inset 0 -1px 1px #202223, 0 1px 2px #121415;
 }
-.phone-controls button:hover { background: linear-gradient(#696c6e, #4a4d4f 55%, #36393b); }
+.phone-controls button:hover { background: linear-gradient(#606263, #454748 55%, #353738); }
 .phone-controls button:active { transform: translateY(1px); box-shadow: inset 0 1px 2px #111315; }
 .phone-controls button:focus-visible, .phone-screen button:focus-visible { outline: 2px solid #d4dfbd; outline-offset: 2px; }
 .utility-key { width: 100%; height: 32px; border-radius: 8px 8px 11px 11px; }
@@ -150,8 +149,8 @@
 .call-key {
   height: 31px; display: grid; place-items: center; border: 1px solid #191b1d;
   border-radius: 8px 8px 11px 11px;
-  box-shadow: inset 0 1px 1px #929596, 0 1px 2px #121415;
-  background: linear-gradient(#55585a, #3a3d40 55%, #303335);
+  box-shadow: inset 0 1px 1px #777a7b, 0 1px 2px #121415;
+  background: linear-gradient(#4e5051, #393b3c 55%, #303233);
 }
 .answer-key { color: #72d59a; }
 .decline-key { color: #ef8580; }
@@ -197,8 +196,8 @@
 .number-pad span {
   min-height: 0; display: flex; align-items: center; justify-content: center; gap: 4px;
   border: 1px solid #1b1d1f; border-radius: 8px 8px 10px 10px;
-  background: linear-gradient(#696c6e 0%, #535658 28%, #3e4143 100%);
-  box-shadow: inset 0 1px 1px #a4a6a7, inset 0 -1px 1px #292c2d, 0 1px 2px #151718;
+  background: linear-gradient(#5c5e5f 0%, #4b4d4e 28%, #393b3c 100%);
+  box-shadow: inset 0 1px 1px #8d9091, inset 0 -1px 1px #292b2c, 0 1px 2px #151718;
   color: #eeeeeb; font-size: 16px; font-weight: 700; text-shadow: 0 1px #141617;
 }
 .number-pad small { font-size: 7px; font-weight: 700; }
@@ -210,8 +209,8 @@ body.phone-preview { min-height: 100vh; background: #303231; }
 @media (max-height: 580px) {
   .phone-shell { grid-template-rows: 34px minmax(0, 1fr) minmax(194px, 1fr) 8px; padding: 8px 12px 5px; }
   .earpiece { top: 14px; }
-  .shell-top strong, .model-mark { margin-bottom: 0; }
-  .phone-screen { grid-template-rows: 20px 45px minmax(0, 1fr) 23px; border-width: 6px; }
+  .shell-top strong { margin-bottom: 0; }
+  .phone-screen { grid-template-rows: 20px 45px minmax(0, 1fr) 23px; border-width: 5px; }
   .screen-heading { padding: 3px 8px; }.screen-heading h1 { font-size: 16px; }
   .screen-body { padding: 5px 6px; }
   .section-caption { margin-bottom: 3px; }
