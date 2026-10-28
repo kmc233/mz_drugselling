@@ -171,19 +171,19 @@
   opacity: 0; transition: opacity 90ms ease-out;
 }
 .direction-pad:has(.nav-key.up:active) {
-  --press-gradient: linear-gradient(180deg, #10131470, #25292a33 42%, #a4a8a812);
+  --press-gradient: linear-gradient(180deg, #10131459, #25292a33 42%, #a4a8a806);
   --press-shadow: inset 0 3px 6px -3px #080a0b66;
 }
 .direction-pad:has(.nav-key.down:active) {
-  --press-gradient: linear-gradient(0deg, #10131470, #25292a33 42%, #a4a8a812);
+  --press-gradient: linear-gradient(0deg, #10131459, #25292a33 42%, #a4a8a806);
   --press-shadow: inset 0 -3px 6px -3px #080a0b66;
 }
 .direction-pad:has(.nav-key.left:active) {
-  --press-gradient: linear-gradient(90deg, #10131470, #25292a33 42%, #a4a8a812);
+  --press-gradient: linear-gradient(90deg, #10131459, #25292a33 42%, #a4a8a806);
   --press-shadow: inset 3px 0 6px -3px #080a0b66;
 }
 .direction-pad:has(.nav-key.right:active) {
-  --press-gradient: linear-gradient(270deg, #10131470, #25292a33 42%, #a4a8a812);
+  --press-gradient: linear-gradient(270deg, #10131459, #25292a33 42%, #a4a8a806);
   --press-shadow: inset -3px 0 6px -3px #080a0b66;
 }
 .direction-pad:has(.nav-key:not(.center):active)::before { opacity: 1; }
