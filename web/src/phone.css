@@ -132,8 +132,8 @@
 
 .screen-footer { display: flex; align-items: center; justify-content: space-between; padding: 0 9px; border-top: 2px solid #526c4d; background: #b5c69a; font-size: 11px; font-weight: 800; }
 
-.phone-controls { min-height: 0; display: grid; grid-template-rows: 112px minmax(0, 1fr); gap: 8px; padding: 3px 5px 0; }
-.control-cluster { min-height: 0; display: grid; grid-template-columns: 1fr minmax(100px, 102px) 1fr; align-items: center; gap: 8px; }
+.phone-controls { min-height: 0; display: grid; grid-template-rows: 100px minmax(0, 1fr); gap: 8px; padding: 3px 5px 0; }
+.control-cluster { min-height: 0; display: grid; grid-template-columns: 1fr 88px 1fr; align-items: center; gap: 8px; }
 .side-keys { display: grid; gap: 11px; align-content: center; }
 .phone-controls button {
   display: grid; place-items: center; color: #e3e3e0;
@@ -155,11 +155,11 @@
 .answer-key { color: #72d59a; }
 .decline-key { color: #ef8580; }
 .direction-pad {
-  --center-width: 48px;
-  --center-height: 42px;
+  --center-width: 40px;
+  --center-height: 34px;
   position: relative;
-  width: 100%; height: 92px;
-  border: 2px solid #131516; border-radius: 16px;
+  width: 100%; height: 80px;
+  border: 2px solid #131516; border-radius: 14px;
   background: linear-gradient(#424445, #393b3c);
   box-shadow: 0 1px 2px #101112, inset 0 1px #77797a;
 }
@@ -186,6 +186,7 @@
 }
 .phone-controls .nav-key.center:hover { background: linear-gradient(#c8caca, #929595); }
 .phone-controls .nav-key.center:active { transform: translate(-50%, calc(-50% + 1px)); background: #929595; box-shadow: inset 0 1px 2px #555858; }
+.nav-key.center svg { width: 16px; height: 16px; }
 .direction-mark { width: 0; height: 0; border: 4px solid transparent; }
 .nav-key.up .direction-mark { border-bottom: 6px solid currentColor; transform: translateY(-2px); }
 .nav-key.down .direction-mark { border-top: 6px solid currentColor; transform: translateY(2px); }
@@ -232,9 +233,9 @@ body.phone-preview { min-height: 100vh; background: #303231; }
   .detail-icon svg { width: 20px; height: 20px; }.detail-title { font-size: 15px; }
   .detail-state { margin-top: 1px; }
   .action-row { min-height: 29px; padding: 2px 6px; }
-  .phone-controls { grid-template-rows: 88px minmax(0, 1fr); gap: 5px; }
-  .control-cluster { grid-template-columns: 1fr minmax(82px, 98px) 1fr; }
-  .direction-pad { --center-width: 42px; --center-height: 34px; height: 76px; border-radius: 13px; }
+  .phone-controls { grid-template-rows: 82px minmax(0, 1fr); gap: 5px; }
+  .control-cluster { grid-template-columns: 1fr 80px 1fr; }
+  .direction-pad { --center-width: 36px; --center-height: 30px; height: 70px; border-radius: 12px; }
   .side-keys { gap: 6px; }.utility-key, .call-key { height: 27px; }
   .number-pad span { font-size: 13px; }
 }
