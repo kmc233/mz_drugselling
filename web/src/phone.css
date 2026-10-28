@@ -133,7 +133,7 @@
 .screen-footer { display: flex; align-items: center; justify-content: space-between; padding: 0 9px; border-top: 2px solid #526c4d; background: #b5c69a; font-size: 11px; font-weight: 800; }
 
 .phone-controls { min-height: 0; display: grid; grid-template-rows: 112px minmax(0, 1fr); gap: 8px; padding: 3px 5px 0; }
-.control-cluster { min-height: 0; display: grid; grid-template-columns: 1fr minmax(100px, 116px) 1fr; align-items: center; gap: 8px; }
+.control-cluster { min-height: 0; display: grid; grid-template-columns: 1fr minmax(100px, 102px) 1fr; align-items: center; gap: 8px; }
 .side-keys { display: grid; gap: 11px; align-content: center; }
 .phone-controls button {
   display: grid; place-items: center; color: #e3e3e0;
