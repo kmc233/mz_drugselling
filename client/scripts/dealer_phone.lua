@@ -80,17 +80,9 @@ local function stop_deliveries(player_ped)
     is_delivering = false
     SendNUIMessage({ action = 'phone_mode_changed', mode = nil })
     TriggerServerEvent('mz_drugselling:sv:stop_phone_action')
-    if delivery_blip then
-        RemoveBlip(delivery_blip)
-        delivery_blip = nil
-    end
     send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.stopped, 'info', 3500)
-    if delivery_ped then
-        SetPedAsNoLongerNeeded(delivery_ped)
-        Wait(5000)
-        DeletePed(delivery_ped)
-        delivery_ped = nil
-    end
+    delivery_orders = { orders = {}, active_id = nil, refresh_at = 0, server_time = 0 }
+    SendNUIMessage({ action = 'delivery_orders', data = delivery_orders })
 end
 
 --- Start dealing.
@@ -98,7 +90,7 @@ end
 local function start_deliveries(player_ped)
     is_delivering = true
     SendNUIMessage({ action = 'phone_mode_changed', mode = 'delivery' })
-    SendNUIMessage({ action = 'close_dealer_phone' })
+    SendNUIMessage({ action = 'delivery_open_inbox' })
     send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.started, 'info', 3500)
     TriggerServerEvent('mz_drugselling:sv:request_delivery')
 end
@@ -177,7 +169,7 @@ RegisterNetEvent('mz_drugselling:cl:open_dealer_phone', function()
     SetNuiFocus(true, true)
     SendNUIMessage({
         action = 'open_dealer_phone',
-        data = { street_phone = config.street_phone, active_mode = dealing_mode or (is_delivering and 'delivery') }
+        data = { street_phone = config.street_phone, active_mode = dealing_mode or (is_delivering and 'delivery'), delivery_orders = delivery_orders }
     })
 end)
 

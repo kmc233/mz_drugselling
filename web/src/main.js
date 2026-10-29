@@ -7,7 +7,9 @@ const phone = createApp(App).mount('#phone-root');
 window.MZPhone = {
   open: (data) => phone.open(data),
   close: () => phone.close(),
-  setMode: (mode) => phone.setMode(mode)
+  setMode: (mode) => phone.setMode(mode),
+  updateDelivery: (data) => phone.updateDelivery(data),
+  openInbox: () => phone.openInbox()
 };
 
 if (import.meta.env.DEV) {

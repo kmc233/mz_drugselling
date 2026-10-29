@@ -130,6 +130,26 @@
 .action-row > span { flex: 1; }
 .action-row:disabled { opacity: .5; cursor: default; }
 
+.inbox-toolbar, .thread-meta { display: flex; align-items: center; justify-content: space-between; min-height: 25px; padding: 0 3px 5px; font-size: 11px; font-weight: 700; }
+.inbox-toolbar button { display: grid; place-items: center; width: 24px; height: 22px; border: 1px solid #829777; background: #c6d3ad; color: #263b2c; }
+.inbox-toolbar button:disabled { opacity: .45; cursor: default; }
+.order-list { display: grid; gap: 3px; }
+.order-row { display: grid; width: 100%; min-height: 58px; padding: 5px 7px; border: 1px solid #829777; border-left: 3px solid #697f5e; background: #c6d3ad; color: #263b2c; text-align: left; }
+.order-row.active { border-left-color: #b64f39; }
+.order-row.focused { background: #344f39; color: #d4dfbd; }
+.order-row-top, .order-row-bottom { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.order-row-top strong { font-size: 12px; }.order-row-top small { font-size: 10px; white-space: nowrap; }
+.order-row-item { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-row-bottom { font-size: 10px; opacity: .8; }.order-row-bottom > span:last-child { display: flex; align-items: center; gap: 2px; }
+.inbox-empty, .inbox-wait { padding: 15px 5px; text-align: center; font-size: 11px; }
+.thread-meta { border-bottom: 1px solid #829777; }
+.thread-messages { display: grid; justify-items: start; gap: 6px; padding: 8px 0; }
+.message { max-width: 91%; margin: 0; padding: 6px 7px; border: 1px solid #829777; background: #d3ddbe; font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+.message.outgoing { justify-self: end; background: #9fbd93; }
+.thread-actions { display: grid; gap: 4px; margin-top: 5px; }
+.thread-actions button { min-height: 31px; display: flex; justify-content: center; align-items: center; gap: 5px; border: 1px solid #526c4d; background: #344f39; color: #d4dfbd; font-size: 11px; font-weight: 700; }
+.thread-actions button:disabled { opacity: .5; }
+
 .screen-footer { display: flex; align-items: center; justify-content: space-between; padding: 0 9px; border-top: 2px solid #526c4d; background: #b5c69a; font-size: 11px; font-weight: 800; }
 
 .phone-controls { min-height: 0; display: grid; grid-template-rows: 100px minmax(0, 1fr); gap: 8px; padding: 3px 5px 0; }

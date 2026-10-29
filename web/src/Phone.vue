@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   ArrowLeft, Check, ChevronRight, MapPin, Phone, PhoneOff,
-  Radio, ShoppingBag, X
+  Radio, ShoppingBag, X, MessageSquare, RefreshCw, Clock3
 } from 'lucide-vue-next';
 
 const visible = ref(false);
@@ -11,6 +11,11 @@ const activeMode = ref(null);
 const view = ref('home');
 const selectedIndex = ref(0);
 const busy = ref(false);
+const deliveryData = ref({ orders: [], active_id: null, refresh_at: 0, server_time: 0 });
+const selectedOrderId = ref(null);
+const now = ref(Math.floor(Date.now() / 1000));
+let clockTimer;
+let serverOffset = 0;
 
 const modes = computed(() => [
   ...(streetPhone.value ? [{ id: 'dealing', title: '主动街卖', icon: ShoppingBag, accent: 'teal' }] : []),
@@ -18,10 +23,47 @@ const modes = computed(() => [
   { id: 'delivery', title: '请求送货', icon: MapPin, accent: 'red' }
 ]);
 const selectedMode = computed(() => modes.value.find((mode) => mode.id === view.value));
-const actions = computed(() => [
+const actions = computed(() => view.value === 'delivery' ? [
+  { id: 'inbox', label: '查看短信', icon: MessageSquare, disabled: activeMode.value !== 'delivery' },
+  { id: 'start', label: '开始接单', icon: Check, disabled: Boolean(activeMode.value) },
+  { id: 'stop', label: '停止接单', icon: X, disabled: activeMode.value !== 'delivery' }
+] : [
   { id: 'start', label: '开始', icon: Check, disabled: activeMode.value === view.value || Boolean(activeMode.value) },
   { id: 'stop', label: '停止', icon: X, disabled: activeMode.value !== view.value }
 ]);
+const orders = computed(() => deliveryData.value.orders || []);
+const selectedOrder = computed(() => orders.value.find((order) => order.id === selectedOrderId.value));
+const activeOrder = computed(() => orders.value.find((order) => order.id === deliveryData.value.active_id));
+const canRefresh = computed(() => activeMode.value === 'delivery' && !activeOrder.value &&
+  !orders.value.some((order) => order.status === 'pending' && order.expires_at > now.value) &&
+  deliveryData.value.refresh_at <= now.value);
+const statusText = { pending: '待回复', accepted: '配送中', completed: '已完成', expired: '已失效', cancelled: '已取消' };
+function orderStatus(order) {
+  return (order.status === 'pending' || order.status === 'accepted') && order.expires_at <= now.value
+    ? '已失效' : statusText[order.status];
+}
+function remaining(timestamp) {
+  const seconds = Math.max(0, timestamp - now.value);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+function updateDelivery(data = {}) {
+  deliveryData.value = data;
+  serverOffset = (data.server_time || Math.floor(Date.now() / 1000)) - Math.floor(Date.now() / 1000);
+  now.value = Math.floor(Date.now() / 1000) + serverOffset;
+}
+async function postDelivery(action, data = {}) {
+  if (busy.value || typeof GetParentResourceName !== 'function') return;
+  busy.value = true;
+  try {
+    await fetch(`https://${GetParentResourceName()}/${action}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body: JSON.stringify(data)
+    });
+  } catch (error) {
+    console.error('Delivery action failed', error);
+  } finally { busy.value = false; }
+}
+function openInbox() { view.value = 'delivery_inbox'; selectedIndex.value = 0; }
+function openThread(order) { selectedOrderId.value = order.id; view.value = 'delivery_thread'; selectedIndex.value = 0; }
 
 function open(data = {}) {
   streetPhone.value = data.street_phone === true;
@@ -29,6 +71,7 @@ function open(data = {}) {
   view.value = 'home';
   selectedIndex.value = 0;
   busy.value = false;
+  updateDelivery(data.delivery_orders || {});
   visible.value = true;
 }
 
@@ -55,7 +98,12 @@ function selectMode(mode, index) {
 }
 
 function goBack() {
-  if (view.value !== 'home') {
+  if (view.value === 'delivery_thread') {
+    openInbox();
+  } else if (view.value === 'delivery_inbox') {
+    view.value = 'delivery';
+    selectedIndex.value = 0;
+  } else if (view.value !== 'home') {
     view.value = 'home';
     selectedIndex.value = 0;
   } else {
@@ -72,6 +120,7 @@ function goHome() {
 }
 
 async function submit(intent) {
+  if (intent === 'inbox') { openInbox(); return; }
   if (busy.value) return;
   const action = actions.value.find((item) => item.id === intent);
   if (!action || action.disabled) return;
@@ -99,6 +148,11 @@ function confirmSelection() {
   if (view.value === 'home') {
     const mode = modes.value[selectedIndex.value];
     if (mode) selectMode(mode, selectedIndex.value);
+  } else if (view.value === 'delivery_inbox') {
+    const order = orders.value[selectedIndex.value];
+    if (order) openThread(order);
+  } else if (view.value === 'delivery_thread') {
+    if (selectedOrder.value?.status === 'pending' && !activeOrder.value && deliveryData.value.refresh_at <= now.value) postDelivery('delivery_accept', { id: selectedOrder.value.id });
   } else {
     const action = actions.value[selectedIndex.value];
     if (action) submit(action.id);
@@ -106,7 +160,11 @@ function confirmSelection() {
 }
 
 function navigate(direction) {
-  const count = view.value === 'home' ? modes.value.length : actions.value.length;
+  const count = view.value === 'home' ? modes.value.length : view.value === 'delivery_inbox' ? orders.value.length : actions.value.length;
+  if (!count || view.value === 'delivery_thread') {
+    if (direction === 'left') goBack();
+    return;
+  }
   if (direction === 'up' || direction === 'down') {
     const step = direction === 'up' ? -1 : 1;
     selectedIndex.value = (selectedIndex.value + step + count) % count;
@@ -135,9 +193,12 @@ function onKeydown(event) {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown));
-onUnmounted(() => window.removeEventListener('keydown', onKeydown));
-defineExpose({ open, close, setMode });
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown);
+  clockTimer = setInterval(() => { now.value = Math.floor(Date.now() / 1000) + serverOffset; }, 1000);
+});
+onUnmounted(() => { window.removeEventListener('keydown', onKeydown); clearInterval(clockTimer); });
+defineExpose({ open, close, setMode, updateDelivery, openInbox });
 </script>
 
 <template>
@@ -148,7 +209,7 @@ defineExpose({ open, close, setMode });
         <div class="screen-status"><span>09:41</span><span class="status-icons"><Radio :size="13" /><span class="battery"><span></span></span></span></div>
         <div class="screen-heading">
           <button v-if="view !== 'home'" class="screen-back" type="button" title="返回" aria-label="返回" @click="goBack"><ArrowLeft :size="20" /></button>
-          <div><span class="screen-eyebrow">MZ NETWORK</span><h1>{{ view === 'home' ? '销售终端' : selectedMode?.title }}</h1></div>
+          <div><span class="screen-eyebrow">MZ NETWORK</span><h1>{{ view === 'home' ? '销售终端' : view === 'delivery_inbox' ? '订单短信' : view === 'delivery_thread' ? selectedOrder?.contact : selectedMode?.title }}</h1></div>
           <span v-if="activeMode" class="active-dot" title="销售模式进行中"></span>
         </div>
         <div class="screen-body">
@@ -164,7 +225,31 @@ defineExpose({ open, close, setMode });
               </button>
             </div>
           </template>
-          <template v-else>
+          <template v-else-if="view === 'delivery_inbox'">
+            <div class="inbox-toolbar"><span>{{ orders.length }} 条短信</span><button type="button" title="刷新订单" aria-label="刷新订单" :disabled="!canRefresh || busy" @click="postDelivery('delivery_refresh')"><RefreshCw :size="15" /></button></div>
+            <div v-if="!orders.length" class="inbox-empty">等待新订单</div>
+            <div class="order-list">
+              <button v-for="(order, index) in orders" :key="order.id" type="button" class="order-row" :class="{ focused: selectedIndex === index, active: order.id === deliveryData.active_id }" @click="openThread(order)" @mouseenter="selectedIndex = index">
+                <span class="order-row-top"><strong>{{ order.contact }}</strong><small>{{ orderStatus(order) }}</small></span>
+                <span class="order-row-item">{{ order.label }} × {{ order.quantity }} · ${{ order.total }}</span>
+                <span class="order-row-bottom"><span>{{ order.area }}</span><span v-if="order.status === 'pending' || order.status === 'accepted'"><Clock3 :size="11" />{{ remaining(order.expires_at) }}</span></span>
+              </button>
+            </div>
+            <div v-if="!canRefresh && deliveryData.refresh_at > now && !activeOrder" class="inbox-wait">{{ remaining(deliveryData.refresh_at) }} 后可刷新</div>
+          </template>
+          <template v-else-if="view === 'delivery_thread' && selectedOrder">
+            <div class="thread-meta"><span>{{ orderStatus(selectedOrder) }}</span><span v-if="selectedOrder.status === 'pending' || selectedOrder.status === 'accepted'">{{ remaining(selectedOrder.expires_at) }}</span></div>
+            <div class="thread-messages">
+              <p class="message incoming">听说你能送货。我需要 {{ selectedOrder.quantity }} 个{{ selectedOrder.label }}。</p>
+              <p class="message incoming">每个 ${{ selectedOrder.price }}，总共 ${{ selectedOrder.total }}。送到{{ selectedOrder.area }}，能接吗？</p>
+              <template v-if="selectedOrder.status !== 'pending'"><p class="message outgoing">{{ selectedOrder.status === 'cancelled' ? '这单我不接了。' : '可以，发位置。' }}</p><p class="message incoming">{{ selectedOrder.status === 'accepted' ? '位置发你了，别迟到。' : selectedOrder.status === 'completed' ? '收到货了，下次再联系。' : '这单已经结束。' }}</p></template>
+            </div>
+            <div class="thread-actions">
+              <button v-if="selectedOrder.status === 'pending' && !activeOrder && selectedOrder.expires_at > now" type="button" :disabled="busy || deliveryData.refresh_at > now" @click="postDelivery('delivery_accept', { id: selectedOrder.id })"><Check :size="15" /> {{ deliveryData.refresh_at > now ? `${remaining(deliveryData.refresh_at)} 后可接` : '接单，发位置' }}</button>
+              <button v-if="selectedOrder.status === 'accepted'" type="button" :disabled="busy" @click="postDelivery('delivery_cancel_order')"><X :size="15" /> 取消订单</button>
+            </div>
+          </template>
+          <template v-else-if="view !== 'delivery_thread'">
             <div class="mode-detail" :class="selectedMode?.accent">
               <div class="detail-icon"><component :is="selectedMode?.icon" :size="30" /></div>
               <div class="detail-title">{{ selectedMode?.title }}</div>
@@ -180,7 +265,7 @@ defineExpose({ open, close, setMode });
             </div>
           </template>
         </div>
-        <div class="screen-footer"><span>{{ activeMode ? '销售中' : '待机' }}</span><span>{{ view === 'home' ? 'MZ' : '返回' }}</span></div>
+        <div class="screen-footer"><span>{{ activeOrder ? '配送中' : activeMode ? '销售中' : '待机' }}</span><span>{{ view === 'home' ? 'MZ' : '返回' }}</span></div>
       </div>
       <div class="phone-controls">
         <div class="control-cluster">

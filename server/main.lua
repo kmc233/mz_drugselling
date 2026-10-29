@@ -86,9 +86,7 @@ function complete_sale(_src, sale_data, drug_id, amount, sale_type)
     local inventory_item = utils.fw.get_item(_src, drug_id)
     local quantity = inventory_item and (inventory_item.quantity or inventory_item.count or inventory_item.amount) or 0
     if quantity < amount then
-        send_notification(_src, lang.dealing.server.notifications.header, lang.dealing.server.notifications.not_enough_drugs, 'error', 3500)
-        Wait(1000)
-        TriggerClientEvent('mz_drugselling:cl:stop_dealing', _src)
+        send_notification(_src, sale_type == 'delivery' and lang.deliveries.client.notifications.header or lang.dealing.server.notifications.header, lang.dealing.server.notifications.not_enough_drugs, 'error', 3500)
         return false
     end
     if not utils.fw.adjust_inventory(_src, {
@@ -207,7 +205,7 @@ utils.callback.register('mz_drugselling:sv:perform_phone_action', function(_src,
             header = lang.deliveries.server.notifications.header,
             message = lang.deliveries.server.notifications.cooldown_message,
             cooldown = 'drug_deliveries',
-            duration = 600
+            duration = 60
         }
     }
     local selected_action = actions[action]

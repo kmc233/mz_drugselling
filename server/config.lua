@@ -58,8 +58,8 @@ config.drugs = {
         },
         delivery = { --- If this section is included items can be dealing sold
             required_level = 1, --- Required level to dealing sell
-            price = { min = 10, max = 20 },-- Base price for selling this is adjusted based on current cop count and players XP
-            quantity = { min = 3, max = 5 } --- Min and max amount that can be sold per single transaction
+            price = { min = 11, max = 13 }, --- Fixed order price per item, below street pricing.
+            quantity = { min = 6, max = 10 }
         },
         bulk = { --- If this section is included items can be bulk sold
             required_level = 1, --- Required level to bulk sell
@@ -71,7 +71,7 @@ config.drugs = {
         label = 'Burger',
         image = 'burger.png',
         dealing = { required_level = 1, price = { min = 10, optimal = 15, max = 20 }, quantity = { min = 3, max = 5 } },
-        delivery = { required_level = 1, price = { min = 10, max = 20 }, quantity = { min = 3, max = 5 } },
+        delivery = { required_level = 1, price = { min = 11, max = 13 }, quantity = { min = 6, max = 10 } },
         bulk = { required_level = 1, price = 8 }
     }
 }
@@ -183,9 +183,13 @@ end
 --- Deliveries
 config.deliveries = {
     locations = {
-        vector4(314.82, -1375.75, 31.92, 48.51),
-        vector4(298.64, -1360.96, 31.94, 230.58)
+        { label = '戴维斯', coords = vector4(314.82, -1375.75, 31.92, 48.51) },
+        { label = '戴维斯东侧', coords = vector4(298.64, -1360.96, 31.94, 230.58) }
     },
+    order_count = 6,
+    offer_seconds = 600, --- Time to choose an order from the inbox.
+    delivery_seconds = 600, --- Time to complete an accepted order.
+    refresh_cooldown = 60, --- After a completed or cancelled order.
     police = {
         required = 0, --- Required amount of police officers to start deliveries or receive new deliveries: Use 0 or remove to disable.
         on_duty_required = false, --- Toggle on duty requirements for police officers.
