@@ -186,7 +186,8 @@ config.deliveries = {
         { label = '戴维斯', coords = vector4(314.82, -1375.75, 31.92, 48.51) },
         { label = '戴维斯东侧', coords = vector4(298.64, -1360.96, 31.94, 230.58) }
     },
-    order_count = 6,
+    order_count = { min = 6, max = 8 }, --- Number of orders received during one delivery session.
+    arrival_interval = { min = 15, max = 30 }, --- Seconds between incoming order messages.
     offer_seconds = 600, --- Time to choose an order from the inbox.
     delivery_seconds = 600, --- Time to complete an accepted order.
     refresh_cooldown = 60, --- After a completed or cancelled order.

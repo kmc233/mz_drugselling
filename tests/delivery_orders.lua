@@ -8,7 +8,8 @@ config = {
     } }},
     deliveries = {
         locations = {{ label = 'Davis', coords = { x = 1, y = 2, z = 3, w = 0 } }},
-        order_count = 6, offer_seconds = 600, delivery_seconds = 600,
+        order_count = { min = 6, max = 8 }, arrival_interval = { min = 1, max = 1 },
+        offer_seconds = 600, delivery_seconds = 600,
         refresh_cooldown = 60, chance = { alert = 0 },
         police = { jobs = {}, on_duty_required = false, required = 0 }
     }
@@ -44,7 +45,10 @@ dofile('server/scripts/deliveries.lua')
 
 events['mz_drugselling:sv:request_delivery']()
 local inbox = sent['mz_drugselling:cl:delivery_orders']
-assert(#inbox.orders == 6 and not inbox.active_id)
+assert(#inbox.orders == 1)
+local first_arrival = #timers
+timers[first_arrival]()
+assert(#sent['mz_drugselling:cl:delivery_orders'].orders == 2)
 local order = inbox.orders[1]
 assert(order.total == order.price * order.quantity and order.area == 'Davis')
 events['mz_drugselling:sv:accept_delivery'](order.id)
@@ -58,8 +62,8 @@ assert(sales == 1 and inventory == 0)
 assert(sent['mz_drugselling:cl:delivery_orders'].active_id == nil)
 events['mz_drugselling:sv:complete_delivery']()
 assert(sales == 1)
-events['mz_drugselling:sv:accept_delivery'](inbox.orders[2].id)
+events['mz_drugselling:sv:accept_delivery'](sent['mz_drugselling:cl:delivery_orders'].orders[2].id)
 assert(sent['mz_drugselling:cl:delivery_orders'].active_id == nil)
-timers[1]()
+for i = 1, #timers do if timers[i] then timers[i]() end end
 assert(sent['mz_drugselling:cl:delivery_orders'].active_id == nil)
 print('delivery_orders: ok')

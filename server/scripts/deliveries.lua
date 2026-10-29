@@ -1,6 +1,10 @@
 local states = {}
 local next_order_id = 0
-local contacts = { '阿杰', '夜班客', '南区熟人', '陌生号码', '老客户', '小林', '码头联系人', '派对客' }
+local contacts = {
+    '阿杰', '夜班客', '南区熟人', '陌生号码', '老客户', '小林', '码头联系人', '派对客',
+    '阿凯', '小周', '酒吧老板', '东区熟客', '朋友介绍', '白天客户', '午夜联系人', '老陈',
+    '公寓住客', '赛车场客人', '仓库联系人', '阿豪', '俱乐部经理', '上次那个人', '小马', '匿名客户'
+}
 
 local function now()
     return os.time()
@@ -67,19 +71,41 @@ local function eligible_drugs(player)
     return drugs
 end
 
-local function new_order(drugs, index)
+local function new_order(drugs)
     local drug = drugs[math.random(#drugs)]
     local location = config.deliveries.locations[math.random(#config.deliveries.locations)]
     local coords = location.coords or location
     next_order_id = next_order_id + 1
     local price = math.random(drug.delivery.price.min, drug.delivery.price.max)
     return {
-        id = next_order_id, contact = contacts[((index - 1) % #contacts) + 1],
+        id = next_order_id, contact = contacts[math.random(#contacts)],
         drug_id = drug.id, label = drug.label,
         quantity = math.random(drug.delivery.quantity.min, drug.delivery.quantity.max),
         price = price, area = location.label or '指定地点', coords = coords,
         expires_at = now() + config.deliveries.offer_seconds, status = 'pending'
     }
+end
+
+local function add_order(player, state, drugs)
+    if states[player] ~= state or not state.generating or #state.orders >= state.target_count then return false end
+    state.orders[#state.orders + 1] = new_order(drugs)
+    sync(player)
+    notify(player, '收到一条新的订单短信。')
+    return true
+end
+
+local function schedule_order(player, state, drugs)
+    if #state.orders >= state.target_count then
+        state.generating = false
+        return
+    end
+    local interval = config.deliveries.arrival_interval
+    local delay = math.random(interval.min, interval.max)
+    local token = state.generation_token
+    SetTimeout(delay * 1000, function()
+        if states[player] ~= state or not state.generating or state.generation_token ~= token then return end
+        if add_order(player, state, drugs) then schedule_order(player, state, drugs) end
+    end)
 end
 
 RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
@@ -91,7 +117,7 @@ RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
         states[player] = state
     end
     expire_orders(player, state)
-    if state.active then return sync(player) end
+    if state.active or state.generating then return sync(player) end
     if state.refresh_at > now() then
         notify(player, '订单暂时没有更新，请稍后再试。', 'error')
         return sync(player)
@@ -111,10 +137,11 @@ RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
         return
     end
     state.orders = {}
-    local count = math.max(1, config.deliveries.order_count)
-    for i = 1, count do state.orders[i] = new_order(drugs, i) end
-    sync(player)
-    notify(player, '收到了新的订单短信。')
+    state.target_count = math.random(config.deliveries.order_count.min, config.deliveries.order_count.max)
+    state.generating = true
+    state.generation_token = (state.generation_token or 0) + 1
+    add_order(player, state, drugs)
+    schedule_order(player, state, drugs)
 end)
 
 RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)

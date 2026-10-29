@@ -13,7 +13,7 @@ This resource keeps the BOII phone, deliveries, and bulk dealer, and adds priced
 
 Street outcomes are calculated on the server. The NPC model determines its personality, including direct refusal, buying, theft, police alert, and XP. The price changes the buying chance. The server also chooses the transaction quantity. Edit these rules in `server/config.lua`.
 
-Delivery orders specify the item, quantity, price, area, and deadline when generated. Accepting an order marks its location; inventory is checked only at handoff. An incomplete order can be cancelled or expires, and another order can be accepted after the configured cooldown. The fixed bulk dealer remains an immediate, lower-price way to clear inventory without an order or deadline.
+Delivery orders arrive as individual SMS messages during a session, with six to eight total orders and a separate expiry time for each message. Each order specifies the item, quantity, price, area, and deadline when generated. Accepting an order marks its location; inventory is checked only at handoff. An incomplete order can be cancelled or expires, and another order can be accepted after the configured cooldown. The fixed bulk dealer remains an immediate, lower-price way to clear inventory without an order or deadline.
 
 The default `water` and `burger` entries are placeholders. Replace them with your inventory's drug item IDs, prices, quantities, and images before using the resource. The wholesale `price` is **per item** and should normally be below street prices.
 
