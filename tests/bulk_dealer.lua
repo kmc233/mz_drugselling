@@ -17,8 +17,9 @@ lang = { general = { server = {
 } }, bulk_dealer = { server = { bulk_sell_notification = '$%d for %dx %s' } } }
 config = {
     bulk_dealer = { enabled = true, ped = { coords = { x = 0, y = 0, z = 0 } } },
+    sales_adjustments = { bulk = { price_multiplier = 0.5 } },
     drugs = {{ id = 'water', label = 'Water', image = 'water.png',
-        bulk = { required_level = 1, price = 8 } }}
+        required_level = 1, price = { min = 10, optimal = 16, max = 20 }, quantity = { min = 1, max = 5 } }}
 }
 utils = {
     callback = { register = function(name, handler) callbacks[name] = handler end },

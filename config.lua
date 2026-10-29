@@ -1,6 +1,6 @@
 
 --- Server configuration.
---- @script server/config.lua
+--- @script config.lua
 
 --- Here, you can adjust the core setup for the resource.
 -- A copy of the server config will be sent to the client where relevant.
@@ -10,6 +10,17 @@ config.drugs = config.drugs or {}
 config.bulk_sales = config.bulk_sales or {}
 config.street_sales = config.street_sales or {}
 config.deliveries = config.deliveries or {}
+
+--- Per-mode adjustments applied to each drug's base price and quantity.
+config.sales_adjustments = {
+    delivery = {
+        price_multiplier = 0.80,
+        quantity_multiplier = 1.80
+    },
+    bulk = {
+        price_multiplier = 0.55
+    }
+}
 
 --- @section General settings
 
@@ -51,28 +62,17 @@ config.drugs = {
         id = 'water', --- Item ID
         label = 'Water', --- Item label
         image = 'water.png', --- Item image to display in UI.
-        dealing = { --- Street and corner offers; prices are per item.
-            required_level = 1, --- Required level to sell to npcs.
-            price = { min = 10, optimal = 15, max = 20 },
-            quantity = { min = 3, max = 5 } --- Min and max amount that can be sold per single transaction
-        },
-        delivery = { --- If this section is included items can be dealing sold
-            required_level = 1, --- Required level to dealing sell
-            price = { min = 11, max = 13 }, --- Fixed order price per item, below street pricing.
-            quantity = { min = 6, max = 10 }
-        },
-        bulk = { --- If this section is included items can be bulk sold
-            required_level = 1, --- Required level to bulk sell
-            price = 8, --- Per-item wholesale price; keep below the street price.
-        }
+        required_level = 1,
+        price = { min = 10, optimal = 15, max = 20 }, --- Base per-item street price.
+        quantity = { min = 3, max = 5 } --- Base amount per transaction.
     },
     { 
         id = 'burger',
         label = 'Burger',
         image = 'burger.png',
-        dealing = { required_level = 1, price = { min = 10, optimal = 15, max = 20 }, quantity = { min = 3, max = 5 } },
-        delivery = { required_level = 1, price = { min = 11, max = 13 }, quantity = { min = 6, max = 10 } },
-        bulk = { required_level = 1, price = 8 }
+        required_level = 1,
+        price = { min = 10, optimal = 15, max = 20 },
+        quantity = { min = 3, max = 5 }
     }
 }
 

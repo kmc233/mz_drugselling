@@ -25,7 +25,7 @@ shared_scripts {
 }
 
 server_scripts {
-    'server/config.lua',
+    'config.lua',
     'server/utils.lua',
     'server/main.lua',
     'server/alerts.lua',

@@ -6,15 +6,15 @@ utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src,
     local player_drugs = {}
     local player_skills = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1, current_xp = 0, required_xp = 1000 }
     for _, drug in ipairs(config.drugs) do
-        if drug.bulk then
+        if drug.price and drug.quantity then
             local inventory_item = utils.fw.get_item(_src, drug.id)
             local quantity = inventory_item and (inventory_item.quantity or inventory_item.count or inventory_item.amount) or 0
             player_drugs[#player_drugs + 1] = {
                 id = drug.id,
                 label = drug.label,
                 image = drug.image,
-                required_level = drug.bulk.required_level,
-                price = drug.bulk.price,
+                required_level = drug.required_level or 1,
+                price = math.max(1, math.floor(drug.price.optimal * config.sales_adjustments.bulk.price_multiplier + 0.5)),
                 quantity = quantity
             }
         end
@@ -46,14 +46,15 @@ utils.callback.register('mz_drugselling:sv:bulk_sell_drugs', function(_src, data
             break
         end
     end
-    if not drug or not drug.bulk then return cb(false, lang.general.server.missing_drug_config) end
+    if not drug or not drug.price then return cb(false, lang.general.server.missing_drug_config) end
     local skill = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1 }
-    if skill.level < drug.bulk.required_level then return cb(false, lang.general.server.invalid_sale_data) end
+    if skill.level < (drug.required_level or 1) then return cb(false, lang.general.server.invalid_sale_data) end
     local inventory_item = utils.fw.get_item(_src, drug_id)
     if not inventory_item or (inventory_item.quantity or inventory_item.amount or inventory_item.count) < quantity_to_sell then
         return cb(false, lang.general.server.insufficient_quantity)
     end
-    local sale_data = { drugs = {{ id = drug_id, label = drug.label, price = drug.bulk.price }} }
+    local bulk_price = math.max(1, math.floor(drug.price.optimal * config.sales_adjustments.bulk.price_multiplier + 0.5))
+    local sale_data = { drugs = {{ id = drug_id, label = drug.label, price = bulk_price }} }
     local success = complete_sale(_src, sale_data, drug_id, quantity_to_sell)
     if success then
         reward_xp(_src, drug, quantity_to_sell, 'bulk')

@@ -29,11 +29,9 @@ source = 1
 sale_modes = { [1] = 'dealing' }
 config = {
     drugs = {
-        { id = 'water', label = 'Water', dealing = {
-            required_level = 1,
-            price = { min = 10, optimal = 15, max = 20 },
-            quantity = { min = 1, max = 5 }
-        } }
+        { id = 'water', label = 'Water', required_level = 1, price = {
+            min = 10, optimal = 15, max = 20
+        }, quantity = { min = 1, max = 5 } }
     },
     dealing = {
         police = { jobs = {}, required = 0 },

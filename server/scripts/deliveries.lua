@@ -64,7 +64,7 @@ local function eligible_drugs(player)
     local skill = utils.skills.get_skill(player, 'drug_dealing') or { level = 1 }
     local drugs = {}
     for _, drug in ipairs(config.drugs) do
-        if drug.delivery and skill.level >= drug.delivery.required_level then
+        if drug.price and drug.quantity and skill.level >= (drug.required_level or 1) then
             drugs[#drugs + 1] = drug
         end
     end
@@ -76,11 +76,14 @@ local function new_order(drugs)
     local location = config.deliveries.locations[math.random(#config.deliveries.locations)]
     local coords = location.coords or location
     next_order_id = next_order_id + 1
-    local price = math.random(drug.delivery.price.min, drug.delivery.price.max)
+    local adjustment = config.sales_adjustments.delivery
+    local price = math.max(1, math.floor(drug.price.optimal * adjustment.price_multiplier + 0.5))
+    local min_quantity = math.max(1, math.floor(drug.quantity.min * adjustment.quantity_multiplier + 0.5))
+    local max_quantity = math.max(min_quantity, math.floor(drug.quantity.max * adjustment.quantity_multiplier + 0.5))
     return {
         id = next_order_id, contact = contacts[math.random(#contacts)],
         drug_id = drug.id, label = drug.label,
-        quantity = math.random(drug.delivery.quantity.min, drug.delivery.quantity.max),
+        quantity = math.random(min_quantity, max_quantity),
         price = price, area = location.label or '指定地点', coords = coords,
         expires_at = now() + config.deliveries.offer_seconds, status = 'pending'
     }

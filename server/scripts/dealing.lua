@@ -29,8 +29,8 @@ local function get_offers(player)
     local skill = utils.skills.get_skill(player, 'drug_dealing') or { level = 1 }
     local offers = {}
     for _, drug in ipairs(config.drugs) do
-        local settings = drug.dealing
-        if settings and skill.level >= settings.required_level then
+        local settings = drug
+        if settings.price and settings.quantity and skill.level >= (settings.required_level or 1) then
             local item = utils.fw.get_item(player, drug.id)
             local count = item and (item.quantity or item.count or item.amount) or 0
             if count > 0 then
@@ -121,12 +121,12 @@ RegisterNetEvent('mz_drugselling:sv:submit_street_offer', function(drug_id, aski
     for _, entry in ipairs(config.drugs) do
         if entry.id == drug_id then drug = entry break end
     end
-    if not drug or not drug.dealing then return unavailable(player) end
+    if not drug or not drug.price or not drug.quantity then return unavailable(player) end
     local item = utils.fw.get_item(player, drug_id)
     local count = item and (item.quantity or item.count or item.amount) or 0
     if count < 1 then return unavailable(player) end
-    local maximum = math.min(count, drug.dealing.quantity.max)
-    local minimum = math.min(maximum, drug.dealing.quantity.min)
+    local maximum = math.min(count, drug.quantity.max)
+    local minimum = math.min(maximum, drug.quantity.min)
     local amount = math.random(minimum, maximum)
 
     local personality = config.dealing.ped_types[deal.type_id]

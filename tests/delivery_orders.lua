@@ -3,9 +3,9 @@ local inventory, sales = 0, 0
 source = 1
 sale_modes = { [1] = 'delivery' }
 config = {
-    drugs = {{ id = 'water', label = 'Water', delivery = {
-        required_level = 1, price = { min = 11, max = 13 }, quantity = { min = 6, max = 10 }
-    } }},
+    sales_adjustments = { delivery = { price_multiplier = 0.8, quantity_multiplier = 1.8 } },
+    drugs = {{ id = 'water', label = 'Water', required_level = 1,
+        price = { min = 10, optimal = 15, max = 20 }, quantity = { min = 3, max = 5 } }},
     deliveries = {
         locations = {{ label = 'Davis', coords = { x = 1, y = 2, z = 3, w = 0 } }},
         order_count = { min = 6, max = 8 }, arrival_interval = { min = 1, max = 1 },
