@@ -1,4 +1,5 @@
 let streetDeal = null;
+let lastSelectedDrugId = null;
 
 function postStreetAction(name, data) {
     return fetch(`https://${GetParentResourceName()}/${name}`, {
@@ -16,7 +17,8 @@ function closeStreetOffer() {
 function openStreetOffer(data) {
     const offers = Array.isArray(data.offers) ? data.offers : [];
     if (!offers.length) return;
-    streetDeal = { offers, selected: offers[0], price: offers[0].optimal, submitted: false,
+    const selected = offers.find((offer) => offer.id === lastSelectedDrugId) || offers[0];
+    streetDeal = { offers, selected, price: selected.optimal, submitted: false,
         mode: data.mode || 'street', saleId: data.sale_id };
     const root = document.getElementById('main_container');
     root.innerHTML = `
@@ -28,8 +30,8 @@ function openStreetOffer(data) {
                 </button>
             </header>
             <div class="street-customer"><i class="fa-solid fa-user"></i><span id="street-personality"></span></div>
-            <div class="street-label">选择药品</div>
-            <div class="street-items" id="street-items"></div>
+            <label class="street-label" for="street-drug">选择药品</label>
+            <select class="street-select" id="street-drug"></select>
             <div class="street-pricing">
                 <div><span>单件报价</span><strong id="street-price"></strong></div>
                 <input type="range" id="street-range" step="1" aria-label="单件报价">
@@ -38,19 +40,21 @@ function openStreetOffer(data) {
             <button type="button" class="street-submit" id="street-submit">提交报价 <i class="fa-solid fa-arrow-right"></i></button>
         </section>`;
     document.getElementById('street-personality').textContent = data.type_label || '普通顾客';
-    const items = document.getElementById('street-items');
+    const drugSelect = document.getElementById('street-drug');
     offers.forEach((offer) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'street-item';
-        button.textContent = `${offer.label} · ${offer.count} 件`;
-        button.onclick = () => {
-            streetDeal.selected = offer;
-            streetDeal.price = offer.optimal;
-            renderStreetSelection();
-        };
-        items.appendChild(button);
+        const option = document.createElement('option');
+        option.value = offer.id;
+        option.textContent = `${offer.label} · ${offer.count} 件`;
+        drugSelect.appendChild(option);
     });
+    drugSelect.onchange = (event) => {
+        const offer = streetDeal.offers.find((item) => item.id === event.target.value);
+        if (!offer) return;
+        streetDeal.selected = offer;
+        streetDeal.price = offer.optimal;
+        lastSelectedDrugId = offer.id;
+        renderStreetSelection();
+    };
     document.getElementById('street-range').oninput = (event) => {
         streetDeal.price = Number(event.target.value);
         document.getElementById('street-price').textContent = `$${streetDeal.price}`;
@@ -73,9 +77,7 @@ function openStreetOffer(data) {
 
 function renderStreetSelection() {
     const selected = streetDeal.selected;
-    document.querySelectorAll('.street-item').forEach((button, index) => {
-        button.classList.toggle('active', streetDeal.offers[index] === selected);
-    });
+    document.getElementById('street-drug').value = selected.id;
     const range = document.getElementById('street-range');
     range.min = selected.min;
     range.max = selected.max;
