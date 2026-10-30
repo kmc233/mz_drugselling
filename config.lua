@@ -57,19 +57,28 @@ config.skills = {
 --- @section Drug items settings
 
 --- Drug items
+config.inventoryImagePath = 'nui://ox_inventory/web/images/'
 config.drugs = {
     { 
-        id = 'water', --- Item ID
-        label = 'Water', --- Item label
-        image = 'water.png', --- Item image to display in UI.
+        id = 'weed', --- Item ID
+        label = 'Weed', --- Item label
+        image = 'weed.png', --- Item image to display in UI.
         required_level = 1,
         price = { min = 10, optimal = 15, max = 20 }, --- Base per-item street price.
         quantity = { min = 3, max = 5 } --- Base amount per transaction.
     },
     { 
-        id = 'burger',
-        label = 'Burger',
-        image = 'burger.png',
+        id = 'meth',
+        label = 'Meth',
+        image = 'meth.png',
+        required_level = 1,
+        price = { min = 10, optimal = 15, max = 20 },
+        quantity = { min = 3, max = 5 }
+    },
+    {
+        id = 'cocaine',
+        label = 'Cocaine',
+        image = 'cocaine.png',
         required_level = 1,
         price = { min = 10, optimal = 15, max = 20 },
         quantity = { min = 3, max = 5 }

@@ -66,7 +66,7 @@ class BulkDealer {
             const level_class = this.skills.level < drug.required_level ? "level disabled" : "level";
             drug_cards += `
                 <div class="drug_card" data-drug-id="${drug.id}">
-                    <img src="./assets/images/${drug.image}" alt="${drug.label}" class="drug_image">
+                    <img src="${drug.image}" alt="${drug.label}" class="drug_image">
                     <div class="drug_info">
                         <h3>${drug.label}</h3>
                         <div class="drug_badges">
@@ -117,7 +117,7 @@ class BulkDealer {
             <div class="drug">
                 <button id="close_drug"><i class="fa-solid fa-right-from-bracket"></i></button>
                 <div class="drug_header">
-                    <img src="./assets/images/${drug.image}" alt="${drug.label}" class="drug_image">
+                    <img src="${drug.image}" alt="${drug.label}" class="drug_image">
                     <div class="drug_info">
                         <h3>${drug.label}</h3>
                         <div class="drug_badges">

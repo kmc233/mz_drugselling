@@ -12,7 +12,7 @@ utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src,
             player_drugs[#player_drugs + 1] = {
                 id = drug.id,
                 label = drug.label,
-                image = drug.image,
+                image = ('%s/%s'):format(config.inventoryImagePath:gsub('/+$', ''), drug.image or (drug.id .. '.png')),
                 required_level = drug.required_level or 1,
                 price = math.max(1, math.floor(drug.price.optimal * config.sales_adjustments.bulk.price_multiplier + 0.5)),
                 quantity = quantity

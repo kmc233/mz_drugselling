@@ -16,6 +16,7 @@ lang = { general = { server = {
     invalid_sale_data = 'Invalid', missing_drug_config = 'Unknown', insufficient_quantity = 'Inventory'
 } }, bulk_dealer = { server = { bulk_sell_notification = '$%d for %dx %s' } } }
 config = {
+    inventoryImagePath = 'nui://ox_inventory/web/images/',
     bulk_dealer = { enabled = true, ped = { coords = { x = 0, y = 0, z = 0 } } },
     sales_adjustments = { bulk = { price_multiplier = 0.5 } },
     drugs = {{ id = 'water', label = 'Water', image = 'water.png',
@@ -43,6 +44,10 @@ local sell = callbacks['mz_drugselling:sv:bulk_sell_drugs']
 local data
 get_data(1, {}, function(result) data = result end)
 assert(data.drugs[1].price == 8 and data.drugs[1].quantity == 10)
+assert(data.drugs[1].image == 'nui://ox_inventory/web/images/water.png')
+config.inventoryImagePath = 'https://images.example/items'
+get_data(1, {}, function(result) data = result end)
+assert(data.drugs[1].image == 'https://images.example/items/water.png')
 
 local accepted
 sell(1, { drug = 'water', quantity = 0 }, function(ok) accepted = ok end)
