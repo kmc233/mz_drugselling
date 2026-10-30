@@ -17,7 +17,9 @@ end
 dealing_mode = 'corner'
 config = { corner = { interval = 8, models = { 'a_m_m_business_01' } } }
 lang = { dealing = { client = { notifications = { header = 'Sales' } } } }
-utils = { requests = { model = function() end, anim = function() end } }
+dofile('client/utils.lua')
+utils.requests.model = function() end
+utils.requests.anim = function() end
 send_notification = function() end
 positions[1], positions[10] = vec(0, 0, 0), vec(15, 0, 0)
 existing[1], existing[10] = true, true

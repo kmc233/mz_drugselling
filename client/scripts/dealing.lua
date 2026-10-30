@@ -52,14 +52,7 @@ end
 
 local function schedule_corner_cleanup(ped)
     if not ped or not spawned_peds[ped] then return end
-    CreateThread(function()
-        local expires = GetGameTimer() + 90000
-        while DoesEntityExist(ped) and GetGameTimer() < expires do
-            if #(GetEntityCoords(ped) - GetEntityCoords(PlayerPedId())) > 40.0
-                and not IsEntityOnScreen(ped) then break end
-            Wait(2000)
-        end
-        if DoesEntityExist(ped) then DeletePed(ped) end
+    utils.peds.schedule_departure_cleanup(ped, function()
         spawned_peds[ped] = nil
     end)
 end

@@ -1,16 +1,37 @@
 delivery_orders = { orders = {}, active_id = nil, refresh_at = 0, server_time = 0 }
+local departing_peds = {}
+
+local function clear_delivery_marker(ped)
+    if delivery_blip then RemoveBlip(delivery_blip) delivery_blip = nil end
+    if not ped then return end
+    if TARGET == 'ox_target' then
+        exports.ox_target:removeLocalEntity(ped, 'mz_drugselling_delivery')
+    elseif TARGET == 'qb-target' then
+        exports['qb-target']:RemoveZone('mz_drugselling_delivery')
+    end
+end
 
 local function remove_delivery_ped()
-    if delivery_blip then RemoveBlip(delivery_blip) delivery_blip = nil end
-    if delivery_ped then
-        if TARGET == 'ox_target' then
-            exports.ox_target:removeLocalEntity(delivery_ped, 'mz_drugselling_delivery')
-        elseif TARGET == 'qb-target' then
-            exports['qb-target']:RemoveZone('mz_drugselling_delivery')
-        end
-        if DoesEntityExist(delivery_ped) then DeletePed(delivery_ped) end
-        delivery_ped = nil
-    end
+    local ped = delivery_ped
+    clear_delivery_marker(ped)
+    if ped and DoesEntityExist(ped) then DeletePed(ped) end
+    delivery_ped = nil
+end
+
+local function send_delivery_ped_away()
+    local ped = delivery_ped
+    clear_delivery_marker(ped)
+    delivery_ped = nil
+    if not ped or not DoesEntityExist(ped) then return end
+    ClearPedTasks(ped)
+    SetPedKeepTask(ped, false)
+    SetBlockingOfNonTemporaryEvents(ped, false)
+    SetEntityInvincible(ped, false)
+    TaskWanderStandard(ped, 10.0, 10)
+    departing_peds[ped] = true
+    utils.peds.schedule_departure_cleanup(ped, function()
+        departing_peds[ped] = nil
+    end)
 end
 
 RegisterNetEvent('mz_drugselling:cl:delivery_orders', function(data)
@@ -83,10 +104,14 @@ RegisterNetEvent('mz_drugselling:cl:completed_delivery', function()
         TaskPlayAnim(delivery_ped, 'mp_common', 'givetake1_b', 8.0, -8.0, 2000, 0, 0, false, false, false)
     end
     Wait(2000)
-    remove_delivery_ped()
+    send_delivery_ped_away()
     RemoveAnimDict('mp_common')
 end)
 
 AddEventHandler('onResourceStop', function(resource)
-    if resource == GetCurrentResourceName() then remove_delivery_ped() end
+    if resource ~= GetCurrentResourceName() then return end
+    remove_delivery_ped()
+    for ped in pairs(departing_peds) do
+        if DoesEntityExist(ped) then DeletePed(ped) end
+    end
 end)

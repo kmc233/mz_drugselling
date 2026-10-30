@@ -5,7 +5,8 @@ local game_time = 0
 dealing_mode = 'dealing'
 config = { street_phone = true }
 TARGET = 'ox_target'
-utils = { requests = { anim = function() end } }
+dofile('client/utils.lua')
+utils.requests.anim = function() end
 RegisterNetEvent = function(name, handler) events[name] = handler end
 RegisterNUICallback = function(name, handler) nui[name] = handler end
 AddEventHandler = function() end

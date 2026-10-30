@@ -97,6 +97,19 @@ function utils.peds.remove_peds_by_categories(categories)
     end
 end
 
+function utils.peds.schedule_departure_cleanup(ped, on_cleanup)
+    CreateThread(function()
+        local expires = GetGameTimer() + 90000
+        while DoesEntityExist(ped) and GetGameTimer() < expires do
+            if #(GetEntityCoords(ped) - GetEntityCoords(PlayerPedId())) > 40.0
+                and not IsEntityOnScreen(ped) then break end
+            Wait(2000)
+        end
+        if DoesEntityExist(ped) then DeletePed(ped) end
+        if on_cleanup then on_cleanup() end
+    end)
+end
+
 function utils.entities.get_closest_ped(coords, radius)
     local closest, distance = nil, radius
     for _, ped in ipairs(GetGamePool('CPed')) do
