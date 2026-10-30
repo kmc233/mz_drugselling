@@ -200,12 +200,6 @@ utils.callback.register('mz_drugselling:sv:perform_phone_action', function(_src,
             message = lang.dealing.server.notifications.cooldown_message,
             cooldown = 'drug_corner',
             duration = 60
-        },
-        delivery = {
-            header = lang.deliveries.server.notifications.header,
-            message = lang.deliveries.server.notifications.cooldown_message,
-            cooldown = 'drug_deliveries',
-            duration = 60
         }
     }
     local selected_action = actions[action]
@@ -231,6 +225,12 @@ end)
 
 RegisterNetEvent('mz_drugselling:sv:stop_phone_action', function()
     sale_modes[source] = nil
+end)
+
+RegisterNetEvent('mz_drugselling:sv:stop_sales_mode', function()
+    if sale_modes[source] == 'corner' or sale_modes[source] == 'dealing' then
+        sale_modes[source] = nil
+    end
 end)
 
 AddEventHandler('playerDropped', function()

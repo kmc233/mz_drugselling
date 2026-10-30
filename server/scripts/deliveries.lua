@@ -39,6 +39,7 @@ local function clear_active(player, state, status, cooldown, keep_ped)
     if not order then return end
     order.status = status
     state.active = nil
+    if sale_modes[player] == 'delivery' then sale_modes[player] = nil end
     state.refresh_at = now() + (cooldown or config.deliveries.refresh_cooldown)
     state.token = state.token + 1
     if not keep_ped then TriggerClientEvent('mz_drugselling:cl:clear_delivery', player) end
@@ -113,7 +114,7 @@ end
 
 RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
     local player = source
-    if sale_modes[player] ~= 'delivery' then return end
+    if not utils.fw.has_item(player, 'dealer_phone', 1) then return end
     local state = states[player]
     if not state then
         state = { orders = {}, token = 0, refresh_at = 0 }
@@ -160,9 +161,8 @@ end)
 
 RegisterNetEvent('mz_drugselling:sv:pause_delivery', function()
     local player = source
-    if sale_modes[player] ~= 'delivery' then return end
     local state = states[player]
-    if not state then return end
+    if not state or not state.receiving then return end
     state.receiving = false
     state.generating = false
     state.generation_token = (state.generation_token or 0) + 1
@@ -172,13 +172,17 @@ end)
 RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)
     local player = source
     local state = states[player]
-    if sale_modes[player] ~= 'delivery' or not state or state.active or state.refresh_at > now() or type(id) ~= 'number' then return end
+    if not state or state.active or state.refresh_at > now() or type(id) ~= 'number' or
+        (sale_modes[player] and sale_modes[player] ~= 'corner' and sale_modes[player] ~= 'dealing') then return end
     expire_orders(player, state)
     local selected
     for _, order in ipairs(state.orders) do
         if order.id == id and order.status == 'pending' then selected = order break end
     end
     if not selected then return sync(player) end
+    if sale_modes[player] then TriggerEvent('mz_drugselling:sv:delivery_accepted', player) end
+    sale_modes[player] = 'delivery'
+    TriggerClientEvent('mz_drugselling:cl:delivery_accepted', player)
     selected.status = 'accepted'
     selected.expires_at = now() + config.deliveries.delivery_seconds
     state.active = selected

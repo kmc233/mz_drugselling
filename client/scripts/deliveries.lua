@@ -15,6 +15,8 @@ end
 
 RegisterNetEvent('mz_drugselling:cl:delivery_orders', function(data)
     delivery_orders = data
+    is_delivering = data.active_id ~= nil
+    SendNUIMessage({ action = 'phone_mode_changed', mode = dealing_mode or (is_delivering and 'delivery') })
     SendNUIMessage({ action = 'delivery_orders', data = data })
 end)
 

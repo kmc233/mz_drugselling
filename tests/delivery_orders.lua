@@ -1,7 +1,7 @@
 local events, sent, timers = {}, {}, {}
 local inventory, sales = 0, 0
 source = 1
-sale_modes = { [1] = 'delivery' }
+sale_modes = { [1] = 'corner' }
 config = {
     sales_adjustments = { delivery = { price_multiplier = 0.8, quantity_multiplier = 1.8 } },
     drugs = {{ id = 'water', label = 'Water', required_level = 1,
@@ -20,10 +20,14 @@ lang = { deliveries = {
 } }
 utils = {
     skills = { get_skill = function() return { level = 1 } end },
-    fw = { get_item = function() return { quantity = inventory } end }
+    fw = {
+        get_item = function() return { quantity = inventory } end,
+        has_item = function() return true end
+    }
 }
 RegisterNetEvent = function(name, handler) events[name] = handler end
 AddEventHandler = function(name, handler) events[name] = handler end
+TriggerEvent = function(name, ...) if events[name] then events[name](...) end end
 TriggerClientEvent = function(name, _, data) sent[name] = data or true end
 SetTimeout = function(_, handler) timers[#timers + 1] = handler end
 get_police_players = function() return {} end
@@ -46,6 +50,7 @@ dofile('server/scripts/deliveries.lua')
 events['mz_drugselling:sv:request_delivery']()
 local inbox = sent['mz_drugselling:cl:delivery_orders']
 assert(#inbox.orders == 1)
+assert(sale_modes[1] == 'corner')
 local first_arrival = #timers
 timers[first_arrival]()
 assert(#sent['mz_drugselling:cl:delivery_orders'].orders == 2)
@@ -59,6 +64,8 @@ assert(#sent['mz_drugselling:cl:delivery_orders'].orders == 3)
 local order = inbox.orders[1]
 assert(order.total == order.price * order.quantity and order.area == 'Davis')
 events['mz_drugselling:sv:accept_delivery'](order.id)
+assert(sale_modes[1] == 'delivery')
+assert(sent['mz_drugselling:cl:delivery_accepted'])
 assert(sent['mz_drugselling:cl:delivery_orders'].active_id == order.id)
 assert(sent['mz_drugselling:cl:spawn_delivery_ped'])
 events['mz_drugselling:sv:pause_delivery']()
@@ -70,6 +77,7 @@ inventory = order.quantity
 events['mz_drugselling:sv:complete_delivery']()
 assert(sales == 1 and inventory == 0)
 assert(sent['mz_drugselling:cl:delivery_orders'].active_id == nil)
+assert(sale_modes[1] == nil)
 events['mz_drugselling:sv:complete_delivery']()
 assert(sales == 1)
 events['mz_drugselling:sv:accept_delivery'](sent['mz_drugselling:cl:delivery_orders'].orders[2].id)

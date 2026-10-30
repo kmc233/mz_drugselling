@@ -27,14 +27,13 @@ const selectedMode = computed(() => modes.value.find((mode) => mode.id === view.
 const orders = computed(() => deliveryData.value.orders || []);
 const selectedOrder = computed(() => orders.value.find((order) => order.id === selectedOrderId.value));
 const activeOrder = computed(() => orders.value.find((order) => order.id === deliveryData.value.active_id));
-const canRefresh = computed(() => activeMode.value === 'delivery' && !activeOrder.value &&
+const canRefresh = computed(() => !activeOrder.value &&
   deliveryReceiving.value &&
   !orders.value.some((order) => order.status === 'pending' && order.expires_at > now.value) &&
   deliveryData.value.refresh_at <= now.value);
 const leftLabel = computed(() => {
   if (view.value === 'home') return '选择';
-  if (view.value === 'delivery_inbox') return activeMode.value && activeMode.value !== 'delivery'
-    ? '' : deliveryReceiving.value ? '停止接收' : '接收短信';
+  if (view.value === 'delivery_inbox') return deliveryReceiving.value ? '停止接收' : '接收短信';
   if (view.value === 'delivery_thread') {
     if (selectedOrder.value?.status === 'accepted' && selectedOrder.value.expires_at > now.value) return '取消订单';
     return selectedOrder.value?.status === 'pending' && !activeOrder.value &&
@@ -44,8 +43,8 @@ const leftLabel = computed(() => {
 });
 const rightLabel = computed(() => view.value === 'home' ? '关闭' : '返回');
 const screenState = computed(() => {
-  if (view.value === 'delivery_inbox') return activeOrder.value ? '配送中' : deliveryReceiving.value ? '接收中' : activeMode.value === 'delivery' ? '已暂停' : '未接收';
-  if (view.value === 'dealing' || view.value === 'corner') return activeMode.value === view.value ? '进行中' : '未开启';
+  if (view.value === 'delivery_inbox') return activeOrder.value ? '配送中' : deliveryReceiving.value ? '接收中' : '未接收';
+  if (view.value === 'dealing' || view.value === 'corner') return activeMode.value === view.value ? '进行中' : activeMode.value === 'delivery' ? '配送中' : '未开启';
   return '';
 });
 const statusText = { pending: '待回复', accepted: '配送中', completed: '已完成', expired: '已失效', cancelled: '已取消' };
@@ -126,13 +125,12 @@ function goBack() {
 
 async function submit(intent, mode = view.value) {
   if (busy.value) return;
-  if (intent === 'start' && activeMode.value && activeMode.value !== mode) return;
-  if (intent === 'stop' && activeMode.value !== mode) return;
+  if (mode !== 'delivery' && intent === 'start' && activeMode.value && activeMode.value !== mode) return;
+  if (mode !== 'delivery' && intent === 'stop' && activeMode.value !== mode) return;
   const name = `${mode === 'dealing' ? 'dealing' : mode}_${intent}`;
   if (typeof GetParentResourceName !== 'function') {
     if (mode === 'delivery') {
       deliveryReceiving.value = intent === 'start';
-      setMode('delivery');
     } else {
       setMode(intent === 'start' ? mode : null);
     }
@@ -242,7 +240,7 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
                 :class="[{ focused: selectedIndex === index }, mode.accent]"
                 @click="selectMode(mode)" @mouseenter="selectedIndex = index">
                 <span class="mode-icon"><component :is="mode.icon" :size="22" /></span>
-                <span class="mode-name">{{ mode.title }}<small v-if="activeMode === mode.id">{{ mode.id === 'delivery' && !deliveryReceiving ? '已暂停' : '进行中' }}</small></span>
+                <span class="mode-name">{{ mode.title }}<small v-if="mode.id === 'delivery' ? activeOrder || deliveryReceiving : activeMode === mode.id">{{ mode.id === 'delivery' ? activeOrder ? '配送中' : '接收中' : '进行中' }}</small></span>
                 <ChevronRight :size="18" class="row-arrow" />
               </button>
             </div>
@@ -272,7 +270,7 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
             </div>
           </template>
           <template v-else-if="view !== 'delivery_thread'">
-            <div class="mode-status"><span :class="{ running: activeMode === view }"></span>{{ activeMode === view ? '正在运行' : activeMode ? '其他销售方式进行中' : '尚未开启' }}</div>
+            <div class="mode-status"><span :class="{ running: activeMode === view }"></span>{{ activeMode === view ? '正在运行' : activeMode === 'delivery' ? '配送中' : activeMode ? '其他销售方式进行中' : '尚未开启' }}</div>
             <button v-if="leftLabel" type="button" class="mode-command" :disabled="busy" @click="softLeft"><component :is="activeMode === view ? X : Check" :size="17" />{{ activeMode === view ? '停止' : '开始' }}{{ selectedMode?.title }}</button>
           </template>
         </div>

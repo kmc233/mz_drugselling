@@ -3,12 +3,12 @@
 
 --- Stop dealing.
 -- @param player_ped: The players ped id.
-local function stop_dealing(player_ped)
+local function stop_dealing(player_ped, for_delivery)
     stop_corner_dealing()
     is_dealing = false
     dealing_mode = nil
-    SendNUIMessage({ action = 'phone_mode_changed', mode = nil })
-    TriggerServerEvent('mz_drugselling:sv:stop_phone_action')
+    SendNUIMessage({ action = 'phone_mode_changed', mode = for_delivery and 'delivery' or nil })
+    if not for_delivery then TriggerServerEvent('mz_drugselling:sv:stop_sales_mode') end
     send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.stopped, 'info', 3500)
 
     if config.street_phone then
@@ -76,25 +76,16 @@ end
 
 --- Stop delivering.
 -- @param player_ped: The players ped id.
-local function stop_deliveries(player_ped)
-    is_delivering = false
+local function stop_deliveries()
     delivery_receiving = false
-    SendNUIMessage({ action = 'phone_mode_changed', mode = nil })
     SendNUIMessage({ action = 'delivery_receiving_changed', receiving = false })
-    TriggerServerEvent('mz_drugselling:sv:stop_phone_action')
+    TriggerServerEvent('mz_drugselling:sv:pause_delivery')
     send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.stopped, 'info', 3500)
-    delivery_orders = { orders = {}, active_id = nil, refresh_at = 0, server_time = 0 }
-    SendNUIMessage({ action = 'delivery_orders', data = delivery_orders })
 end
 
---- Start dealing.
--- @param player_ped: The players ped id.
-local function start_deliveries(player_ped)
-    is_delivering = true
+local function start_deliveries()
     delivery_receiving = true
-    SendNUIMessage({ action = 'phone_mode_changed', mode = 'delivery' })
     SendNUIMessage({ action = 'delivery_receiving_changed', receiving = true })
-    SendNUIMessage({ action = 'delivery_open_inbox' })
     send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.started, 'info', 3500)
     TriggerServerEvent('mz_drugselling:sv:request_delivery')
 end
@@ -108,7 +99,7 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     local player_ped = PlayerPedId()
     if action == 'dealing_start' or action == 'corner_start' then
         if action == 'dealing_start' and not config.street_phone then return end
-        if is_delivering then 
+        if is_delivering then
             send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.is_delivering, 'error', 3500)
             return
         end
@@ -124,23 +115,8 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     end
 
     if action == 'delivery_start' then
-        if is_delivering then
-            delivery_receiving = true
-            SendNUIMessage({ action = 'delivery_receiving_changed', receiving = true })
-            TriggerServerEvent('mz_drugselling:sv:request_delivery')
-            return
-        end
-        if is_dealing then 
-            send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.is_dealing, 'error', 3500)
-            return
-        end
-        utils.callback.cb('mz_drugselling:sv:perform_phone_action', { action = 'delivery' }, function(success, message)
-            if success then
-                start_deliveries(player_ped)
-            else
-                send_notification(lang.deliveries.client.notifications.header, message or '无法请求送货。', 'error', 3500)
-            end
-        end)
+        if not delivery_receiving then start_deliveries() end
+        return
     end
 
     if action == 'dealing_stop' or action == 'corner_stop' then
@@ -154,13 +130,11 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     end
 
     if action == 'delivery_stop' then
-        if not is_delivering or not delivery_receiving then
+        if not delivery_receiving then
             send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.not_delivering, 'error', 3500)
             return
         end
-        delivery_receiving = false
-        SendNUIMessage({ action = 'delivery_receiving_changed', receiving = false })
-        TriggerServerEvent('mz_drugselling:sv:pause_delivery')
+        stop_deliveries()
         return
     end
 
@@ -191,6 +165,14 @@ end)
 
 
 RegisterNetEvent('mz_drugselling:cl:stop_deliveries', function()
-    local player_ped = PlayerPedId()
-    stop_deliveries(player_ped)
+    stop_deliveries()
+end)
+
+RegisterNetEvent('mz_drugselling:cl:delivery_accepted', function()
+    is_delivering = true
+    if is_dealing then
+        stop_dealing(PlayerPedId(), true)
+    else
+        SendNUIMessage({ action = 'phone_mode_changed', mode = 'delivery' })
+    end
 end)

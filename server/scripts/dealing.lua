@@ -99,6 +99,16 @@ AddEventHandler('mz_drugselling:sv:stop_phone_action', function()
     used_peds[source] = nil
 end)
 
+AddEventHandler('mz_drugselling:sv:stop_sales_mode', function()
+    active_deals[source] = nil
+    used_peds[source] = nil
+end)
+
+AddEventHandler('mz_drugselling:sv:delivery_accepted', function(player)
+    active_deals[player] = nil
+    used_peds[player] = nil
+end)
+
 RegisterNetEvent('mz_drugselling:sv:submit_street_offer', function(drug_id, asking_price)
     local player = source
     local deal = active_deals[player]
