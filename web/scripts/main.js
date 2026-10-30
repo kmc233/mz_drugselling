@@ -13,6 +13,8 @@ window.addEventListener('message', function (event) {
         window.MZPhone.close();
     } else if (data.action === 'phone_mode_changed') {
         window.MZPhone.setMode(data.mode);
+    } else if (data.action === 'delivery_receiving_changed') {
+        window.MZPhone.setReceiving(data.receiving);
     } else if (data.action === 'delivery_orders') {
         window.MZPhone.updateDelivery(data.data);
     } else if (data.action === 'delivery_open_inbox') {

@@ -20,7 +20,7 @@ end)
 
 RegisterNUICallback('delivery_refresh', function(_, cb)
     cb({ success = true })
-    TriggerServerEvent('mz_drugselling:sv:request_delivery')
+    if delivery_receiving then TriggerServerEvent('mz_drugselling:sv:request_delivery') end
 end)
 
 RegisterNUICallback('delivery_accept', function(data, cb)

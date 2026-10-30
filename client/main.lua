@@ -14,6 +14,7 @@ phone_prop = nil
 is_dealing = false
 dealing_mode = nil
 is_delivering = false
+delivery_receiving = false
 delivery_ped = nil
 delivery_blip = nil
 dealing_target, target_coords = nil, nil

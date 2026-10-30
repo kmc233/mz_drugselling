@@ -49,11 +49,21 @@ assert(#inbox.orders == 1)
 local first_arrival = #timers
 timers[first_arrival]()
 assert(#sent['mz_drugselling:cl:delivery_orders'].orders == 2)
+local paused_arrival = #timers
+events['mz_drugselling:sv:pause_delivery']()
+timers[paused_arrival]()
+assert(#sent['mz_drugselling:cl:delivery_orders'].orders == 2)
+events['mz_drugselling:sv:request_delivery']()
+timers[#timers]()
+assert(#sent['mz_drugselling:cl:delivery_orders'].orders == 3)
 local order = inbox.orders[1]
 assert(order.total == order.price * order.quantity and order.area == 'Davis')
 events['mz_drugselling:sv:accept_delivery'](order.id)
 assert(sent['mz_drugselling:cl:delivery_orders'].active_id == order.id)
 assert(sent['mz_drugselling:cl:spawn_delivery_ped'])
+events['mz_drugselling:sv:pause_delivery']()
+assert(sent['mz_drugselling:cl:delivery_orders'].active_id == order.id)
+assert(not sent['mz_drugselling:cl:clear_delivery'])
 events['mz_drugselling:sv:complete_delivery']()
 assert(sales == 0 and sent['mz_drugselling:cl:delivery_orders'].active_id == order.id)
 inventory = order.quantity

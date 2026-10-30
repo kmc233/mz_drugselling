@@ -90,7 +90,7 @@ local function new_order(drugs)
 end
 
 local function add_order(player, state, drugs)
-    if states[player] ~= state or not state.generating or #state.orders >= state.target_count then return false end
+    if states[player] ~= state or not state.receiving or not state.generating or #state.orders >= state.target_count then return false end
     state.orders[#state.orders + 1] = new_order(drugs)
     sync(player)
     notify(player, '收到一条新的订单短信。')
@@ -120,6 +120,16 @@ RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
         states[player] = state
     end
     expire_orders(player, state)
+    local was_paused = state.receiving == false
+    state.receiving = true
+    if was_paused and state.target_count then
+        if #state.orders < state.target_count then
+            state.generating = true
+            state.generation_token = (state.generation_token or 0) + 1
+            schedule_order(player, state, state.drugs)
+        end
+        return sync(player)
+    end
     if state.active or state.generating then return sync(player) end
     if state.refresh_at > now() then
         notify(player, '订单暂时没有更新，请稍后再试。', 'error')
@@ -140,11 +150,23 @@ RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
         return
     end
     state.orders = {}
+    state.drugs = drugs
     state.target_count = math.random(config.deliveries.order_count.min, config.deliveries.order_count.max)
     state.generating = true
     state.generation_token = (state.generation_token or 0) + 1
     add_order(player, state, drugs)
     schedule_order(player, state, drugs)
+end)
+
+RegisterNetEvent('mz_drugselling:sv:pause_delivery', function()
+    local player = source
+    if sale_modes[player] ~= 'delivery' then return end
+    local state = states[player]
+    if not state then return end
+    state.receiving = false
+    state.generating = false
+    state.generation_token = (state.generation_token or 0) + 1
+    sync(player)
 end)
 
 RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)

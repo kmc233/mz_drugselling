@@ -24,7 +24,7 @@
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-rows: 47px minmax(0, 1.05fr) minmax(250px, 1fr) 14px;
+  grid-template-rows: 38px minmax(0, 1.35fr) minmax(225px, 1fr) 10px;
   gap: 4px;
   padding: 12px 17px 8px;
   border: 3px solid #0d0e10;
@@ -60,7 +60,7 @@
 .phone-screen {
   min-height: 0;
   display: grid;
-  grid-template-rows: 25px 61px minmax(0, 1fr) 27px;
+  grid-template-rows: 21px 44px minmax(0, 1fr) 25px;
   overflow: hidden;
   border: 5px solid #17191b;
   border-radius: 16px 16px 12px 12px;
@@ -88,19 +88,19 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 7px 10px;
+  padding: 4px 10px;
   border-bottom: 2px solid #526c4d;
   background: #c2d0a6;
 }
 .screen-heading > div { min-width: 0; }
 .screen-eyebrow { display: block; font-size: 9px; font-weight: 700; margin-bottom: 2px; }
-.screen-heading h1 { margin: 0; font-size: 20px; line-height: 1.2; font-weight: 800; }
+.screen-heading h1 { margin: 0; font-size: 17px; line-height: 1.2; font-weight: 800; overflow-wrap: anywhere; }
 .screen-back { flex: none; display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid #657b5c; border-radius: 2px; background: #aebf93; color: inherit; }
-.active-dot { width: 8px; height: 8px; margin-left: auto; border: 1px solid #263b2c; border-radius: 50%; background: #3e6240; }
+.screen-state { flex: none; margin-left: auto; font-size: 10px; font-weight: 700; white-space: nowrap; }
 
 .screen-body { min-height: 0; overflow-y: auto !important; padding: 9px 9px 7px; scrollbar-width: thin; scrollbar-color: #6c8365 transparent; }
 .section-caption { margin: 0 0 5px 3px; font-size: 10px; font-weight: 700; }
-.mode-list, .action-list { display: grid; gap: 3px; }
+.mode-list { display: grid; gap: 3px; }
 .mode-row, .action-row {
   width: 100%; min-height: 43px; display: flex; align-items: center; gap: 8px;
   padding: 6px 7px; border: 1px solid #829777; border-radius: 1px;
@@ -115,20 +115,11 @@
 .mode-name small { margin-top: 1px; font-size: 10px; }
 .row-arrow { margin-left: auto; }
 
-.mode-detail {
-  min-height: 92px; margin-bottom: 9px; display: grid;
-  grid-template-columns: 39px 1fr; align-content: center; column-gap: 5px;
-  padding: 9px 10px; border: 2px double #587451; background: #b8cba0;
-}
-.detail-icon { grid-row: span 2; display: grid; align-items: center; }
-.detail-icon svg { width: 27px; height: 27px; }
-.detail-title { font-size: 18px; font-weight: 800; }
-.detail-state { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; }
-.detail-state span { width: 7px; height: 7px; border: 1px solid currentColor; border-radius: 50%; }
-.detail-state span.running { background: currentColor; }
-.action-row { min-height: 38px; font-size: 13px; font-weight: 700; }
-.action-row > span { flex: 1; }
-.action-row:disabled { opacity: .5; cursor: default; }
+.mode-status { display: flex; align-items: center; gap: 7px; padding: 5px 3px 10px; font-size: 11px; font-weight: 700; }
+.mode-status span { width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; }
+.mode-status span.running { background: currentColor; }
+.mode-command { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 38px; border: 1px solid #526c4d; border-radius: 2px; background: #344f39; color: #d4dfbd; font-size: 13px; font-weight: 700; }
+.mode-command:disabled { opacity: .5; cursor: default; }
 
 .inbox-toolbar, .thread-meta { display: flex; align-items: center; justify-content: space-between; min-height: 25px; padding: 0 3px 5px; font-size: 11px; font-weight: 700; }
 .inbox-toolbar button { display: grid; place-items: center; width: 24px; height: 22px; border: 1px solid #829777; background: #c6d3ad; color: #263b2c; }
@@ -150,7 +141,11 @@
 .thread-actions button { min-height: 31px; display: flex; justify-content: center; align-items: center; gap: 5px; border: 1px solid #526c4d; background: #344f39; color: #d4dfbd; font-size: 11px; font-weight: 700; }
 .thread-actions button:disabled { opacity: .5; }
 
-.screen-footer { display: flex; align-items: center; justify-content: space-between; padding: 0 9px; border-top: 2px solid #526c4d; background: #b5c69a; font-size: 11px; font-weight: 800; }
+.screen-footer { display: flex; align-items: stretch; justify-content: space-between; border-top: 2px solid #526c4d; background: #b5c69a; }
+.screen-footer button { min-width: 64px; padding: 0 8px; border: 0; background: transparent; color: inherit; font-size: 11px; font-weight: 800; }
+.screen-footer button:first-child { text-align: left; }
+.screen-footer button:last-child { text-align: right; }
+.screen-footer button:disabled { cursor: default; }
 
 .phone-controls { min-height: 0; display: grid; grid-template-rows: 100px minmax(0, 1fr); gap: 8px; padding: 3px 5px 0; }
 .control-cluster { min-height: 0; display: grid; grid-template-columns: 1fr 88px 1fr; align-items: center; gap: 8px; }
@@ -162,6 +157,7 @@
   box-shadow: inset 0 1px 1px #777a7b, inset 0 -1px 1px #202223, 0 1px 2px #121415;
 }
 .phone-controls button:hover { background: linear-gradient(#606263, #454748 55%, #353738); }
+.phone-controls button:disabled { opacity: .55; cursor: default; }
 .phone-controls button:active { transform: translateY(1px); box-shadow: inset 0 1px 2px #111315; }
 .phone-controls button:focus-visible, .phone-screen button:focus-visible { outline: 2px solid #d4dfbd; outline-offset: 2px; }
 .utility-key { width: 100%; height: 32px; border-radius: 8px 8px 11px 11px; }
@@ -267,20 +263,18 @@ body.phone-preview { min-height: 100vh; background: #303231; }
 @media (max-width: 520px) { .mz-phone { right: 12px; bottom: 12px; } }
 
 @media (max-height: 580px) {
-  .phone-shell { grid-template-rows: 34px minmax(0, 1fr) minmax(194px, 1fr) 8px; padding: 8px 12px 5px; }
+  .phone-shell { grid-template-rows: 30px minmax(0, 1.2fr) minmax(194px, 1fr) 8px; padding: 8px 12px 5px; }
   .earpiece { top: 14px; }
   .shell-top strong { margin-bottom: 0; }
-  .phone-screen { grid-template-rows: 20px 45px minmax(0, 1fr) 23px; border-width: 5px; }
-  .screen-heading { padding: 3px 8px; }.screen-heading h1 { font-size: 16px; }
+  .phone-screen { grid-template-rows: 18px 38px minmax(0, 1fr) 23px; border-width: 5px; }
+  .screen-heading { padding: 2px 8px; }.screen-heading h1 { font-size: 16px; }
   .screen-body { padding: 5px 6px; }
   .section-caption { margin-bottom: 3px; }
   .mode-row { min-height: 32px; padding: 3px 5px; }
   .mode-icon { width: 20px; height: 20px; }.mode-icon svg { width: 16px; height: 16px; }
   .mode-name { font-size: 12px; }.mode-name small { font-size: 9px; }
-  .mode-detail { min-height: 58px; margin-bottom: 4px; padding: 4px 7px; }
-  .detail-icon svg { width: 20px; height: 20px; }.detail-title { font-size: 15px; }
-  .detail-state { margin-top: 1px; }
-  .action-row { min-height: 29px; padding: 2px 6px; }
+  .mode-status { padding: 2px 3px 6px; }
+  .mode-command { min-height: 32px; }
   .phone-controls { grid-template-rows: 82px minmax(0, 1fr); gap: 5px; }
   .control-cluster { grid-template-columns: 1fr 80px 1fr; }
   .direction-pad { --center-width: 36px; --center-height: 30px; --edge-offset: 3px; height: 70px; border-radius: 12px; }

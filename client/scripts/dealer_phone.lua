@@ -78,7 +78,9 @@ end
 -- @param player_ped: The players ped id.
 local function stop_deliveries(player_ped)
     is_delivering = false
+    delivery_receiving = false
     SendNUIMessage({ action = 'phone_mode_changed', mode = nil })
+    SendNUIMessage({ action = 'delivery_receiving_changed', receiving = false })
     TriggerServerEvent('mz_drugselling:sv:stop_phone_action')
     send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.stopped, 'info', 3500)
     delivery_orders = { orders = {}, active_id = nil, refresh_at = 0, server_time = 0 }
@@ -89,7 +91,9 @@ end
 -- @param player_ped: The players ped id.
 local function start_deliveries(player_ped)
     is_delivering = true
+    delivery_receiving = true
     SendNUIMessage({ action = 'phone_mode_changed', mode = 'delivery' })
+    SendNUIMessage({ action = 'delivery_receiving_changed', receiving = true })
     SendNUIMessage({ action = 'delivery_open_inbox' })
     send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.started, 'info', 3500)
     TriggerServerEvent('mz_drugselling:sv:request_delivery')
@@ -120,6 +124,12 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     end
 
     if action == 'delivery_start' then
+        if is_delivering then
+            delivery_receiving = true
+            SendNUIMessage({ action = 'delivery_receiving_changed', receiving = true })
+            TriggerServerEvent('mz_drugselling:sv:request_delivery')
+            return
+        end
         if is_dealing then 
             send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.is_dealing, 'error', 3500)
             return
@@ -144,12 +154,13 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
     end
 
     if action == 'delivery_stop' then
-        if not is_delivering then 
+        if not is_delivering or not delivery_receiving then
             send_notification(lang.deliveries.client.notifications.header, lang.deliveries.client.notifications.not_delivering, 'error', 3500)
             return
         end
-        is_delivering = false
-        stop_deliveries(player_ped)
+        delivery_receiving = false
+        SendNUIMessage({ action = 'delivery_receiving_changed', receiving = false })
+        TriggerServerEvent('mz_drugselling:sv:pause_delivery')
         return
     end
 
@@ -169,7 +180,7 @@ RegisterNetEvent('mz_drugselling:cl:open_dealer_phone', function()
     SetNuiFocus(true, true)
     SendNUIMessage({
         action = 'open_dealer_phone',
-        data = { street_phone = config.street_phone, active_mode = dealing_mode or (is_delivering and 'delivery'), delivery_orders = delivery_orders }
+        data = { street_phone = config.street_phone, active_mode = dealing_mode or (is_delivering and 'delivery'), delivery_receiving = delivery_receiving, delivery_orders = delivery_orders }
     })
 end)
 
