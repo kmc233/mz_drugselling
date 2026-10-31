@@ -50,7 +50,7 @@ class BulkDealer {
             const active = this.currentDrug && drug.id === this.currentDrug.id ? ' active' : '';
             return `<button type="button" class="bulk-card${active}" data-drug-id="${drug.id}" ${locked || empty ? 'disabled' : ''}>
                 <div class="bulk-card-image">${drug.image ? `<img src="${drug.image}" alt="">` : '<span>药</span>'}</div>
-                <div class="bulk-card-info"><div class="bulk-card-line"><strong>${drug.label}</strong><span>$${drug.price} / 件</span></div><small>${locked ? `需要等级 ${drug.required_level}` : `库存 ${drug.quantity} 件`}</small></div><span class="bulk-card-arrow">›</span>
+                <div class="bulk-card-info"><strong>${drug.label}</strong><small>${locked ? `需要等级 ${drug.required_level}` : `库存 ${drug.quantity} 件`}</small></div><span class="bulk-card-arrow">›</span>
             </button>`;
         }).join('');
     }

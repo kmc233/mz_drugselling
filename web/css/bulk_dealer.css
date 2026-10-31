@@ -1,6 +1,6 @@
 .bulk-shell {
-    position: fixed; top: 50%; right: 3vw; width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 48px); transform: translateY(-50%); z-index: 10; overflow: visible;
-    display: flex; flex-direction: column; padding: 28px 32px;
+    position: fixed; top: 50%; right: 3vw; width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 48px); transform: translateY(-50%); z-index: 10; overflow: visible;
+    display: flex; flex-direction: column; padding: 20px 24px;
     border: 1px solid #464b49; border-radius: 8px; background: #202424;
     color: #f1f3ef; font-family: Arial, sans-serif; box-shadow: 0 18px 50px #000b;
 }
@@ -10,7 +10,7 @@
 .bulk-topbar p { color: #929b96; font-size: 13px; }
 .bulk-close { width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: #c3c9c5; font-size: 26px; line-height: 1; cursor: pointer; }
 .bulk-close:hover { color: #fff; }
-.bulk-summary { display: flex; align-items: center; gap: 26px; padding: 18px 0; }
+.bulk-summary { display: flex; align-items: center; gap: 18px; padding: 16px 0; }
 .bulk-level { display: flex; align-items: baseline; gap: 10px; min-width: 112px; }
 .bulk-level span, .bulk-xp-label { color: #9ca5a0; font-size: 13px; }
 .bulk-level strong { color: #e1b568; font-size: 18px; }
@@ -18,7 +18,7 @@
 .bulk-xp-label { display: flex; justify-content: space-between; margin-bottom: 7px; }
 .bulk-xp-track { height: 6px; overflow: hidden; border-radius: 3px; background: #343a38; }
 .bulk-xp-track i { display: block; height: 100%; border-radius: inherit; background: #89918c; }
-.bulk-layout { display: grid; grid-template-columns: minmax(0, .74fr) minmax(0, 1fr); gap: 18px; min-height: 0; flex: none; }
+.bulk-layout { display: grid; grid-template-columns: minmax(0, .68fr) minmax(0, 1fr); gap: 14px; min-height: 0; flex: none; }
 .bulk-inventory, .bulk-order { min-height: 0; }
 .bulk-inventory { display: flex; flex-direction: column; }
 .bulk-section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -32,9 +32,8 @@
 .bulk-card-image { width: 46px; height: 46px; border-radius: 4px; }
 .bulk-card-image img, .bulk-product-image img { width: 100%; height: 100%; object-fit: contain; }
 .bulk-card-info { min-width: 0; flex: 1; }
-.bulk-card-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .bulk-card-info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-.bulk-card-info span, .bulk-card-info small { display: block; margin-top: 4px; color: #aeb5b1; font-size: 13px; }
+.bulk-card-info small { display: block; margin-top: 4px; color: #aeb5b1; font-size: 13px; }
 .bulk-card-info small { color: #7f8883; }
 .bulk-card-arrow { color: #858d89; font-size: 19px; }
 .bulk-order { align-self: start; padding: 18px; border: 1px solid #3f4643; border-radius: 6px; background: #292e2c; }
