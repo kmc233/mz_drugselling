@@ -50,16 +50,16 @@ assert(not kept[1] and not blocked[1] and not standing[1] and wandering[1])
 game_time = 31000
 wandering[1] = false
 start_street_sale(1)
-assert(kept[1] and blocked[1] and standing[1])
-events['mz_drugselling:cl:street_result']({ outcome = 'sold' })
-assert(kept[1] and blocked[1])
+assert(not kept[1] and not blocked[1] and not standing[1] and not wandering[1])
 start_street_sale(3)
 assert(kept[3] and blocked[3] and standing[3])
+events['mz_drugselling:cl:street_result']({ outcome = 'sold' })
+assert(kept[3] and blocked[3])
 for _, timer in ipairs(timers) do
     if timer.delay == 1800 then timer.handler() end
 end
-assert(not kept[1] and not blocked[1] and wandering[1])
-assert(kept[3] and blocked[3] and standing[3])
+assert(not kept[3] and not blocked[3] and wandering[3])
+assert(not kept[1] and not blocked[1])
 for _, timer in ipairs(timers) do
     if timer.delay == 65000 then timer.handler() end
 end

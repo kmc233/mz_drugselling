@@ -21,6 +21,10 @@ local function stop_dealing(player_ped, for_delivery)
 end
 
 local function can_sell_to_ped(entity)
+    if not entity or not DoesEntityExist(entity) or not IsEntityAPed(entity)
+        or IsPedAPlayer(entity) or IsPedInAnyVehicle(entity, false)
+        or IsPedDeadOrDying(entity, true) or IsPedInCombat(entity, PlayerPedId())
+        or GetEntityHealth(entity) <= 0 or (is_street_ped_used and is_street_ped_used(entity)) then return false end
     if is_delivering or dealing_mode == 'corner' then return false end
     if config.street_phone and dealing_mode ~= 'dealing' then return false end
     local ped_type = GetPedType(entity)

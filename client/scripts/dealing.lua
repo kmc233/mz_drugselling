@@ -1,12 +1,17 @@
 local pending = false
 local pending_id = 0
 local used_peds = {}
+local sold_peds = {}
 local corner_ped = nil
 local corner_spawned = false
 local corner_generation = 0
 local held_peds = {}
 local spawned_peds = {}
 local schedule_corner_customer
+
+function is_street_ped_used(ped)
+    return sold_peds[ped] == true
+end
 local function is_gang_member(ped)
     local type_id = config.ped_model_types and config.ped_model_types[GetEntityModel(ped)]
     local personality = type_id and config.ped_types and config.ped_types[type_id]
@@ -89,12 +94,14 @@ local function find_corner_ped(player_ped)
 end
 
 local function begin_sale(ped)
-    if pending or not ped or not DoesEntityExist(ped) or (used_peds[ped] and used_peds[ped] > GetGameTimer()) then return false end
+    if pending or is_street_ped_used(ped) or not ped or not DoesEntityExist(ped)
+        or (used_peds[ped] and used_peds[ped] > GetGameTimer()) then return false end
     if IsPedAPlayer(ped) or IsPedDeadOrDying(ped, true) then return false end
     if not NetworkGetEntityIsNetworked(ped) then NetworkRegisterEntityAsNetworked(ped) end
     local net_id = NetworkGetNetworkIdFromEntity(ped)
     if not net_id or net_id == 0 then return false end
     if not hold_ped(ped) then return false end
+    sold_peds[ped] = true
     dealing_target = ped
     target_coords = GetEntityCoords(ped)
     used_peds[ped] = GetGameTimer() + (dealing_mode == 'corner' and 300000 or 30000)
@@ -278,13 +285,21 @@ local function watch_stolen_ped(ped, net_id)
                 end
                 if TARGET == 'qb-target' then
                     exports['qb-target']:AddTargetEntity(ped, {
-                        options = {{ icon = 'fa-solid fa-box-open', label = lang.dealing.client.target.retrieve.label, action = action }},
+                        options = {{ icon = 'fa-solid fa-box-open', label = lang.dealing.client.target.retrieve.label,
+                            action = function(entity)
+                                action()
+                                exports['qb-target']:RemoveTargetEntity(entity, lang.dealing.client.target.retrieve.label)
+                            end }},
                         distance = 2.0
                     })
                 elseif TARGET == 'ox_target' then
                     exports.ox_target:addLocalEntity(ped, {
                         { name = 'drug_recovery_' .. net_id, icon = 'fa-solid fa-box-open',
-                          label = lang.dealing.client.target.retrieve.label, distance = 2.0, onSelect = action }
+                          label = lang.dealing.client.target.retrieve.label, distance = 2.0,
+                          onSelect = function()
+                              action()
+                              exports.ox_target:removeLocalEntity(ped, 'drug_recovery_' .. net_id)
+                          end }
                     })
                 end
                 return
