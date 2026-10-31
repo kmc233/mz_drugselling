@@ -14,7 +14,7 @@
 .bulk-level { display: flex; align-items: baseline; gap: 10px; min-width: 112px; }
 .bulk-level span, .bulk-xp-label { color: #9ca5a0; font-size: 13px; }
 .bulk-level strong { color: #e1b568; font-size: 18px; }
-.bulk-xp { flex: 1; max-width: 420px; }
+.bulk-xp { flex: 1; min-width: 0; }
 .bulk-xp-label { display: flex; justify-content: space-between; margin-bottom: 7px; }
 .bulk-xp-track { height: 6px; overflow: hidden; border-radius: 3px; background: #343a38; }
 .bulk-xp-track i { display: block; height: 100%; border-radius: inherit; background: #89918c; }

@@ -83,7 +83,7 @@ class BulkDealer {
         order.oninput = (event) => {
             if (event.target.id === 'bulk-quantity' || event.target.id === 'bulk-range') {
                 this.quantity = this.clampQuantity(event.target.value);
-                this.renderOrderOnly();
+                this.syncQuantityControls();
             }
         };
         order.onclick = (event) => {
@@ -96,6 +96,17 @@ class BulkDealer {
     renderOrderOnly() {
         document.getElementById('bulk-order').innerHTML = this.renderOrder();
         document.querySelectorAll('.bulk-card').forEach((card) => card.classList.toggle('active', String(card.dataset.drugId) === String(this.currentDrug?.id)));
+    }
+
+    syncQuantityControls() {
+        const input = document.getElementById('bulk-quantity');
+        const range = document.getElementById('bulk-range');
+        const total = document.querySelector('.bulk-total strong');
+        const submit = document.getElementById('bulk-submit');
+        if (input) input.value = this.quantity;
+        if (range) range.value = this.quantity;
+        if (total) total.textContent = `$${this.quantity * (this.currentDrug?.price || 0)}`;
+        if (submit) submit.disabled = this.busy || !this.currentDrug || this.quantity < 1 || (this.skills.level || 1) < (this.currentDrug.required_level || 1);
     }
 
     clampQuantity(value) {
