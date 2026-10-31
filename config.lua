@@ -39,8 +39,14 @@ config.dispatch = 'auto' --- cd_dispatch, codem-dispatch, origen_police, ps-disp
 --- Skills
 config.skills = {
     dealing = {
+        progression = {
+            base_required_xp = 1000, --- XP required for level 1 -> 2.
+            required_xp_per_level = 100 --- Additional XP required for each next level.
+        },
         bulk = {
             success = { min = 5, max = 10 }, --- XP added on success
+            quantity_xp = { units = 10, amount = 1, max = 10 }, --- Extra XP per quantity units, capped per transaction.
+            price_per_level = 0.01, --- Bulk price bonus per level above level 1.
             failed = { min = 0, max = 2 }, --- XP removed on fail
             bonus_threshold = 2, --- Level required before xp bonus is applied
             bonus_chance_multiplier = 1.05 --- XP multipler per level after threshold

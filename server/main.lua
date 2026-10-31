@@ -140,7 +140,14 @@ function reward_xp(_src, drug_data, amount, sale_type)
     local player_skill = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1, current_xp = 0 }
     local base_xp_gain = math.floor(math.random(skill_config.success.min, skill_config.success.max))
     local xp_gain = base_xp_gain
-    if player_skill.level > skill_config.bonus_threshold then
+    if sale_type == 'bulk' and skill_config.quantity_xp then
+        local quantity_config = skill_config.quantity_xp
+        local units = math.max(1, tonumber(quantity_config.units) or 1)
+        local quantity_bonus = math.floor(math.max(0, tonumber(amount) or 0) / units) * (tonumber(quantity_config.amount) or 0)
+        local maximum = tonumber(quantity_config.max)
+        if maximum then quantity_bonus = math.min(quantity_bonus, maximum) end
+        xp_gain = xp_gain + quantity_bonus
+    elseif player_skill.level > skill_config.bonus_threshold then
         local bonus_levels = player_skill.level - skill_config.bonus_threshold
         local xp_multiplier = 1 + (bonus_levels * skill_config.bonus_chance_multiplier)
         xp_gain = base_xp_gain * xp_multiplier

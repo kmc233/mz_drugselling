@@ -1,3 +1,12 @@
+local function bulk_price(drug, level)
+    local bulk_config = config.skills and config.skills.dealing and config.skills.dealing.bulk or {}
+    local sales_config = config.sales_adjustments and config.sales_adjustments.bulk or {}
+    local level_bonus = tonumber(bulk_config.price_per_level) or 0
+    local bulk_multiplier = tonumber(sales_config.price_multiplier) or 1
+    local multiplier = 1 + (math.max(1, level or 1) - 1) * level_bonus
+    return math.max(1, math.floor(drug.price.optimal * bulk_multiplier * multiplier + 0.5))
+end
+
 --- Get bulk dealer settings.
 -- @param _src The player's server ID requesting the data.
 -- @param data Unused parameter for consistency with callback pattern.
@@ -14,7 +23,7 @@ utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src,
                 label = drug.label,
                 image = ('%s/%s'):format(config.inventoryImagePath:gsub('/+$', ''), drug.image or (drug.id .. '.png')),
                 required_level = drug.required_level or 1,
-                price = math.max(1, math.floor(drug.price.optimal * config.sales_adjustments.bulk.price_multiplier + 0.5)),
+                price = bulk_price(drug, player_skills.level),
                 quantity = quantity
             }
         end
@@ -53,8 +62,7 @@ utils.callback.register('mz_drugselling:sv:bulk_sell_drugs', function(_src, data
     if not inventory_item or (inventory_item.quantity or inventory_item.amount or inventory_item.count) < quantity_to_sell then
         return cb(false, lang.general.server.insufficient_quantity)
     end
-    local bulk_price = math.max(1, math.floor(drug.price.optimal * config.sales_adjustments.bulk.price_multiplier + 0.5))
-    local sale_data = { drugs = {{ id = drug_id, label = drug.label, price = bulk_price }} }
+    local sale_data = { drugs = {{ id = drug_id, label = drug.label, price = bulk_price(drug, skill.level) }} }
     local success = complete_sale(_src, sale_data, drug_id, quantity_to_sell)
     if success then
         reward_xp(_src, drug, quantity_to_sell, 'bulk')

@@ -79,10 +79,20 @@ end
 
 function utils.skills.get_skill(source, name)
     if name ~= 'drug_dealing' then return nil end
-    local xp = tonumber((exports.qbx_core:GetMetadata(source, skill_key))) or 0
+    local stored_xp = exports.qbx_core:GetMetadata(source, skill_key)
+    local xp = tonumber(stored_xp) or 0
     xp = math.max(0, math.floor(xp))
-    local level = math.floor(xp / 1000) + 1
-    return { level = level, current_xp = xp % 1000, required_xp = 1000, total_xp = xp }
+    local progression = config and config.skills and config.skills.dealing and config.skills.dealing.progression or {}
+    local base_required = math.max(1, tonumber(progression.base_required_xp) or 1000)
+    local per_level = math.max(0, tonumber(progression.required_xp_per_level) or 0)
+    local level, required = 1, base_required
+    while xp >= required do
+        xp = xp - required
+        level = level + 1
+        required = base_required + ((level - 1) * per_level)
+    end
+    local total_xp = tonumber(stored_xp) or 0
+    return { level = level, current_xp = xp, required_xp = required, total_xp = math.max(0, math.floor(total_xp)) }
 end
 
 function utils.skills.modify_skill(source, name, amount, action)
