@@ -31,7 +31,10 @@ function openStreetOffer(data) {
             </header>
             <div class="street-customer"><i class="fa-solid fa-user"></i><span id="street-personality"></span></div>
             <label class="street-label" for="street-drug">选择药品</label>
-            <select class="street-select" id="street-drug"></select>
+            <div class="street-select-wrap">
+                <button type="button" class="street-select" id="street-drug" aria-expanded="false">选择药品</button>
+                <ul class="street-options" id="street-drug-options" hidden></ul>
+            </div>
             <div class="street-pricing">
                 <div><span>单件报价</span><strong id="street-price"></strong></div>
                 <input type="range" id="street-range" step="1" aria-label="单件报价">
@@ -41,19 +44,21 @@ function openStreetOffer(data) {
         </section>`;
     document.getElementById('street-personality').textContent = data.type_label || '普通顾客';
     const drugSelect = document.getElementById('street-drug');
+    const drugOptions = document.getElementById('street-drug-options');
     offers.forEach((offer) => {
-        const option = document.createElement('option');
-        option.value = offer.id;
+        const option = document.createElement('li');
+        option.className = 'street-option';
+        option.dataset.value = offer.id;
         option.textContent = `${offer.label} · ${offer.count} 件`;
-        drugSelect.appendChild(option);
+        option.onclick = () => selectStreetDrug(offer.id);
+        drugOptions.appendChild(option);
     });
-    drugSelect.onchange = (event) => {
-        const offer = streetDeal.offers.find((item) => item.id === event.target.value);
-        if (!offer) return;
-        streetDeal.selected = offer;
-        streetDeal.price = offer.optimal;
-        lastSelectedDrugId = offer.id;
-        renderStreetSelection();
+    drugSelect.replaceChildren();
+    drugSelect.textContent = `${selected.label} · ${selected.count} 件`;
+    drugSelect.onclick = () => {
+        const open = drugOptions.hidden;
+        drugOptions.hidden = !open;
+        drugSelect.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
     document.getElementById('street-range').oninput = (event) => {
         streetDeal.price = Number(event.target.value);
@@ -77,7 +82,11 @@ function openStreetOffer(data) {
 
 function renderStreetSelection() {
     const selected = streetDeal.selected;
-    document.getElementById('street-drug').value = selected.id;
+    const drugSelect = document.getElementById('street-drug');
+    drugSelect.textContent = `${selected.label} · ${selected.count} 件`;
+    document.querySelectorAll('.street-option').forEach((option) => {
+        option.classList.toggle('selected', option.dataset.value === String(selected.id));
+    });
     const range = document.getElementById('street-range');
     range.min = selected.min;
     range.max = selected.max;
@@ -87,6 +96,28 @@ function renderStreetSelection() {
     document.getElementById('street-optimal').textContent = `建议 $${selected.optimal}`;
     document.getElementById('street-max').textContent = `$${selected.max}`;
 }
+
+function selectStreetDrug(id) {
+    const offer = streetDeal.offers.find((item) => String(item.id) === String(id));
+    if (!offer) return;
+    streetDeal.selected = offer;
+    streetDeal.price = offer.optimal;
+    lastSelectedDrugId = offer.id;
+    renderStreetSelection();
+    document.getElementById('street-drug-options').hidden = true;
+    document.getElementById('street-drug').setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('.street-select-wrap')) {
+        const options = document.getElementById('street-drug-options');
+        const trigger = document.getElementById('street-drug');
+        if (options && trigger) {
+            options.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+    }
+});
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && streetDeal) {

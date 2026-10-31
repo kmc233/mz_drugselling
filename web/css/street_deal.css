@@ -12,6 +12,7 @@
     color: #f4f5f2;
     font-family: Arial, sans-serif;
     box-shadow: 0 12px 36px #0008;
+    overflow: visible;
 }
 .street-panel * { box-sizing: border-box; }
 .street-header, .street-pricing > div:first-child, .street-scale {
@@ -35,13 +36,24 @@
 }
 .street-customer i { color: #e1b568; }
 .street-label { display: block; color: #aab2ad; font-size: 12px; margin-bottom: 9px; }
+.street-select-wrap { position: relative; overflow: visible; }
 .street-select {
     width: 100%; height: 40px; padding: 0 10px; color: #ecf1ed;
     background: #303735; border: 1px solid #59615e; border-radius: 4px;
-    font: inherit; font-size: 13px; cursor: pointer;
+    font: inherit; font-size: 13px; text-align: left; cursor: pointer;
 }
-.street-select option { color: #ecf1ed; background: #303735; }
-.street-select:focus { outline: 0 !important; box-shadow: none; border-color: #7b8580; }
+.street-select:focus { outline: 0; box-shadow: none; border-color: #7b8580; }
+.street-options {
+    position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; right: 0;
+    margin: 0; padding: 3px; border: 1px solid #59615e; border-radius: 4px;
+    background: #252b29; box-shadow: 0 10px 24px #000b; list-style: none;
+}
+.street-options[hidden] { display: none !important; }
+.street-option {
+    padding: 10px; border-radius: 3px; color: #dce3df;
+    font-size: 13px; cursor: pointer;
+}
+.street-option:hover { background: #3b4b46; color: #fff; }
 .street-pricing { margin: 20px 0; font-size: 13px; }
 .street-pricing strong { color: #e1b568; font-size: 20px; }
 #street-range { width: 100%; margin: 16px 0 8px; accent-color: #4dcbc2; }
