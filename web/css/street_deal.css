@@ -45,22 +45,23 @@
 .street-select:focus { outline: 0; box-shadow: none; border-color: #7b8580; }
 .street-options {
     position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; right: 0;
-    margin: 0; padding: 3px; border: 1px solid #59615e; border-radius: 4px;
-    background: #252b29; box-shadow: 0 10px 24px #000b; list-style: none;
+    margin: 0; padding: 3px; border: 1px solid #4a4a4a; border-radius: 4px;
+    background: #202020; box-shadow: 0 10px 24px #000b; list-style: none;
 }
 .street-options[hidden] { display: none !important; }
 .street-option {
     padding: 10px; border-radius: 3px; color: #dce3df;
     font-size: 13px; cursor: pointer;
 }
-.street-option:hover { background: #3b4b46; color: #fff; }
+.street-option:hover { background: #444; color: #fff; }
 .street-pricing { margin: 20px 0; font-size: 13px; }
 .street-pricing strong { color: #e1b568; font-size: 20px; }
 #street-range { width: 100%; margin: 16px 0 8px; accent-color: #4dcbc2; }
 .street-scale { color: #aab2ad; font-size: 11px; }
 .street-submit {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; min-height: 42px; color: #122422; background: #4dcbc2;
     border: 0; border-radius: 4px; font-size: 13px; font-weight: 700; cursor: pointer;
 }
-.street-submit i { margin-left: 8px; }
+.street-submit i { line-height: 1; }
 .street-submit:hover { background: #6bddd5; }
