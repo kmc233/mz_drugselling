@@ -1,5 +1,5 @@
 local function bulk_price(drug, level)
-    local bulk_config = config.skills and config.skills.dealing and config.skills.dealing.bulk or {}
+    local bulk_config = config.skills and config.skills.bulk or {}
     local sales_config = config.sales_adjustments and config.sales_adjustments.bulk or {}
     local level_bonus = tonumber(bulk_config.price_per_level) or 0
     local bulk_multiplier = tonumber(sales_config.price_multiplier) or 1

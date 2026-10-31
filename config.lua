@@ -38,25 +38,18 @@ config.dispatch = 'auto' --- cd_dispatch, codem-dispatch, origen_police, ps-disp
 
 --- Skills
 config.skills = {
-    dealing = {
-        progression = {
-            base_required_xp = 1000, --- XP required for level 1 -> 2.
-            required_xp_per_level = 100 --- Additional XP required for each next level.
-        },
-        bulk = {
-            success = { min = 5, max = 10 }, --- XP added on success
-            quantity_xp = { units = 10, amount = 1, max = 10 }, --- Extra XP per quantity units, capped per transaction.
-            price_per_level = 0.01, --- Bulk price bonus per level above level 1.
-            failed = { min = 0, max = 2 }, --- XP removed on fail
-            bonus_threshold = 2, --- Level required before xp bonus is applied
-            bonus_chance_multiplier = 1.05 --- XP multipler per level after threshold
-        },
-        dealing = {
-            success = { min = 5, max = 10 }, --- XP added on success
-            failed = { min = 0, max = 2 }, --- XP removed on fail
-            bonus_threshold = 2, --- Level required before xp bonus is applied
-            bonus_chance_multiplier = 1.05 --- XP multipler per level after threshold
-        }
+    progression = {
+        base_required_xp = 1000, --- XP required for level 1 -> 2.
+        required_xp_per_level = 100 --- Additional XP required for each next level.
+    },
+    bulk = {
+        base_xp = { min = 5, max = 10 }, --- Base XP added on success.
+        quantity_xp = { units = 10, amount = 1, max = 10 }, --- Extra XP per quantity units, capped per transaction.
+        price_per_level = 0.01 --- Bulk price bonus per level above level 1.
+    },
+    delivery = {
+        base_xp = { min = 5, max = 10 }, --- Base XP added on successful delivery.
+        quantity_xp = { units = 10, amount = 1, max = 10 } --- Extra XP per quantity units, capped per delivery.
     }
 }
 
@@ -143,15 +136,15 @@ config.dealing = {
         models = { 'a_m_m_business_01', 'a_m_y_hipster_01', 'a_m_m_tramp_01', 'a_m_y_bevhills_01', 'g_m_y_ballaorig_01' }
     },
     ped_types = {
-        normal = { label = '普通顾客', buy = 55, steal = 10, refuse = 12, alert = 15, xp = 25 },
-        party = { label = '派对顾客', buy = 75, steal = 8, refuse = 5, alert = 10, xp = 15 },
+        normal = { label = '普通顾客', buy = 55, steal = 10, refuse = 12, alert = 15, xp = 10 },
+        party = { label = '派对顾客', buy = 75, steal = 8, refuse = 5, alert = 10, xp = 12 },
         addicted = { label = '成瘾者', buy = 78, steal = 22, refuse = 5, alert = 0, xp = 8 },
-        gang = { label = '帮派成员', buy = 58, steal = 25, refuse = 10, alert = 0, xp = 30, gang = true },
-        snitch = { label = '告密者', buy = 25, steal = 0, refuse = 45, alert = 55, xp = 40 },
-        dealer = { label = '街头商人', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 30 },
-        rich = { label = '有钱人', buy = 85, steal = 0, refuse = 2, alert = 12, xp = 12 },
+        gang = { label = '帮派成员', buy = 58, steal = 25, refuse = 10, alert = 0, xp = 15, gang = true },
+        snitch = { label = '告密者', buy = 25, steal = 0, refuse = 45, alert = 55, xp = 30 },
+        dealer = { label = '街头商人', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 20 },
+        rich = { label = '有钱人', buy = 85, steal = 0, refuse = 2, alert = 12, xp = 10 },
         junkie = { label = '瘾君子', buy = 65, steal = 35, refuse = 10, alert = 0, xp = 5 },
-        undercover = { label = '卧底', buy = 30, steal = 0, refuse = 0, alert = 100, xp = 50 }
+        undercover = { label = '卧底', buy = 30, steal = 0, refuse = 0, alert = 100, xp = 35 }
     },
     ped_models = {
         party = {

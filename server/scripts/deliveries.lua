@@ -226,7 +226,7 @@ RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
     if not complete_sale(player, sale, order.drug_id, order.quantity, 'delivery') then
         return notify(player, '交货失败，请检查库存和收款空间后重试。', 'error')
     end
-    reward_xp(player, sale.drugs[1], order.quantity, 'dealing')
+    reward_xp(player, sale.drugs[1], order.quantity, 'delivery')
     if math.random(1, 100) <= config.deliveries.chance.alert then alert_police(player, 'delivery') end
     clear_active(player, state, 'completed', nil, true)
     TriggerClientEvent('mz_drugselling:cl:completed_delivery', player)

@@ -131,26 +131,19 @@ end
 --- @param _src number: The players source ID.
 --- @param drug_data table: The data of the drug sold.
 --- @param amount number: The quantity of the drug sold.
---- @param sale_type string: The type of sale ('bulk' or 'dealing').
+--- @param sale_type string: The type of sale ('bulk' or 'delivery').
 function reward_xp(_src, drug_data, amount, sale_type)
-    local skill_config = config.skills.dealing[sale_type]
-    if not skill_config then
-        skill_config = config.skills.dealing.dealing
-    end
-    local player_skill = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1, current_xp = 0 }
-    local base_xp_gain = math.floor(math.random(skill_config.success.min, skill_config.success.max))
-    local xp_gain = base_xp_gain
-    if sale_type == 'bulk' and skill_config.quantity_xp then
+    local skill_config = config.skills[sale_type]
+    if not skill_config then return end
+    local base_xp = skill_config.base_xp or { min = 0, max = 0 }
+    local xp_gain = math.floor(math.random(base_xp.min, base_xp.max))
+    if skill_config.quantity_xp then
         local quantity_config = skill_config.quantity_xp
         local units = math.max(1, tonumber(quantity_config.units) or 1)
         local quantity_bonus = math.floor(math.max(0, tonumber(amount) or 0) / units) * (tonumber(quantity_config.amount) or 0)
         local maximum = tonumber(quantity_config.max)
         if maximum then quantity_bonus = math.min(quantity_bonus, maximum) end
         xp_gain = xp_gain + quantity_bonus
-    elseif player_skill.level > skill_config.bonus_threshold then
-        local bonus_levels = player_skill.level - skill_config.bonus_threshold
-        local xp_multiplier = 1 + (bonus_levels * skill_config.bonus_chance_multiplier)
-        xp_gain = base_xp_gain * xp_multiplier
     end
     xp_gain = math.floor(xp_gain)
     utils.skills.modify_skill(_src, 'drug_dealing', xp_gain, 'add')

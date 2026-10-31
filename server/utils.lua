@@ -82,7 +82,7 @@ function utils.skills.get_skill(source, name)
     local stored_xp = exports.qbx_core:GetMetadata(source, skill_key)
     local xp = tonumber(stored_xp) or 0
     xp = math.max(0, math.floor(xp))
-    local progression = config and config.skills and config.skills.dealing and config.skills.dealing.progression or {}
+    local progression = config and config.skills and config.skills.progression or {}
     local base_required = math.max(1, tonumber(progression.base_required_xp) or 1000)
     local per_level = math.max(0, tonumber(progression.required_xp_per_level) or 0)
     local level, required = 1, base_required
