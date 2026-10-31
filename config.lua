@@ -137,10 +137,10 @@ config.dealing = {
         models = { 'a_m_m_business_01', 'a_m_y_hipster_01', 'a_m_m_tramp_01', 'a_m_y_bevhills_01', 'g_m_y_ballaorig_01' }
     },
     ped_types = {
-        normal = { label = '普通顾客', buy = 55, steal = 8, refuse = 12, alert = 15, xp = 25 },
+        normal = { label = '普通顾客', buy = 55, steal = 10, refuse = 12, alert = 15, xp = 25 },
         party = { label = '派对顾客', buy = 75, steal = 8, refuse = 5, alert = 10, xp = 15 },
         addicted = { label = '成瘾者', buy = 78, steal = 22, refuse = 5, alert = 0, xp = 8 },
-        gang = { label = '帮派成员', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 30, gang = true },
+        gang = { label = '帮派成员', buy = 58, steal = 25, refuse = 10, alert = 0, xp = 30, gang = true },
         snitch = { label = '告密者', buy = 25, steal = 0, refuse = 45, alert = 55, xp = 40 },
         dealer = { label = '街头商人', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 30 },
         rich = { label = '有钱人', buy = 85, steal = 0, refuse = 2, alert = 12, xp = 12 },

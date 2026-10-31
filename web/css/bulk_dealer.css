@@ -1,340 +1,71 @@
-/*
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-*/
-
-/* Header styles */
-.bulk_dealer_header {
-    height: 10%;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
+.bulk-shell {
+    position: fixed; top: 50%; right: 3vw; width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 48px); transform: translateY(-50%); z-index: 10; overflow: visible;
+    display: flex; flex-direction: column; padding: 28px 32px;
+    border: 1px solid #464b49; border-radius: 8px; background: #202424;
+    color: #f1f3ef; font-family: Arial, sans-serif; box-shadow: 0 18px 50px #000b;
 }
-
-.bulk_dealer_header_title {
-    width: 30%;
-    height: 100%;
-    padding: 10px;
-    color: var(--text_colour);
-    font-weight: bold;
-    font-family: var(--main_font_family);
-    font-size: 5vh;
-    text-shadow: -1px -1px 0px rgba(0, 0, 0, 1), 1px -1px 0px rgba(0, 0, 0, 1), -1px 1px 0px rgba(0, 0, 0, 1), 1px 1px 0px rgba(0, 0, 0, 1);
-    display: flex;
-    align-items: center;
-}
-
-.bulk_dealer_header_buttons {
-    width: 5.5%;
-    display: flex;
-    margin-right: 2.5%;
-    justify-content: flex-end;
-}
-
-.close_button {
-    border: none;
-    height: 2.5vh;
-    width: 2.5vw;
-    background: var(--secondary_accent_colour);
-    font-size: 1.6vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 15px;
-    color: var(--text_colour);
-    box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), inset -1px -1px rgba(0, 0, 0, 0.5);
-    opacity: 0.85;
-}
-
-.close_button:hover {
-    cursor: pointer;
-    opacity: 1;
-}
-
-/* Body Styles */
-.bulk_dealer_body {
-    height: 80%;
-    width: 47%;
-    padding: 10px;
-}
-
-.bulk_dealer_grid {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    grid-auto-rows: 12ch;
-    gap: 25px;
-    padding: 10px;
-    overflow-y: scroll;
-    height: 68%;
-    width: 44%;
-}
-
-.drug_card {
-    padding: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    background-color: var(--background_colour);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    border-radius: 16px;
-    height: 80%;
-    color: var(--secondary_text_colour);
-    font-family: var(--secondary_font_family);
-    margin-right: 10px;
-    opacity: 0.95;
-}
-
-.drug_image {
-    width: 80px;
-    height: 80px;
-}
-
-.drug_info {
-
-}
-
-.drug_info h3 {
-    font-size: 1.5vh;
-}
-
-.drug_badges {
-    margin-top: 5px;
-    display: flex;
-}
-
-.drug_badge {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    
-}
-
-.drug_badge i {
-    margin-top: 2px;
-    padding: 3px;
-}
-
-.level,
-.price,
-.quantity {
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.75), inset -1px -1px rgba(0, 0, 0, 0.75);
-    opacity: 0.85;
-    margin-right: 5px;
-    user-select: none;
-    font-family: var(--secondary_font_family);
-    font-weight: bold;
-    color: var(--text_colour);
-}
-
-.level {
-    background-color: var(--accent_colour);
-}
-
-.drug_badge.level.disabled {
-    color: var(--secondary_text_colour);
-    background-color: var(--disabled_colour);
-}
-
-.price {
-    background-color: var(--accent_colour);
-}
-
-.quantity {
-    background-color: var(--accent_colour);
-}
-
-.drugs_header {
-    display: flex;
-    width: 100%;
-    height: 5%;
-    align-items: center;
-}
-
-.xp_bar_container {
-    display: inline-flex;
-    align-items: center;
-    height: 100%;
-    width: 50%;
-    position: relative;
-}
-
-.level_indicator {
-    font-size: 16px;
-    border: 2px solid rgba(77, 203, 194, 0.75);
-    border-radius: 50%;
-    padding: 2px;
-    height: 26px;
-    width: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--background_colour);
-    color: var(--accent_colour);
-    font-family: var(--main_font_family);
-    font-size: 2vh;
-    opacity: 0.9;
-    position: absolute;
-    right: 1.1vw;
-}
-
-.xp_progress_bar {
-    width: 83.75%;
-    height: 60%;
-    background: var(--background_colour);
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.8);
-    margin: 0 10px;
-    border-radius: 16px;
-    opacity: 0.95;
-    cursor: pointer;
-    position: relative; 
-}
-
-.xp_bar {
-    height: 100%;
-    background-color: rgba(77, 203, 194, 1);
-    border-radius: 16px;
-    box-shadow: inset 0px 1px 3px 0px rgba(0, 0, 0, 0.75), inset -1px -1px rgba(0, 0, 0, 0.75);
-}
-
-.xp_tooltip {
-    position: absolute;
-    bottom: -15%;
-    right: 0;
-    display: none;
-    color: var(--text_colour);
-    padding: 5px 10px;
-    white-space: nowrap;
-    z-index: 10;
-    font-family: var(--main_font_family)
-}
-
-/* Drug cards */
-
-.drug {
-    position: fixed;
-    right: 58.5vw;
-    top: 16vh;
-    width: 17vw;
-    background: var(--background_colour);
-    padding: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.8);
-    border-radius: 16px;
-    z-index: 100;
-    opacity: 0.95;
-    color: var(--text_colour);
-    font-family: var(--main_font_family);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.drug_header {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-.drug_details img {
-    width: 100px;
-    height: 100px;
-}
-
-.drug_info h3 {
-    font-size: 1.5vh;
-    color: var(--secondary_text_colour);
-}
-
-#close_drug {
-    position: absolute;
-    top: 0.5vh;
-    right: 0.25vw;
-    border: none;
-    height: 2vh;
-    width: 1.7vw;
-    background: var(--secondary_accent_colour);
-    font-size: 1vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 15px;
-    color: var(--text_colour);
-    box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), inset -1px -1px rgba(0, 0, 0, 0.5);
-    opacity: 0.8;
-    outline: none;
-}
-
-#close_drug:hover {
-    opacity: 1;
-    cursor: pointer;
-}
-
-/* Body styles */
-.drug_body {
-    display: flex;
-    flex-direction: column;
-    width: 85%;
-    justify-content: space-around;
-}
-.profit_counter, .quantity_input, .sell_button_container {
-    margin: 10px 0;
-}
-
-.profit_counter label, .quantity_input label {
-    margin-right: 10px;
-}
-
-#profit_value {
-    font-weight: bold;
-    color: var(--accent_colour);
-}
-
-#quantity_input {
-    width: 42%;
-    padding: 6px 12px;
-    border-radius: 16px;
-    border: none;
-    background-color: var(--input_background_colour);
-    box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), inset -1px -1px rgba(0, 0, 0, 0.5);
-    color: var(--text_colour);
-    margin: 1%;
-    opacity: 0.95;
-    outline: none;
-}
-
-.sell_button {
-    height: 2.5vh;
-    width: 6vw;
-    border-radius: 15px;
-    border: none;
-    font-size: 1.2vh;
-    box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.5), inset -1px -1px rgba(0, 0, 0, 0.5);
-    opacity: 0.85;
-    font-family: var(--secondary_font_family);
-    font-weight: bold;
-    text-transform: uppercase;
-    background-color: var(--accent_colour);
-    color: var(--text_colour);
-    margin-bottom: 10px;
-    outline: none;
-}
-
-.sell_button:hover {
-    opacity: 1;
-    cursor: pointer;
-}
-
-.quantity_value {
-    margin-left: 2px;
+.bulk-topbar { display: flex; align-items: flex-start; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid #3b413f; }
+.bulk-kicker { color: #aeb5b1; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+.bulk-topbar h1 { margin: 5px 0 4px; font-size: 25px; font-weight: 700; }
+.bulk-topbar p { color: #929b96; font-size: 13px; }
+.bulk-close { width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: #c3c9c5; font-size: 26px; line-height: 1; cursor: pointer; }
+.bulk-close:hover { color: #fff; }
+.bulk-summary { display: flex; align-items: center; gap: 26px; padding: 18px 0; }
+.bulk-level { display: flex; align-items: baseline; gap: 10px; min-width: 112px; }
+.bulk-level span, .bulk-xp-label { color: #9ca5a0; font-size: 13px; }
+.bulk-level strong { color: #e1b568; font-size: 18px; }
+.bulk-xp { flex: 1; max-width: 420px; }
+.bulk-xp-label { display: flex; justify-content: space-between; margin-bottom: 7px; }
+.bulk-xp-track { height: 6px; overflow: hidden; border-radius: 3px; background: #343a38; }
+.bulk-xp-track i { display: block; height: 100%; border-radius: inherit; background: #89918c; }
+.bulk-layout { display: grid; grid-template-columns: minmax(0, .74fr) minmax(0, 1fr); gap: 18px; min-height: 0; flex: none; }
+.bulk-inventory, .bulk-order { min-height: 0; }
+.bulk-inventory { display: flex; flex-direction: column; }
+.bulk-section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.bulk-section-title h2 { font-size: 14px; }
+.bulk-section-title span { color: #89918c; font-size: 13px; }
+.bulk-grid { display: flex; flex: none; flex-direction: column; gap: 8px; max-height: 390px; overflow-y: auto; padding: 0 5px 0 0; }
+.bulk-card { display: flex; align-items: center; gap: 11px; min-height: 76px; padding: 10px; border: 1px solid #3f4643; border-radius: 5px; background: #292e2c; color: #e4e8e5; text-align: left; cursor: pointer; }
+.bulk-card:hover, .bulk-card.active { border-color: #89918c; background: #343937; }
+.bulk-card:disabled { opacity: .45; cursor: not-allowed; }
+.bulk-card-image, .bulk-product-image { display: grid; place-items: center; flex: none; overflow: hidden; background: #1b1e1d; color: #858d89; }
+.bulk-card-image { width: 46px; height: 46px; border-radius: 4px; }
+.bulk-card-image img, .bulk-product-image img { width: 100%; height: 100%; object-fit: contain; }
+.bulk-card-info { min-width: 0; flex: 1; }
+.bulk-card-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bulk-card-info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.bulk-card-info span, .bulk-card-info small { display: block; margin-top: 4px; color: #aeb5b1; font-size: 13px; }
+.bulk-card-info small { color: #7f8883; }
+.bulk-card-arrow { color: #858d89; font-size: 19px; }
+.bulk-order { align-self: start; padding: 18px; border: 1px solid #3f4643; border-radius: 6px; background: #292e2c; }
+.bulk-order-heading, .bulk-quantity-head, .bulk-total { display: flex; align-items: center; justify-content: space-between; }
+.bulk-order-heading { color: #c9cfcb; font-size: 13px; }
+.bulk-status { color: #9ba39f; font-size: 13px; }
+.bulk-status.locked { color: #b36f63; }
+.bulk-product { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+.bulk-product-image { width: 64px; height: 64px; border-radius: 5px; }
+.bulk-product h2 { font-size: 16px; }
+.bulk-product p { margin-top: 6px; color: #929b96; font-size: 13px; }
+.bulk-product strong, .bulk-total strong { color: #e1b568; }
+.bulk-order-rule { height: 1px; background: #3f4643; }
+.bulk-quantity-head { margin: 18px 0 8px; color: #c9cfcb; font-size: 13px; }
+.bulk-quantity-head span { color: #7f8883; font-size: 13px; }
+.bulk-quantity { display: grid; grid-template-columns: 34px 1fr 34px; gap: 5px; }
+.bulk-quantity button, .bulk-quantity input { height: 34px; border: 1px solid #4a514e; background: #202424; color: #e5e9e6; text-align: center; }
+.bulk-quantity button { font-size: 19px; cursor: pointer; }
+.bulk-quantity button:hover { background: #3d4240; }
+.bulk-quantity input { width: 100%; font-size: 13px; }
+.bulk-range { width: 100%; margin: 14px 0 18px; accent-color: #a0a7a3; }
+.bulk-total { padding: 12px 0; color: #9ca5a0; font-size: 13px; }
+.bulk-total strong { font-size: 20px; }
+.bulk-submit { width: 100%; height: 40px; border: 0; border-radius: 4px; background: #d0d4d1; color: #202424; font-size: 13px; font-weight: 700; cursor: pointer; }
+.bulk-submit:hover { background: #fff; }
+.bulk-submit:disabled { opacity: .4; cursor: not-allowed; }
+.bulk-submit span { margin-left: 7px; }
+.bulk-empty { padding: 28px; color: #7f8883; font-size: 13px; text-align: center; }
+@media (max-width: 800px) {
+    .bulk-shell { top: 3vh; right: 3vw; width: calc(100vw - 6vw); max-height: calc(100vh - 6vh); transform: none; padding: 20px; }
+    .bulk-layout { grid-template-columns: 1fr; overflow-y: auto; }
+    .bulk-grid { max-height: 300px; }
+    .bulk-order { margin-bottom: 10px; }
 }
