@@ -26,7 +26,7 @@ function openStreetOffer(data) {
             <header class="street-header">
                 <div><span class="street-kicker">${streetDeal.mode === 'delivery' ? 'DELIVERY' : 'STREET DEAL'}</span><h2>报价交易</h2></div>
                 <button type="button" class="street-icon" id="street-close" title="取消交易" aria-label="取消交易">
-                    <i class="fa-solid fa-xmark"></i>
+                    ×
                 </button>
             </header>
             <div class="street-customer"><i class="fa-solid fa-user"></i><span id="street-personality"></span></div>

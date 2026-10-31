@@ -7,7 +7,6 @@
     box-sizing: border-box;
     padding: 20px;
     border: 1px solid #545957;
-    border-left: 3px solid #4dcbc2;
     border-radius: 6px;
     background: #202424;
     color: #f4f5f2;
@@ -23,9 +22,13 @@
 .street-header h2 { font-size: 19px; font-weight: 600; }
 .street-kicker { color: #4dcbc2; font-size: 10px; font-weight: 700; }
 .street-icon {
-    width: 34px; height: 34px; border: 1px solid #555;
-    border-radius: 4px; background: #2d3231; color: #eee; cursor: pointer;
+    width: 30px; height: 30px; padding: 0; border: 0;
+    border-radius: 3px; background: transparent; color: #d8dedb;
+    font-size: 25px; line-height: 1; cursor: pointer;
 }
+.street-icon:hover { color: #fff; }
+.street-icon:focus { outline: none; }
+.street-icon:focus-visible { outline: 1px solid #737d79; outline-offset: 2px; }
 .street-customer {
     display: flex; align-items: center; gap: 9px; margin: 18px 0;
     padding: 11px; border: 1px solid #454b49; color: #e2e7e4; font-size: 13px;
@@ -34,11 +37,11 @@
 .street-label { display: block; color: #aab2ad; font-size: 12px; margin-bottom: 9px; }
 .street-select {
     width: 100%; height: 40px; padding: 0 10px; color: #ecf1ed;
-    background: #303735; border: 1px solid #4dcbc2; border-radius: 4px;
+    background: #303735; border: 1px solid #59615e; border-radius: 4px;
     font: inherit; font-size: 13px; cursor: pointer;
 }
 .street-select option { color: #ecf1ed; background: #303735; }
-.street-select:focus-visible { outline: 2px solid #4dcbc2; outline-offset: 2px; }
+.street-select:focus { outline: 0 !important; box-shadow: none; border-color: #7b8580; }
 .street-pricing { margin: 20px 0; font-size: 13px; }
 .street-pricing strong { color: #e1b568; font-size: 20px; }
 #street-range { width: 100%; margin: 16px 0 8px; accent-color: #4dcbc2; }
