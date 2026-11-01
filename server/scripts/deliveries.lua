@@ -22,7 +22,7 @@ local function public_order(order)
         label = order.label, quantity = order.quantity, price = order.price,
         total = order.price * order.quantity, area = order.area,
         coords = { x = order.coords.x, y = order.coords.y, z = order.coords.z },
-        expires_at = order.expires_at, status = order.status
+        expires_at = order.expires_at, status = order.status, accepted_at = order.accepted_at
     }
 end
 
@@ -155,7 +155,7 @@ local function add_order(player, state, drugs)
     if states[player] ~= state or not state.receiving or open_order_count(state) >= max_pending_orders() then return false end
     state.orders[#state.orders + 1] = new_order(drugs)
     sync(player)
-    notify(player, '收到一条新的订单短信。')
+    notify(player, lang.deliveries.server.notifications.new_order)
     return true
 end
 
@@ -189,7 +189,7 @@ RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
     if state.cooldown_until > now() then return sync(player) end
     local drugs = state.drugs or eligible_drugs(player)
     if #drugs == 0 or #config.deliveries.locations == 0 then
-        notify(player, '目前没有可提供的配送订单。', 'error')
+        notify(player, lang.deliveries.server.notifications.no_orders, 'error')
         return
     end
     state.drugs = drugs
@@ -227,6 +227,7 @@ RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)
     sale_modes[player] = 'delivery'
     TriggerClientEvent('mz_drugselling:cl:delivery_accepted', player)
     selected.status = 'accepted'
+    selected.accepted_at = now()
     selected.expires_at = now() + config.deliveries.delivery_seconds
     state.active = selected
     state.token = state.token + 1
@@ -236,7 +237,7 @@ RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)
     SetTimeout(config.deliveries.delivery_seconds * 1000, function()
         if states[player] == state and state.active == selected and state.token == token then
             clear_active(player, state, 'expired')
-            notify(player, '配送订单已超时。', 'error')
+            notify(player, lang.deliveries.server.notifications.timed_out, 'error')
         end
     end)
 end)
@@ -246,7 +247,7 @@ RegisterNetEvent('mz_drugselling:sv:cancel_delivery', function()
     local state = states[player]
     if sale_modes[player] ~= 'delivery' or not state or not state.active then return end
     clear_active(player, state, 'cancelled')
-    notify(player, '订单已取消。')
+    notify(player, lang.deliveries.server.notifications.cancelled)
 end)
 
 RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
@@ -256,7 +257,7 @@ RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
     local order = state.active
     if order.expires_at <= now() then
         clear_active(player, state, 'expired')
-        return notify(player, '配送订单已超时。', 'error')
+        return notify(player, lang.deliveries.server.notifications.timed_out, 'error')
     end
     local ped = GetPlayerPed(player)
     local zone = order.zone or order.coords
@@ -265,11 +266,11 @@ RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
     local item = utils.fw.get_item(player, order.drug_id)
     local quantity = item and (item.quantity or item.count or item.amount) or 0
     if quantity < order.quantity then
-        return notify(player, ('需要 %d 个 %s，当前库存不足。'):format(order.quantity, order.label), 'error')
+        return notify(player, lang.deliveries.server.notifications.insufficient_delivery:format(order.quantity, order.label), 'error')
     end
     local sale = { drugs = {{ id = order.drug_id, label = order.label, price = order.price, quantity = order.quantity }} }
     if not complete_sale(player, sale, order.drug_id, order.quantity, 'delivery') then
-        return notify(player, '交货失败，请检查库存和收款空间后重试。', 'error')
+        return notify(player, lang.deliveries.server.notifications.delivery_failed, 'error')
     end
     reward_xp(player, sale.drugs[1], order.quantity, 'delivery')
     if math.random(1, 100) <= config.deliveries.chance.alert then alert_police(player, 'delivery') end

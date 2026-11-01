@@ -1,15 +1,9 @@
---[[
-     ____   ____ _____ _____   _   _____  ________      ________ _      ____  _____  __  __ ______ _   _ _______ 
-    |  _ \ / __ \_   _|_   _| | | |  __ \|  ____\ \    / /  ____| |    / __ \|  __ \|  \/  |  ____| \ | |__   __|
-    | |_) | |  | || |   | |   | | | |  | | |__   \ \  / /| |__  | |   | |  | | |__) | \  / | |__  |  \| |  | |   
-    |  _ <| |  | || |   | |   | | | |  | |  __|   \ \/ / |  __| | |   | |  | |  ___/| |\/| |  __| | . ` |  | |   
-    | |_) | |__| || |_ _| |_  | | | |__| | |____   \  /  | |____| |___| |__| | |    | |  | | |____| |\  |  | |   
-    |____/ \____/_____|_____| | | |_____/|______|   \/   |______|______\____/|_|    |_|  |_|______|_| \_|  |_|   
-                              | |                                                                                
-                              |_|               DRUG SALES
-]]
-
+Locales = Locales or {}
 lang = lang or {}
+
+-- The resource currently reads `lang`; expose the same table through the
+-- standard locale namespace so additional language files can use Locales.xx.
+Locales.en = lang
 
 lang.general = {
     client = {
@@ -103,6 +97,19 @@ lang.deliveries = {
             not_delivering = '你当前未在配送。',
             delivery_received = '你收到了新的配送任务，GPS 已标记位置。',
         },
+        phone = {
+            brand = 'MZ 手机', network = 'MZ NETWORK', home_title = '销售终端', delivery_title = '送货订单',
+            section_sales_modes = '销售方式', mode_dealing = '主动街卖', mode_corner = '站街模式', mode_delivery = '送货订单',
+            state_active = '进行中', state_delivery = '配送中', state_not_started = '未开启', state_receiving = '接收中', state_not_receiving = '未接收',
+            state_pending = '待回复', state_completed = '已完成', state_expired = '已失效', state_cancelled = '已取消',
+            select = '选择', close = '关闭', back = '返回', stop_receiving = '停止接收', receive_messages = '接收短信', cancel_order = '取消订单',
+            accept_order = '接单', start = '开始', stop = '停止', message_count = '%d 条短信', waiting_messages = '等待新订单短信', no_messages = '暂无订单短信',
+            incoming_request = '听说你能送货。我需要 %d 个%s。', incoming_total = '每个 $%d，总共 $%d。送到%s，能接吗？',
+            outgoing_accept = '可以，发位置。', outgoing_cancel = '这单我不接了。', incoming_location = '位置发你了，别迟到。',
+            incoming_completed = '收到货了，下次再联系。', incoming_closed = '这单已经结束。', accept_with_location = '接单，发位置',
+            cooldown = '%s 后可接', deliver_order = '交付订单', delivery_point = '配送交货点', title = '联系人'
+            ,running = '正在运行', other_mode = '其他销售方式进行中', not_started = '尚未开启', no_action = '无操作'
+        },
         target = {
             label = '出售毒品',
             main_icon = 'fa-solid fa-comment',
@@ -130,6 +137,12 @@ lang.deliveries = {
             not_enough_police = '城市中警察数量不足。当前: %d 所需: %d',
             no_drugs = '你没有可出售的毒品..',
             not_enough_drugs = '你的毒品数量不足以完成交易..',
+            new_order = '收到一条新的订单短信。',
+            no_orders = '目前没有可提供的配送订单。',
+            timed_out = '配送订单已超时。',
+            cancelled = '订单已取消。',
+            insufficient_delivery = '需要 %d 个 %s，当前库存不足。',
+            delivery_failed = '交货失败，请检查库存和收款空间后重试。',
         },
         alerts = {
             code = '10-66',
@@ -137,3 +150,5 @@ lang.deliveries = {
         }
     }
 }
+
+Locales.en = lang

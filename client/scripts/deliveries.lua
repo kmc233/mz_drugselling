@@ -100,12 +100,12 @@ local function create_delivery_ped(zone, token)
             name = 'mz_drugselling_delivery', heading = 0.0, debugPoly = false
         }, { distance = 2.5, options = {{
             icon = lang.deliveries.client.target.action_icon,
-            label = '交付订单',
+            label = lang.deliveries.client.phone.deliver_order,
             action = function() TriggerServerEvent('mz_drugselling:sv:complete_delivery') end
         }} })
     elseif TARGET == 'ox_target' then
         exports.ox_target:addLocalEntity(delivery_ped, {{
-            name = 'mz_drugselling_delivery', label = '交付订单',
+            name = 'mz_drugselling_delivery', label = lang.deliveries.client.phone.deliver_order,
             icon = lang.deliveries.client.target.action_icon, distance = 2.5,
             onSelect = function() TriggerServerEvent('mz_drugselling:sv:complete_delivery') end
         }})
@@ -122,7 +122,7 @@ RegisterNetEvent('mz_drugselling:cl:spawn_delivery_ped', function(location)
     SetBlipColour(delivery_blip, 1)
     SetBlipScale(delivery_blip, 0.7)
     BeginTextCommandSetBlipName('STRING')
-    AddTextComponentString('配送交货点')
+    AddTextComponentString(lang.deliveries.client.phone.delivery_point)
     EndTextCommandSetBlipName(delivery_blip)
     SetBlipRoute(delivery_blip, true)
     SetBlipRouteColour(delivery_blip, 1)

@@ -158,7 +158,7 @@ RegisterNetEvent('mz_drugselling:cl:open_dealer_phone', function()
     SetNuiFocus(true, true)
     SendNUIMessage({
         action = 'open_dealer_phone',
-        data = { street_phone = config.street_phone, active_mode = dealing_mode or (is_delivering and 'delivery'), delivery_receiving = delivery_receiving, delivery_orders = delivery_orders }
+        data = { street_phone = config.street_phone, active_mode = dealing_mode or (is_delivering and 'delivery'), delivery_receiving = delivery_receiving, delivery_orders = delivery_orders, phone_locale = lang.deliveries.client.phone }
     })
 end)
 
