@@ -47,20 +47,10 @@ local function clear_active(player, state, status, cooldown, keep_ped)
     local default_cooldown = config.deliveries.cancel_cooldown or 0
     local cooldown_seconds = cooldown or default_cooldown
     state.cooldown_until = now() + cooldown_seconds
-    if status ~= 'completed' then
-        state.generating = false
-        state.generation_token = (state.generation_token or 0) + 1
-    end
     state.token = state.token + 1
     if not keep_ped then TriggerClientEvent('mz_drugselling:cl:clear_delivery', player) end
     sync(player)
-    if status ~= 'completed' and cooldown_seconds > 0 and state.receiving then
-        SetTimeout(cooldown_seconds * 1000, function()
-            if states[player] == state and state.receiving and not state.active and state.cooldown_until <= now() then
-                schedule_order(player, state, state.drugs)
-            end
-        end)
-    end
+    if state.receiving then schedule_order(player, state, state.drugs) end
 end
 
 local function prune_order_history(state)
@@ -284,7 +274,6 @@ RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
     reward_xp(player, sale.drugs[1], order.quantity, 'delivery')
     if math.random(1, 100) <= config.deliveries.chance.alert then alert_police(player, 'delivery') end
     clear_active(player, state, 'completed', 0, true)
-    schedule_order(player, state, state.drugs)
     TriggerClientEvent('mz_drugselling:cl:completed_delivery', player)
 end)
 
