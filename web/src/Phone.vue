@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import {
   ArrowLeft, Check, ChevronRight, MapPin, Phone, PhoneOff,
-  Radio, ShoppingBag, X, RefreshCw, Clock3
+  Radio, ShoppingBag, X, Clock3
 } from 'lucide-vue-next';
 
 const visible = ref(false);
@@ -12,7 +12,7 @@ const deliveryReceiving = ref(false);
 const view = ref('home');
 const selectedIndex = ref(0);
 const busy = ref(false);
-const deliveryData = ref({ orders: [], active_id: null, refresh_at: 0, server_time: 0 });
+const deliveryData = ref({ orders: [], active_id: null, cooldown_until: 0, server_time: 0 });
 const selectedOrderId = ref(null);
 const now = ref(Math.floor(Date.now() / 1000));
 let clockTimer;
@@ -27,16 +27,13 @@ const selectedMode = computed(() => modes.value.find((mode) => mode.id === view.
 const orders = computed(() => deliveryData.value.orders || []);
 const selectedOrder = computed(() => orders.value.find((order) => order.id === selectedOrderId.value));
 const activeOrder = computed(() => orders.value.find((order) => order.id === deliveryData.value.active_id));
-const canRefresh = computed(() => !activeOrder.value &&
-  deliveryReceiving.value &&
-  deliveryData.value.refresh_at <= now.value);
 const leftLabel = computed(() => {
   if (view.value === 'home') return '选择';
   if (view.value === 'delivery_inbox') return deliveryReceiving.value ? '停止接收' : '接收短信';
   if (view.value === 'delivery_thread') {
     if (selectedOrder.value?.status === 'accepted' && selectedOrder.value.expires_at > now.value) return '取消订单';
     return selectedOrder.value?.status === 'pending' && !activeOrder.value &&
-      selectedOrder.value.expires_at > now.value && deliveryData.value.refresh_at <= now.value ? '接单' : '';
+      selectedOrder.value.expires_at > now.value && deliveryData.value.cooldown_until <= now.value ? '接单' : '';
   }
   return activeMode.value && activeMode.value !== view.value ? '' : activeMode.value === view.value ? '停止' : '开始';
 });
@@ -245,7 +242,7 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
             </div>
           </template>
           <template v-else-if="view === 'delivery_inbox'">
-            <div class="inbox-toolbar"><span>{{ orders.length }} 条短信</span><button type="button" title="刷新订单" aria-label="刷新订单" :disabled="!canRefresh || busy" @click="postDelivery('delivery_refresh')"><RefreshCw :size="15" /></button></div>
+            <div class="inbox-toolbar"><span>{{ orders.length }} 条短信</span></div>
             <div v-if="!orders.length" class="inbox-empty">{{ deliveryReceiving ? '等待新订单短信' : '暂无订单短信' }}</div>
             <div class="order-list">
               <button v-for="(order, index) in orders" :key="order.id" type="button" class="order-row" :class="{ focused: selectedIndex === index, active: order.id === deliveryData.active_id }" @click="openThread(order)" @mouseenter="selectedIndex = index">
@@ -254,7 +251,6 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
                 <span class="order-row-bottom"><span>{{ order.area }}</span><span v-if="order.status === 'pending' || order.status === 'accepted'"><Clock3 :size="11" />{{ remaining(order.expires_at) }}</span></span>
               </button>
             </div>
-            <div v-if="!canRefresh && deliveryData.refresh_at > now && !activeOrder" class="inbox-wait">{{ remaining(deliveryData.refresh_at) }} 后可刷新</div>
           </template>
           <template v-else-if="view === 'delivery_thread' && selectedOrder">
             <div class="thread-meta"><span>{{ orderStatus(selectedOrder) }}</span><span v-if="selectedOrder.status === 'pending' || selectedOrder.status === 'accepted'">{{ remaining(selectedOrder.expires_at) }}</span></div>
@@ -264,7 +260,7 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
               <template v-if="selectedOrder.status !== 'pending'"><p class="message outgoing">{{ selectedOrder.status === 'cancelled' ? '这单我不接了。' : '可以，发位置。' }}</p><p class="message incoming">{{ selectedOrder.status === 'accepted' ? '位置发你了，别迟到。' : selectedOrder.status === 'completed' ? '收到货了，下次再联系。' : '这单已经结束。' }}</p></template>
             </div>
             <div class="thread-actions">
-              <button v-if="selectedOrder.status === 'pending' && !activeOrder && selectedOrder.expires_at > now" type="button" :disabled="busy || deliveryData.refresh_at > now" @click="postDelivery('delivery_accept', { id: selectedOrder.id })"><Check :size="15" /> {{ deliveryData.refresh_at > now ? `${remaining(deliveryData.refresh_at)} 后可接` : '接单，发位置' }}</button>
+              <button v-if="selectedOrder.status === 'pending' && !activeOrder && selectedOrder.expires_at > now" type="button" :disabled="busy || deliveryData.cooldown_until > now" @click="postDelivery('delivery_accept', { id: selectedOrder.id })"><Check :size="15" /> {{ deliveryData.cooldown_until > now ? `${remaining(deliveryData.cooldown_until)} 后可接` : '接单，发位置' }}</button>
               <button v-if="selectedOrder.status === 'accepted' && selectedOrder.expires_at > now" type="button" :disabled="busy" @click="postDelivery('delivery_cancel_order')"><X :size="15" /> 取消订单</button>
             </div>
           </template>

@@ -1,4 +1,4 @@
-delivery_orders = { orders = {}, active_id = nil, refresh_at = 0, server_time = 0 }
+delivery_orders = { orders = {}, active_id = nil, cooldown_until = 0, server_time = 0 }
 local departing_peds = {}
 local delivery_zone = nil
 local delivery_spawn_token = 0
@@ -54,11 +54,6 @@ RegisterNetEvent('mz_drugselling:cl:delivery_orders', function(data)
     is_delivering = data.active_id ~= nil
     SendNUIMessage({ action = 'phone_mode_changed', mode = dealing_mode or (is_delivering and 'delivery') })
     SendNUIMessage({ action = 'delivery_orders', data = data })
-end)
-
-RegisterNUICallback('delivery_refresh', function(_, cb)
-    cb({ success = true })
-    if delivery_receiving then TriggerServerEvent('mz_drugselling:sv:refresh_delivery') end
 end)
 
 RegisterNUICallback('delivery_accept', function(data, cb)

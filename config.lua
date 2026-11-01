@@ -192,12 +192,16 @@ config.deliveries = {
         { coords = vector4(314.82, -1375.75, 31.92, 48.51), radius = 45.0, spawn_distance = 110.0 },
         { coords = vector4(298.64, -1360.96, 31.94, 230.58), radius = 40.0, spawn_distance = 100.0 }
     },
-    order_count = { min = 6, max = 8 }, --- Number of orders received during one delivery session.
+    
+    max_pending_orders = 6, --- Maximum number of pending or active delivery orders.
     quantity = { min = 6, max = 12 }, --- Quantity requested by each delivery order.
+    history_seconds = 120, --- How long completed, cancelled and accepted-expired orders remain visible.
+    max_history_orders = 8, --- Maximum number of terminal orders retained in the inbox.
     arrival_interval = { min = 15, max = 30 }, --- Seconds between incoming order messages.
     offer_seconds = 600, --- Time to choose an order from the inbox.
     delivery_seconds = 600, --- Time to complete an accepted order.
-    refresh_cooldown = 30, --- After a completed or cancelled order.
+    cancel_cooldown = 30, --- Cooldown after cancelling or timing out an accepted order.
+
     police = {
         required = 0, --- Required amount of police officers to start deliveries or receive new deliveries: Use 0 or remove to disable.
         on_duty_required = false, --- Toggle on duty requirements for police officers.

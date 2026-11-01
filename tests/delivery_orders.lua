@@ -8,9 +8,9 @@ config = {
         price = { min = 10, optimal = 15, max = 20 }, quantity = { min = 3, max = 5 } }},
     deliveries = {
         locations = {{ label = 'Davis', coords = { x = 1, y = 2, z = 3, w = 0 } }},
-        order_count = { min = 6, max = 8 }, arrival_interval = { min = 1, max = 1 },
+        max_pending_orders = 6, arrival_interval = { min = 1, max = 1 },
         offer_seconds = 600, delivery_seconds = 600,
-        refresh_cooldown = 60, chance = { alert = 0 },
+        cancel_cooldown = 60, chance = { alert = 0 },
         police = { jobs = {}, on_duty_required = false, required = 0 }
     }
 }

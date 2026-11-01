@@ -10,6 +10,8 @@ local function now()
     return os.time()
 end
 
+local schedule_order
+
 local function notify(player, message, kind)
     send_notification(player, lang.deliveries.client.notifications.header, message, kind or 'info', 3500)
 end
@@ -31,7 +33,7 @@ local function sync(player)
     for _, order in ipairs(state.orders) do orders[#orders + 1] = public_order(order) end
     TriggerClientEvent('mz_drugselling:cl:delivery_orders', player, {
         orders = orders, active_id = state.active and state.active.id or nil,
-        refresh_at = state.refresh_at or 0, server_time = now()
+        cooldown_until = state.cooldown_until or 0, server_time = now()
     })
 end
 
@@ -39,25 +41,74 @@ local function clear_active(player, state, status, cooldown, keep_ped)
     local order = state.active
     if not order then return end
     order.status = status
+    order.closed_at = now()
     state.active = nil
     if sale_modes[player] == 'delivery' then sale_modes[player] = nil end
-    state.refresh_at = now() + (cooldown or config.deliveries.refresh_cooldown)
+    local default_cooldown = config.deliveries.cancel_cooldown or 0
+    local cooldown_seconds = cooldown or default_cooldown
+    state.cooldown_until = now() + cooldown_seconds
+    if status ~= 'completed' then
+        state.generating = false
+        state.generation_token = (state.generation_token or 0) + 1
+    end
     state.token = state.token + 1
     if not keep_ped then TriggerClientEvent('mz_drugselling:cl:clear_delivery', player) end
     sync(player)
+    if status ~= 'completed' and cooldown_seconds > 0 and state.receiving then
+        SetTimeout(cooldown_seconds * 1000, function()
+            if states[player] == state and state.receiving and not state.active and state.cooldown_until <= now() then
+                schedule_order(player, state, state.drugs)
+            end
+        end)
+    end
+end
+
+local function prune_order_history(state)
+    local history_seconds = math.max(0, tonumber(config.deliveries.history_seconds) or 120)
+    local max_history = math.max(0, math.floor(tonumber(config.deliveries.max_history_orders) or 8))
+    local current_time = now()
+    local history = {}
+    for index = #state.orders, 1, -1 do
+        local order = state.orders[index]
+        if order.status == 'pending' and order.expires_at <= current_time then
+            table.remove(state.orders, index)
+        elseif order.status == 'completed' or order.status == 'cancelled' or order.status == 'expired' then
+            order.closed_at = order.closed_at or order.expires_at
+            if history_seconds == 0 or current_time - order.closed_at > history_seconds then
+                table.remove(state.orders, index)
+            else
+                history[#history + 1] = order
+            end
+        end
+    end
+    table.sort(history, function(a, b) return (a.closed_at or 0) > (b.closed_at or 0) end)
+    for index = max_history + 1, #history do
+        local order = history[index]
+        for position, current in ipairs(state.orders) do
+            if current == order then
+                table.remove(state.orders, position)
+                break
+            end
+        end
+    end
 end
 
 local function expire_orders(player, state)
     local changed = false
-    for _, order in ipairs(state.orders) do
+    for index = #state.orders, 1, -1 do
+        local order = state.orders[index]
         if (order.status == 'pending' or order.status == 'accepted') and order.expires_at <= now() then
             if state.active == order then
                 clear_active(player, state, 'expired')
             else
-                order.status = 'expired'
+                table.remove(state.orders, index)
             end
             changed = true
         end
+    end
+    prune_order_history(state)
+    if state.receiving and not state.active and state.cooldown_until <= now() then
+        schedule_order(player, state, state.drugs)
     end
     if changed then sync(player) end
 end
@@ -97,24 +148,39 @@ local function new_order(drugs)
     }
 end
 
+local function open_order_count(state)
+    local count = 0
+    for _, order in ipairs(state.orders) do
+        if order.status == 'pending' or order.status == 'accepted' then count = count + 1 end
+    end
+    return count
+end
+
+local function max_pending_orders()
+    local configured = config.deliveries.max_pending_orders
+    return math.max(1, math.floor(configured or 6))
+end
+
 local function add_order(player, state, drugs)
-    if states[player] ~= state or not state.receiving or not state.generating or #state.orders >= state.target_count then return false end
+    if states[player] ~= state or not state.receiving or open_order_count(state) >= max_pending_orders() then return false end
     state.orders[#state.orders + 1] = new_order(drugs)
     sync(player)
     notify(player, '收到一条新的订单短信。')
     return true
 end
 
-local function schedule_order(player, state, drugs)
-    if #state.orders >= state.target_count then
+schedule_order = function(player, state, drugs)
+    if states[player] ~= state or not state.receiving or state.generating or open_order_count(state) >= max_pending_orders() then
         state.generating = false
         return
     end
+    state.generating = true
     local interval = config.deliveries.arrival_interval
     local delay = math.random(interval.min, interval.max)
     local token = state.generation_token
     SetTimeout(delay * 1000, function()
         if states[player] ~= state or not state.generating or state.generation_token ~= token then return end
+        state.generating = false
         if add_order(player, state, drugs) then schedule_order(player, state, drugs) end
     end)
 end
@@ -124,46 +190,26 @@ RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
     if not utils.fw.has_item(player, 'dealer_phone', 1) then return end
     local state = states[player]
     if not state then
-        state = { orders = {}, token = 0, refresh_at = 0 }
+        state = { orders = {}, token = 0, cooldown_until = 0 }
         states[player] = state
     end
     expire_orders(player, state)
-    local was_paused = state.receiving == false
     state.receiving = true
-    if was_paused and state.target_count then
-        if #state.orders < state.target_count then
-            state.generating = true
-            state.generation_token = (state.generation_token or 0) + 1
-            schedule_order(player, state, state.drugs)
-        end
-        return sync(player)
-    end
     if state.active or state.generating then return sync(player) end
-    if state.refresh_at > now() then
-        notify(player, '订单暂时没有更新，请稍后再试。', 'error')
-        return sync(player)
-    end
-    for _, order in ipairs(state.orders) do
-        if order.status == 'pending' then return sync(player) end
-    end
-    local police = get_police_players(config.deliveries.police.jobs, config.deliveries.police.on_duty_required)
-    if #police < config.deliveries.police.required then
-        notify(player, lang.deliveries.server.notifications.not_enough_police:format(
-            #police, config.deliveries.police.required), 'error')
-        return
-    end
-    local drugs = eligible_drugs(player)
+    if state.cooldown_until > now() then return sync(player) end
+    local drugs = state.drugs or eligible_drugs(player)
     if #drugs == 0 or #config.deliveries.locations == 0 then
         notify(player, '目前没有可提供的配送订单。', 'error')
         return
     end
-    state.orders = {}
     state.drugs = drugs
-    state.target_count = math.random(config.deliveries.order_count.min, config.deliveries.order_count.max)
-    state.generating = true
     state.generation_token = (state.generation_token or 0) + 1
-    add_order(player, state, drugs)
-    schedule_order(player, state, drugs)
+    if open_order_count(state) < max_pending_orders() then
+        if open_order_count(state) == 0 then add_order(player, state, drugs) end
+        schedule_order(player, state, drugs)
+    else
+        sync(player)
+    end
 end)
 
 RegisterNetEvent('mz_drugselling:sv:pause_delivery', function()
@@ -176,38 +222,10 @@ RegisterNetEvent('mz_drugselling:sv:pause_delivery', function()
     sync(player)
 end)
 
-RegisterNetEvent('mz_drugselling:sv:refresh_delivery', function()
-    local player = source
-    local state = states[player]
-    if not state or not state.receiving or state.active then return end
-    expire_orders(player, state)
-    if state.refresh_at > now() then return sync(player) end
-    local police = get_police_players(config.deliveries.police.jobs, config.deliveries.police.on_duty_required)
-    if #police < config.deliveries.police.required then
-        notify(player, lang.deliveries.server.notifications.not_enough_police:format(
-            #police, config.deliveries.police.required), 'error')
-        return
-    end
-    local drugs = eligible_drugs(player)
-    if #drugs == 0 or #config.deliveries.locations == 0 then
-        notify(player, '目前没有可提供的配送订单。', 'error')
-        return
-    end
-    state.generating = false
-    state.generation_token = (state.generation_token or 0) + 1
-    state.orders = {}
-    state.drugs = drugs
-    state.target_count = math.random(config.deliveries.order_count.min, config.deliveries.order_count.max)
-    state.generating = true
-    state.generation_token = (state.generation_token or 0) + 1
-    add_order(player, state, drugs)
-    schedule_order(player, state, drugs)
-end)
-
 RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)
     local player = source
     local state = states[player]
-    if not state or state.active or state.refresh_at > now() or type(id) ~= 'number' or
+    if not state or state.active or state.cooldown_until > now() or type(id) ~= 'number' or
         (sale_modes[player] and sale_modes[player] ~= 'corner' and sale_modes[player] ~= 'dealing') then return end
     expire_orders(player, state)
     local selected
@@ -266,6 +284,7 @@ RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
     reward_xp(player, sale.drugs[1], order.quantity, 'delivery')
     if math.random(1, 100) <= config.deliveries.chance.alert then alert_police(player, 'delivery') end
     clear_active(player, state, 'completed', 0, true)
+    schedule_order(player, state, state.drugs)
     TriggerClientEvent('mz_drugselling:cl:completed_delivery', player)
 end)
 
