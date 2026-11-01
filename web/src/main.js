@@ -8,6 +8,7 @@ window.MZPhone = {
   open: (data) => phone.open(data),
   close: () => phone.close(),
   setMode: (mode) => phone.setMode(mode),
+  setReceiving: (receiving) => phone.setReceiving(receiving),
   updateDelivery: (data) => phone.updateDelivery(data),
   openInbox: () => phone.openInbox()
 };

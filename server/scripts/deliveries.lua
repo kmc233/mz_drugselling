@@ -176,6 +176,34 @@ RegisterNetEvent('mz_drugselling:sv:pause_delivery', function()
     sync(player)
 end)
 
+RegisterNetEvent('mz_drugselling:sv:refresh_delivery', function()
+    local player = source
+    local state = states[player]
+    if not state or not state.receiving or state.active then return end
+    expire_orders(player, state)
+    if state.refresh_at > now() then return sync(player) end
+    local police = get_police_players(config.deliveries.police.jobs, config.deliveries.police.on_duty_required)
+    if #police < config.deliveries.police.required then
+        notify(player, lang.deliveries.server.notifications.not_enough_police:format(
+            #police, config.deliveries.police.required), 'error')
+        return
+    end
+    local drugs = eligible_drugs(player)
+    if #drugs == 0 or #config.deliveries.locations == 0 then
+        notify(player, '目前没有可提供的配送订单。', 'error')
+        return
+    end
+    state.generating = false
+    state.generation_token = (state.generation_token or 0) + 1
+    state.orders = {}
+    state.drugs = drugs
+    state.target_count = math.random(config.deliveries.order_count.min, config.deliveries.order_count.max)
+    state.generating = true
+    state.generation_token = (state.generation_token or 0) + 1
+    add_order(player, state, drugs)
+    schedule_order(player, state, drugs)
+end)
+
 RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)
     local player = source
     local state = states[player]
@@ -237,7 +265,7 @@ RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
     end
     reward_xp(player, sale.drugs[1], order.quantity, 'delivery')
     if math.random(1, 100) <= config.deliveries.chance.alert then alert_police(player, 'delivery') end
-    clear_active(player, state, 'completed', nil, true)
+    clear_active(player, state, 'completed', 0, true)
     TriggerClientEvent('mz_drugselling:cl:completed_delivery', player)
 end)
 

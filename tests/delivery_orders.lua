@@ -81,7 +81,7 @@ assert(sale_modes[1] == nil)
 events['mz_drugselling:sv:complete_delivery']()
 assert(sales == 1)
 events['mz_drugselling:sv:accept_delivery'](sent['mz_drugselling:cl:delivery_orders'].orders[2].id)
-assert(sent['mz_drugselling:cl:delivery_orders'].active_id == nil)
+assert(sent['mz_drugselling:cl:delivery_orders'].active_id == sent['mz_drugselling:cl:delivery_orders'].orders[2].id)
 for i = 1, #timers do if timers[i] then timers[i]() end end
 assert(sent['mz_drugselling:cl:delivery_orders'].active_id == nil)
 print('delivery_orders: ok')

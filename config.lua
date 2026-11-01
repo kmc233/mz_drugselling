@@ -197,7 +197,7 @@ config.deliveries = {
     arrival_interval = { min = 15, max = 30 }, --- Seconds between incoming order messages.
     offer_seconds = 600, --- Time to choose an order from the inbox.
     delivery_seconds = 600, --- Time to complete an accepted order.
-    refresh_cooldown = 60, --- After a completed or cancelled order.
+    refresh_cooldown = 30, --- After a completed or cancelled order.
     police = {
         required = 0, --- Required amount of police officers to start deliveries or receive new deliveries: Use 0 or remove to disable.
         on_duty_required = false, --- Toggle on duty requirements for police officers.

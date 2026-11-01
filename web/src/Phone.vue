@@ -29,7 +29,6 @@ const selectedOrder = computed(() => orders.value.find((order) => order.id === s
 const activeOrder = computed(() => orders.value.find((order) => order.id === deliveryData.value.active_id));
 const canRefresh = computed(() => !activeOrder.value &&
   deliveryReceiving.value &&
-  !orders.value.some((order) => order.status === 'pending' && order.expires_at > now.value) &&
   deliveryData.value.refresh_at <= now.value);
 const leftLabel = computed(() => {
   if (view.value === 'home') return '选择';
