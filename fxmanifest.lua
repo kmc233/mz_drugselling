@@ -21,11 +21,12 @@ files {
 
 shared_scripts {
     '@ox_lib/init.lua',
-    'locales/en.lua' -- Change language here
+    'config.lua',
+    'locales/*.lua',
+    'shared/language.lua'
 }
 
 server_scripts {
-    'config.lua',
     'server/utils.lua',
     'server/main.lua',
     'server/alerts.lua',

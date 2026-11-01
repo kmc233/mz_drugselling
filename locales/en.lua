@@ -1,11 +1,7 @@
 Locales = Locales or {}
-lang = lang or {}
 
--- The resource currently reads `lang`; expose the same table through the
--- standard locale namespace so additional language files can use Locales.xx.
-Locales.en = lang
-
-lang.general = {
+Locales.en = {
+    general = {
     client = {
         no_valid_target = '未找到有效的交互目标。'
     },
@@ -20,9 +16,8 @@ lang.general = {
         invalid_drug_data = '无效的药物数据。',
         sold_drugs = '你以 $%d 的价格出售了 %dx %s。',
     }
-}
-
-lang.bulk_dealer = {
+    },
+    bulk_dealer = {
     client = {
 
     },
@@ -30,9 +25,8 @@ lang.bulk_dealer = {
         notification_header = '批量经销商',
         bulk_sell_notification = '你以 $%d 的价格批量出售了 %dx %s。',
     }
-}
-
-lang.dealing = {
+    },
+    dealing = {
     client = {
         notifications = {
             header = '毒品交易',
@@ -85,9 +79,8 @@ lang.dealing = {
             message = '该地区有可疑活动'
         }
     }
-}
-
-lang.deliveries = {
+    },
+    deliveries = {
     client = {
         notifications = {
             header = '毒品配送',
@@ -149,6 +142,5 @@ lang.deliveries = {
             message = '该地区有可疑活动'
         }
     }
+    }
 }
-
-Locales.en = lang

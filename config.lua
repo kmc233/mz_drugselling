@@ -11,6 +11,8 @@ config.bulk_sales = config.bulk_sales or {}
 config.street_sales = config.street_sales or {}
 config.deliveries = config.deliveries or {}
 
+config.locale = 'en' --- Language key from locales/*.lua.
+
 --- Per-mode price adjustments applied to each drug's base price.
 config.sales_adjustments = {
     delivery = {
@@ -192,7 +194,7 @@ config.deliveries = {
         { coords = vector4(314.82, -1375.75, 31.92, 48.51), radius = 45.0, spawn_distance = 110.0 },
         { coords = vector4(298.64, -1360.96, 31.94, 230.58), radius = 40.0, spawn_distance = 100.0 }
     },
-    
+
     max_pending_orders = 6, --- Maximum number of pending or active delivery orders.
     quantity = { min = 6, max = 12 }, --- Quantity requested by each delivery order.
     history_seconds = 120, --- How long completed, cancelled and accepted-expired orders remain visible.
