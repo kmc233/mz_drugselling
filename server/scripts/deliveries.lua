@@ -19,6 +19,7 @@ local function public_order(order)
         id = order.id, contact = order.contact, drug_id = order.drug_id,
         label = order.label, quantity = order.quantity, price = order.price,
         total = order.price * order.quantity, area = order.area,
+        coords = { x = order.coords.x, y = order.coords.y, z = order.coords.z },
         expires_at = order.expires_at, status = order.status
     }
 end
@@ -82,11 +83,16 @@ local function new_order(drugs)
     local min_quantity = math.max(1, math.floor(order_quantity.min or 1))
     local max_quantity = math.max(min_quantity, math.floor(order_quantity.max or min_quantity))
     local price = math.max(1, math.floor(drug.price.optimal * adjustment.price_multiplier + 0.5))
+    local zone = {
+        x = coords.x, y = coords.y, z = coords.z, w = coords.w or 0.0,
+        radius = math.max(0.0, tonumber(location.radius) or 0.0),
+        spawn_distance = math.max(0.0, tonumber(location.spawn_distance) or 100.0)
+    }
     return {
         id = next_order_id, contact = contacts[math.random(#contacts)],
         drug_id = drug.id, label = drug.label,
         quantity = math.random(min_quantity, max_quantity),
-        price = price, area = location.label or '指定地点', coords = coords,
+        price = price, area = location.label or '指定地点', coords = coords, zone = zone,
         expires_at = now() + config.deliveries.offer_seconds, status = 'pending'
     }
 end
@@ -190,7 +196,7 @@ RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)
     state.token = state.token + 1
     local token = state.token
     sync(player)
-    TriggerClientEvent('mz_drugselling:cl:spawn_delivery_ped', player, selected.coords)
+    TriggerClientEvent('mz_drugselling:cl:spawn_delivery_ped', player, selected.zone or selected.coords)
     SetTimeout(config.deliveries.delivery_seconds * 1000, function()
         if states[player] == state and state.active == selected and state.token == token then
             clear_active(player, state, 'expired')
@@ -217,7 +223,9 @@ RegisterNetEvent('mz_drugselling:sv:complete_delivery', function()
         return notify(player, '配送订单已超时。', 'error')
     end
     local ped = GetPlayerPed(player)
-    if ped == 0 or #(GetEntityCoords(ped) - vector3(order.coords.x, order.coords.y, order.coords.z)) > 6.0 then return end
+    local zone = order.zone or order.coords
+    local zone_radius = tonumber(zone.radius) or 0.0
+    if ped == 0 or #(GetEntityCoords(ped) - vector3(zone.x, zone.y, zone.z)) > zone_radius + 8.0 then return end
     local item = utils.fw.get_item(player, order.drug_id)
     local quantity = item and (item.quantity or item.count or item.amount) or 0
     if quantity < order.quantity then

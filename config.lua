@@ -189,8 +189,8 @@ end
 --- Deliveries
 config.deliveries = {
     locations = {
-        { label = '戴维斯', coords = vector4(314.82, -1375.75, 31.92, 48.51) },
-        { label = '戴维斯东侧', coords = vector4(298.64, -1360.96, 31.94, 230.58) }
+        { coords = vector4(314.82, -1375.75, 31.92, 48.51), radius = 45.0, spawn_distance = 110.0 },
+        { coords = vector4(298.64, -1360.96, 31.94, 230.58), radius = 40.0, spawn_distance = 100.0 }
     },
     order_count = { min = 6, max = 8 }, --- Number of orders received during one delivery session.
     quantity = { min = 6, max = 12 }, --- Quantity requested by each delivery order.
