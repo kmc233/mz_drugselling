@@ -78,9 +78,10 @@ local function new_order(drugs)
     local coords = location.coords or location
     next_order_id = next_order_id + 1
     local adjustment = config.sales_adjustments.delivery
+    local order_quantity = config.deliveries.quantity or { min = 6, max = 12 }
+    local min_quantity = math.max(1, math.floor(order_quantity.min or 1))
+    local max_quantity = math.max(min_quantity, math.floor(order_quantity.max or min_quantity))
     local price = math.max(1, math.floor(drug.price.optimal * adjustment.price_multiplier + 0.5))
-    local min_quantity = math.max(1, math.floor(drug.quantity.min * adjustment.quantity_multiplier + 0.5))
-    local max_quantity = math.max(min_quantity, math.floor(drug.quantity.max * adjustment.quantity_multiplier + 0.5))
     return {
         id = next_order_id, contact = contacts[math.random(#contacts)],
         drug_id = drug.id, label = drug.label,

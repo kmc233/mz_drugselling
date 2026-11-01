@@ -137,7 +137,7 @@ function reward_xp(_src, drug_data, amount, sale_type)
     if not skill_config then return end
     local base_xp = skill_config.base_xp or { min = 0, max = 0 }
     local xp_gain = math.floor(math.random(base_xp.min, base_xp.max))
-    if skill_config.quantity_xp then
+    if sale_type == 'bulk' and skill_config.quantity_xp then
         local quantity_config = skill_config.quantity_xp
         local units = math.max(1, tonumber(quantity_config.units) or 1)
         local quantity_bonus = math.floor(math.max(0, tonumber(amount) or 0) / units) * (tonumber(quantity_config.amount) or 0)

@@ -11,11 +11,10 @@ config.bulk_sales = config.bulk_sales or {}
 config.street_sales = config.street_sales or {}
 config.deliveries = config.deliveries or {}
 
---- Per-mode adjustments applied to each drug's base price and quantity.
+--- Per-mode price adjustments applied to each drug's base price.
 config.sales_adjustments = {
     delivery = {
-        price_multiplier = 0.80,
-        quantity_multiplier = 1.80
+        price_multiplier = 0.80
     },
     bulk = {
         price_multiplier = 0.55
@@ -48,8 +47,7 @@ config.skills = {
         price_per_level = 0.01 --- Bulk price bonus per level above level 1.
     },
     delivery = {
-        base_xp = { min = 5, max = 10 }, --- Base XP added on successful delivery.
-        quantity_xp = { units = 10, amount = 1, max = 10 } --- Extra XP per quantity units, capped per delivery.
+        base_xp = { min = 5, max = 10 } --- Base XP added on successful delivery.
     }
 }
 
@@ -195,6 +193,7 @@ config.deliveries = {
         { label = '戴维斯东侧', coords = vector4(298.64, -1360.96, 31.94, 230.58) }
     },
     order_count = { min = 6, max = 8 }, --- Number of orders received during one delivery session.
+    quantity = { min = 6, max = 12 }, --- Quantity requested by each delivery order.
     arrival_interval = { min = 15, max = 30 }, --- Seconds between incoming order messages.
     offer_seconds = 600, --- Time to choose an order from the inbox.
     delivery_seconds = 600, --- Time to complete an accepted order.
