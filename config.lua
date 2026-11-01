@@ -1,70 +1,44 @@
 
---- Server configuration.
---- @script config.lua
-
---- Here, you can adjust the core setup for the resource.
--- A copy of the server config will be sent to the client where relevant.
-
 config = config or {}
-config.drugs = config.drugs or {}
-config.bulk_sales = config.bulk_sales or {}
-config.street_sales = config.street_sales or {}
-config.deliveries = config.deliveries or {}
+config.locale = 'en' -- Language key from locales/*.lua.
 
-config.locale = 'en' --- Language key from locales/*.lua.
-
---- Per-mode price adjustments applied to each drug's base price.
 config.sales_adjustments = {
     delivery = {
-        price_multiplier = 0.80
+        price_multiplier = 0.80 -- Delivery price multiplier.
     },
     bulk = {
-        price_multiplier = 0.55
+        price_multiplier = 0.55 -- Bulk sale price multiplier.
     }
 }
 
---- @section General settings
+config.debug = false -- Enable debug logging.
+config.target = 'ox_target' -- ox_target or qb-target.
+config.dispatch = 'auto' -- Dispatch integration, or none to disable alerts.
 
---- @field debug boolean: Enables or disables server-side debug prints for troubleshooting.
-config.debug = false
-
---- Target System
-config.target = 'ox_target' --- Set target choice here. Options: ox_target, qb-target
-
---- Police alerts: auto selects the first started integration below.
---- Use a resource name to select one explicitly, or 'none' to disable alerts.
-config.dispatch = 'auto' --- cd_dispatch, codem-dispatch, origen_police, ps-dispatch, rcore_dispatch
-
---- @section Skills settings
-
---- Skills
 config.skills = {
     progression = {
-        base_required_xp = 1000, --- XP required for level 1 -> 2.
-        required_xp_per_level = 100 --- Additional XP required for each next level.
+        base_required_xp = 1000, -- XP required for level 1 -> 2.
+        required_xp_per_level = 100 -- Additional XP required per level.
     },
     bulk = {
-        base_xp = { min = 5, max = 10 }, --- Base XP added on success.
-        quantity_xp = { units = 10, amount = 1, max = 10 }, --- Extra XP per quantity units, capped per transaction.
-        price_per_level = 0.01 --- Bulk price bonus per level above level 1.
+        base_xp = { min = 5, max = 10 }, -- Base XP on successful bulk sales.
+        quantity_xp = { units = 10, amount = 1, max = 10 }, -- Extra XP per quantity units.
+        price_per_level = 0.01 -- Bulk price bonus per level above 1.
     },
     delivery = {
-        base_xp = { min = 5, max = 10 } --- Base XP added on successful delivery.
+        base_xp = { min = 5, max = 10 } -- Base XP on successful deliveries.
     }
 }
 
---- @section Drug items settings
-
---- Drug items
-config.inventoryImagePath = 'nui://ox_inventory/web/images/'
+config.inventoryImagePath = 'nui://ox_inventory/web/images/' -- Inventory image base path.
 config.drugs = {
     { 
-        id = 'weed', --- Item ID
-        label = 'Weed', --- Item label
-        image = 'weed.png', --- Item image to display in UI.
-        required_level = 1,
-        price = { min = 10, optimal = 15, max = 20 }, --- Base per-item street price.
-        quantity = { min = 3, max = 5 } --- Base amount per transaction.
+        id = 'weed',
+        label = 'Weed',
+        image = 'weed.png',
+        required_level = 1, -- Required dealing skill level.
+        price = { min = 10, optimal = 15, max = 20 },
+        quantity = { min = 3, max = 5 }
     },
     { 
         id = 'meth',
@@ -84,11 +58,8 @@ config.drugs = {
     }
 }
 
---- @section Bulk sale settings
-
---- Bulk dealer
 config.bulk_dealer = {
-    enabled = true,
+    enabled = true, -- Enable the bulk dealer.
     blip = {
         id = 'bulk_dealer',
         label = 'Bulk Dealer',
@@ -126,13 +97,10 @@ config.bulk_dealer = {
     }
 }
 
---- @section Dealing settings
-
---- Dealing
 config.dealing = {
-    street_phone = false, --- false: interact with NPCs directly; true: enable active selling on the phone first.
+    street_phone = false, -- Require starting active street sales from the phone.
     corner = {
-        interval = 8, --- Seconds between approaching customers.
+        interval = 8, -- Seconds between approaching customers.
         models = { 'a_m_m_business_01', 'a_m_y_hipster_01', 'a_m_m_tramp_01', 'a_m_y_bevhills_01', 'g_m_y_ballaorig_01' }
     },
     ped_types = {
@@ -165,20 +133,19 @@ config.dealing = {
         junkie = { 'a_m_m_tramp_01', 'a_f_m_tramp_01', 'a_m_y_skater_01', 'a_m_y_skater_02', 'a_m_m_trampbeac_01' },
         undercover = { 's_m_y_cop_01', 'csb_undercover', 's_m_m_ciasec_01', 's_m_m_highsec_01' }
     },
-    price_influence = 30, --- Chance points gained/lost at the price limits.
+    price_influence = 30, -- Chance points gained or lost at price limits.
     police = {
-        required = 0, --- Required amount of police officers to start dealing or make sales: Use 0 or remove to disable.
-        on_duty_required = false, --- Toggle on duty requirements for police officers.
-        jobs = { 'police', 'fib' } --- Table of jobs to receive alerts for dealing.
+        required = 0, -- Required police count; 0 disables the requirement.
+        on_duty_required = false, -- Require officers to be on duty.
+        jobs = { 'police', 'fib' } -- Jobs that receive alerts.
     },
     payments = {
-        type = 'item', --- Payment type: money e.g. cash, bank, crypto | item e.g.  
-        balance_type = 'cash', --- Balance to add to if type = 'balance' is selected.
-        item = { id = 'black_money' } --- One item per dollar of the sale total.
+        type = 'item', -- money or item.
+        balance_type = 'cash', -- Balance used when type is money.
+        item = { id = 'black_money' } -- Item used when type is item.
     }
 }
 
---- Build the runtime model -> personality lookup from the grouped configuration.
 config.dealing.ped_model_types = {}
 for type_id, models in pairs(config.dealing.ped_models) do
     for _, model_name in ipairs(models) do
@@ -186,35 +153,32 @@ for type_id, models in pairs(config.dealing.ped_models) do
     end
 end
 
---- @section Delivery settings
-
---- Deliveries
 config.deliveries = {
     locations = {
         { coords = vector4(314.82, -1375.75, 31.92, 48.51), radius = 45.0, spawn_distance = 110.0 },
         { coords = vector4(298.64, -1360.96, 31.94, 230.58), radius = 40.0, spawn_distance = 100.0 }
     },
 
-    max_pending_orders = 6, --- Maximum number of pending or active delivery orders.
-    quantity = { min = 6, max = 12 }, --- Quantity requested by each delivery order.
-    history_seconds = 120, --- How long completed, cancelled and accepted-expired orders remain visible.
-    max_history_orders = 8, --- Maximum number of terminal orders retained in the inbox.
-    arrival_interval = { min = 15, max = 30 }, --- Seconds between incoming order messages.
-    offer_seconds = 600, --- Time to choose an order from the inbox.
-    delivery_seconds = 600, --- Time to complete an accepted order.
-    cancel_cooldown = 30, --- Cooldown after cancelling or timing out an accepted order.
+    max_pending_orders = 6, -- Maximum pending or active orders.
+    quantity = { min = 6, max = 12 }, -- Quantity requested per order.
+    history_seconds = 120, -- How long closed orders remain visible.
+    max_history_orders = 8, -- Maximum closed orders retained.
+    arrival_interval = { min = 15, max = 30 }, -- Seconds between new orders.
+    offer_seconds = 600, -- Time to accept a pending order.
+    delivery_seconds = 600, -- Time to complete an accepted order.
+    cancel_cooldown = 30, -- Cooldown after cancellation or timeout.
 
     police = {
-        required = 0, --- Required amount of police officers to start deliveries or receive new deliveries: Use 0 or remove to disable.
-        on_duty_required = false, --- Toggle on duty requirements for police officers.
-        jobs = { 'police', 'fib' } --- Table of jobs to receive alerts for dealing.
+        required = 0, -- Required police count; 0 disables the requirement.
+        on_duty_required = false, -- Require officers to be on duty.
+        jobs = { 'police', 'fib' } -- Jobs that receive alerts.
     },
     payments = {
-        type = 'item', --- Payment type: money e.g. cash, bank, crypto | item e.g.  
-        balance_type = 'cash', --- Balance to add to if type = 'balance' is selected.
-        item = { id = 'black_money' } --- One item per dollar of the sale total.
+        type = 'item', -- money or item.
+        balance_type = 'cash', -- Balance used when type is money.
+        item = { id = 'black_money' } -- Item used when type is item.
     },
     chance = {
-        alert = 10 --- % chance to alert police when fail.
+        alert = 10 -- Chance to alert police after a failed delivery.
     }
 }
