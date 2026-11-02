@@ -25,6 +25,11 @@ callbacks.dealer_phone_action({ action = 'delivery_start' }, function() end)
 assert(is_dealing and dealing_mode == 'corner' and delivery_receiving)
 assert(server_events[#server_events] == 'mz_drugselling:sv:request_delivery')
 
+events['mz_drugselling:cl:delivery_receiving_rejected']()
+assert(not delivery_receiving and nui_messages[#nui_messages].receiving == false)
+callbacks.dealer_phone_action({ action = 'delivery_start' }, function() end)
+assert(delivery_receiving)
+
 callbacks.dealer_phone_action({ action = 'delivery_stop' }, function() end)
 assert(is_dealing and dealing_mode == 'corner' and not delivery_receiving)
 assert(server_events[#server_events] == 'mz_drugselling:sv:pause_delivery')

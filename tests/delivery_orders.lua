@@ -1,5 +1,6 @@
 local events, sent, timers = {}, {}, {}
 local inventory, sales = 0, 0
+local police_count, police_checks, notices = 0, 0, {}
 source = 1
 sale_modes = { [1] = 'corner' }
 config = {
@@ -11,12 +12,15 @@ config = {
         max_pending_orders = 6, arrival_interval = { min = 1, max = 1 },
         offer_seconds = 600, delivery_seconds = 600,
         cancel_cooldown = 60, chance = { alert = 0 },
-        police = { jobs = {}, on_duty_required = false, required = 0 }
+        police = { jobs = { 'police' }, on_duty_required = true, required = 2 }
     }
 }
 lang = { deliveries = {
     client = { notifications = { header = 'Delivery' } },
-    server = { notifications = { not_enough_police = '%d/%d' } }
+    server = { notifications = {
+        not_enough_police = 'Not enough police', new_order = 'New order', timed_out = 'Timed out',
+        cancelled = 'Cancelled', insufficient_delivery = '%d %s missing', delivery_failed = 'Failed'
+    } }
 } }
 utils = {
     skills = { get_skill = function() return { level = 1 } end },
@@ -30,8 +34,14 @@ AddEventHandler = function(name, handler) events[name] = handler end
 TriggerEvent = function(name, ...) if events[name] then events[name](...) end end
 TriggerClientEvent = function(name, _, data) sent[name] = data or true end
 SetTimeout = function(_, handler) timers[#timers + 1] = handler end
-get_police_players = function() return {} end
-send_notification = function() end
+get_police_players = function(jobs, on_duty)
+    assert(jobs[1] == 'police' and on_duty == true)
+    police_checks = police_checks + 1
+    local players = {}
+    for index = 1, police_count do players[index] = index end
+    return players
+end
+send_notification = function(_, _, message) notices[#notices + 1] = message end
 alert_police = function() error('unexpected police alert') end
 local vector = { __sub = function() return '' end }
 vector3 = function(x, y, z) return setmetatable({ x = x, y = y, z = z }, vector) end
@@ -48,7 +58,23 @@ reward_xp = function() end
 dofile('server/scripts/deliveries.lua')
 
 events['mz_drugselling:sv:request_delivery']()
+assert(sent['mz_drugselling:cl:delivery_receiving_rejected'])
+assert(not sent['mz_drugselling:cl:delivery_orders'])
+assert(notices[#notices] == 'Not enough police')
+config.deliveries.police.required = 0
+events['mz_drugselling:sv:request_delivery']()
+assert(police_checks == 1)
 local inbox = sent['mz_drugselling:cl:delivery_orders']
+assert(#inbox.orders == 1)
+events['mz_drugselling:sv:pause_delivery']()
+config.deliveries.police.required = 2
+police_count = 1
+events['mz_drugselling:sv:request_delivery']()
+assert(notices[#notices] == 'Not enough police')
+assert(sent['mz_drugselling:cl:delivery_receiving_rejected'])
+police_count = 2
+events['mz_drugselling:sv:request_delivery']()
+inbox = sent['mz_drugselling:cl:delivery_orders']
 assert(#inbox.orders == 1)
 assert(sale_modes[1] == 'corner')
 local first_arrival = #timers
@@ -63,6 +89,11 @@ timers[#timers]()
 assert(#sent['mz_drugselling:cl:delivery_orders'].orders == 3)
 local order = inbox.orders[1]
 assert(order.total == order.price * order.quantity and order.area == 'Davis')
+police_count = 1
+events['mz_drugselling:sv:accept_delivery'](order.id)
+assert(sent['mz_drugselling:cl:delivery_orders'].active_id == nil)
+assert(notices[#notices] == 'Not enough police')
+police_count = 2
 events['mz_drugselling:sv:accept_delivery'](order.id)
 assert(sale_modes[1] == 'delivery')
 assert(sent['mz_drugselling:cl:delivery_accepted'])

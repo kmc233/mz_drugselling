@@ -170,8 +170,8 @@ config.deliveries = {
 
     police = {
         required = 0, -- Required police count; 0 disables the requirement.
-        on_duty_required = false, -- Require officers to be on duty.
-        jobs = { 'police', 'fib' } -- Jobs that receive alerts.
+        on_duty_required = true, -- Count only on-duty officers for deliveries.
+        jobs = { 'police', 'fib' } -- Jobs counted for delivery availability.
     },
     payments = {
         type = 'item', -- money or item.
@@ -179,6 +179,6 @@ config.deliveries = {
         item = { id = 'black_money' } -- Item used when type is item.
     },
     chance = {
-        alert = 10 -- Chance to alert police after a failed delivery.
+        alert = 10 -- Chance to alert police after a successful delivery.
     }
 }

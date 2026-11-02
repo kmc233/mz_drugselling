@@ -16,6 +16,16 @@ local function notify(player, message, kind)
     send_notification(player, lang.deliveries.client.notifications.header, message, kind or 'info', 3500)
 end
 
+local function has_required_police(player)
+    local settings = config.deliveries.police
+    local required = math.max(0, tonumber(settings.required) or 0)
+    if required == 0 then return true end
+    local police = get_police_players(settings.jobs, settings.on_duty_required) or {}
+    if #police >= required then return true end
+    notify(player, lang.deliveries.server.notifications.not_enough_police, 'error')
+    return false
+end
+
 local function public_order(order)
     return {
         id = order.id, contact = order.contact, drug_id = order.drug_id,
@@ -179,6 +189,16 @@ RegisterNetEvent('mz_drugselling:sv:request_delivery', function()
     local player = source
     if not utils.fw.has_item(player, 'dealer_phone', 1) then return end
     local state = states[player]
+    if not has_required_police(player) then
+        if state then
+            state.receiving = false
+            state.generating = false
+            state.generation_token = (state.generation_token or 0) + 1
+            sync(player)
+        end
+        TriggerClientEvent('mz_drugselling:cl:delivery_receiving_rejected', player)
+        return
+    end
     if not state then
         state = { orders = {}, token = 0, cooldown_until = 0 }
         states[player] = state
@@ -223,6 +243,7 @@ RegisterNetEvent('mz_drugselling:sv:accept_delivery', function(id)
         if order.id == id and order.status == 'pending' then selected = order break end
     end
     if not selected then return sync(player) end
+    if not has_required_police(player) then return end
     if sale_modes[player] then TriggerEvent('mz_drugselling:sv:delivery_accepted', player) end
     sale_modes[player] = 'delivery'
     TriggerClientEvent('mz_drugselling:cl:delivery_accepted', player)

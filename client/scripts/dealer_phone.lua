@@ -94,6 +94,11 @@ local function start_deliveries()
     TriggerServerEvent('mz_drugselling:sv:request_delivery')
 end
 
+RegisterNetEvent('mz_drugselling:cl:delivery_receiving_rejected', function()
+    delivery_receiving = false
+    SendNUIMessage({ action = 'delivery_receiving_changed', receiving = false })
+end)
+
 --- @section NUI callbacks
 
 RegisterNUICallback('dealer_phone_action', function(data, cb)
