@@ -11,7 +11,7 @@ Locales.en = {
             insufficient_quantity = 'Not enough items in your inventory.',
             action_missing = 'Action data is missing.',
             action_started = 'Action %s started.',
-            phone_action_exploit = 'Player %s was kicked for using the dealer phone without a phone.',
+            phone_action_exploit = 'A player was kicked for using the dealer phone without a phone.',
             phone_action_exploit_kick_message = 'You were kicked for exploiting an event.',
             invalid_sale_data = 'Invalid sale data.',
             invalid_drug_data = 'Invalid drug data.',
@@ -21,17 +21,7 @@ Locales.en = {
     bulk_dealer = {
         client = {
             blip_label = 'Bulk Dealer',
-            target_label = 'Speak to Madrazo',
-            dialogue = {
-                header = 'Bulk Dealer',
-                make_deal = 'Make a deal',
-                ask_offer = 'What are you buying?',
-                offer_description = 'Sell in bulk for a lower price per item.',
-                goodbye = 'Maybe later. Goodbye.',
-                greeting = 'Got a large shipment to move? I can take it.',
-                answer = { 'I can buy the whole lot, but the price needs to be right.', 'You can make more on the street, if you have the time.' },
-                back = 'Back to previous questions'
-            },
+            target_label = 'Trade with Madrazo',
             ui = {
                 market = 'Bulk Sales', title = 'Bulk Deal', description = 'Choose drugs from your inventory to sell in bulk.',
                 close = 'Close', level = 'Dealing Level', experience = 'Experience', inventory = 'Available Inventory',
@@ -73,22 +63,11 @@ Locales.en = {
                 customer = 'Customer', choose_drug = 'Choose a drug', unit_price = 'Unit price', submit = 'Submit offer',
                 count = '%s units', suggested = 'Suggested $%s'
             },
-            dialogue = {
-                header = { message = 'Customer', icon = 'fa-solid fa-user-secret' },
-                conversation = {
-                    sale_icon = 'fa-solid fa-hand-holding-dollar', sale_message = 'Sell %dx %s for $%d',
-                    exit_icon = 'fa-solid fa-door-open', exit_message = 'Maybe another day. Goodbye!',
-                    buy_1_message = 'Do you have %s for sale?',
-                    buy_2_message = 'Do you have %s or %s for sale?',
-                    buy_3_message = 'Do you have %s, %s, or %s for sale?'
-                }
-            }
         },
         server = {
             notifications = {
                 header = 'Drug Dealing',
                 mode_active = 'Stop the current sales mode first.',
-                phone_not_required = 'Active selling does not require the phone.',
                 action_cooldown = 'This action is on cooldown.',
                 cooldown_message = 'Wait a while before you start dealing again.',
                 not_enough_police = 'Not enough police in the city. Current: %d Required: %d',
@@ -162,16 +141,6 @@ Locales.en = {
                 'Apartment Resident', 'Racetrack Guest', 'Warehouse Contact', 'Hao', 'Club Manager', 'The Last Guy', 'Ma', 'Anonymous Client'
             },
             target = { label = 'Deliver Drugs', main_icon = 'fa-solid fa-comment', action_icon = 'fa-solid fa-cannabis' },
-            dialogue = {
-                header = { message = 'Delivery Customer', icon = 'fa-solid fa-user-secret' },
-                conversation = {
-                    sale_icon = 'fa-solid fa-hand-holding-dollar', sale_message = 'Sell %dx %s for $%d',
-                    exit_icon = 'fa-solid fa-door-open', exit_message = 'Maybe another day. Goodbye!',
-                    buy_1_message = 'Did you bring my %s?',
-                    buy_2_message = 'Did you bring my %s and %s?',
-                    buy_3_message = 'Did you bring my %s, %s, and %s?'
-                }
-            }
         },
         server = {
             notifications = {

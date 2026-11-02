@@ -210,7 +210,7 @@ utils.callback.register('mz_drugselling:sv:perform_phone_action', function(_src,
     end
 
     if action == 'dealing' and not config.dealing.street_phone then
-        cb(false, lang.dealing.server.notifications.phone_not_required)
+        cb(false, lang.general.server.action_missing)
         return
     end
     if utils.cooldowns.check(_src, selected_action.cooldown, false) then

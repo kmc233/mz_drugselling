@@ -11,7 +11,7 @@ Locales.zh = {
         insufficient_quantity = '库存数量不足',
         action_missing = '数据中缺少动作信息。',
         action_started = '动作 %s 已开始。',
-        phone_action_exploit = '玩家: %s 因在没有手机的情况下执行经销商电话动作而被踢出。',
+        phone_action_exploit = '有玩家因未持有经销商手机却执行手机操作而被踢出。',
         phone_action_exploit_kick_message = '你因事件漏洞利用已被服务器踢出。',
         invalid_sale_data = '无效的销售数据。',
         invalid_drug_data = '无效的药物数据。',
@@ -21,17 +21,7 @@ Locales.zh = {
     bulk_dealer = {
     client = {
         blip_label = '批量经销商',
-        target_label = '与马德拉索交谈',
-        dialogue = {
-            header = '批量经销商',
-            make_deal = '谈笔交易',
-            ask_offer = '你收什么货？',
-            offer_description = '批量出售的单价低于街头交易。',
-            goodbye = '下次再说。',
-            greeting = '有大批货要出手？我可以收。',
-            answer = { '我可以整批收下你的货，但价格要便宜些。', '街头零售利润更高，只是费时间。' },
-            back = '返回上一个问题'
-        },
+        target_label = '与马德拉索交易',
         ui = {
             market = '批量交易', title = '大宗交易', description = '选择库存中的药品，批量出售给经销商。',
             close = '关闭', level = '交易等级', experience = '经验值', inventory = '可出售库存',
@@ -81,27 +71,11 @@ Locales.zh = {
             customer = '普通顾客', choose_drug = '选择药品', unit_price = '单件报价', submit = '提交报价',
             count = '%s 件', suggested = '建议 $%s'
         },
-        dialogue = {
-            header = {
-                message = '毒品交易顾客',
-                icon = 'fa-solid fa-user-secret',
-            },
-            conversation = {
-                sale_icon = 'fa-solid fa-hand-holding-dollar',
-                sale_message = '出售 %dx %s 换取 $%d',
-                exit_icon = 'fa-solid fa-door-open',
-                exit_message = '也许改天吧，再见！',
-                buy_1_message = '你有 %s 卖吗？',
-                buy_2_message = '你有 %s 或者 %s 卖吗？',
-                buy_3_message = '你有 %s、%s 或者 %s 卖吗？',
-            }
-        }
     },
     server = {
         notifications = {
             header = '毒品交易',
             mode_active = '请先停止当前销售模式。',
-            phone_not_required = '主动街卖无需通过手机开启。',
             action_cooldown = '操作尚在冷却中。',
             cooldown_message = '你还不能再次开始交易，请先等待一段时间..',
             not_enough_police = '城市中警察数量不足。当前: %d 所需: %d',
@@ -177,21 +151,6 @@ Locales.zh = {
             main_icon = 'fa-solid fa-comment',
             action_icon = 'fa-solid fa-cannabis',
         },
-        dialogue = {
-            header = {
-                message = '毒品配送顾客',
-                icon = 'fa-solid fa-user-secret',
-            },
-            conversation = {
-                sale_icon = 'fa-solid fa-hand-holding-dollar',
-                sale_message = '出售 %dx %s 换取 $%d',
-                exit_icon = 'fa-solid fa-door-open',
-                exit_message = '也许改天吧，再见！',
-                buy_1_message = '你把我的 %s 带来了吗？',
-                buy_2_message = '你把我的 %s 和 %s 带来了吗？',
-                buy_3_message = '你把我的 %s、%s 和 %s 带来了吗？',
-            }
-        }
     },
     server = {
         notifications = {

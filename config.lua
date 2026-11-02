@@ -82,12 +82,11 @@ config.bulk_dealer = {
         sprite = false,
         actions = {
             {
-                icon = 'fa-solid fa-comments',
+                icon = 'fa-solid fa-store',
                 colour = '#4dcbc2',
                 action_type = 'client',
-                action = 'mz_drugselling:cl:start_conversation',
+                action = 'mz_drugselling:cl:open_bulk_sales',
                 params = {
-                    dialogue = 'bulk_dealer',
                     location = vector4(-1757.21, 427.49, 127.70, 70.28), 
                 }
             }
