@@ -6,9 +6,15 @@ class BulkDealer {
         this.currentDrug = null;
         this.quantity = 0;
         this.busy = false;
+        this.locale = {};
+    }
+
+    tr(key, ...args) {
+        return String(this.locale[key] ?? key).replace(/%s/g, () => String(args.shift() ?? ''));
     }
 
     init(data) {
+        this.locale = data.locale || {};
         this.location = data.location;
         this.skills = data.skills || this.skills;
         this.drugs = Array.isArray(data.drugs) ? data.drugs : Object.values(data.drugs || {});
@@ -25,17 +31,17 @@ class BulkDealer {
     render() {
         const xp = this.skills.required_xp > 0 ? Math.min(100, (this.skills.current_xp / this.skills.required_xp) * 100) : 0;
         document.getElementById('main_container').innerHTML = `
-            <section class="bulk-shell" aria-label="批量交易">
+            <section class="bulk-shell" aria-label="${this.tr('market')}">
                 <header class="bulk-topbar">
-                    <div><span class="bulk-kicker">BULK MARKET</span><h1>大宗交易</h1><p>选择库存中的药品，批量出售给经销商。</p></div>
-                    <button type="button" class="bulk-close" id="bulk-close" title="关闭" aria-label="关闭">×</button>
+                    <div><span class="bulk-kicker">${this.tr('market')}</span><h1>${this.tr('title')}</h1><p>${this.tr('description')}</p></div>
+                    <button type="button" class="bulk-close" id="bulk-close" title="${this.tr('close')}" aria-label="${this.tr('close')}">×</button>
                 </header>
                 <div class="bulk-summary">
-                    <div class="bulk-level"><span>交易等级</span><strong>LV ${this.skills.level || 1}</strong></div>
-                    <div class="bulk-xp"><div class="bulk-xp-label"><span>经验值</span><span>${this.skills.current_xp || 0} / ${this.skills.required_xp || 0} XP</span></div><div class="bulk-xp-track"><i style="width:${xp}%"></i></div></div>
+                    <div class="bulk-level"><span>${this.tr('level')}</span><strong>LV ${this.skills.level || 1}</strong></div>
+                    <div class="bulk-xp"><div class="bulk-xp-label"><span>${this.tr('experience')}</span><span>${this.skills.current_xp || 0} / ${this.skills.required_xp || 0} XP</span></div><div class="bulk-xp-track"><i style="width:${xp}%"></i></div></div>
                 </div>
                 <div class="bulk-layout">
-                    <div class="bulk-inventory"><div class="bulk-section-title"><h2>可出售库存</h2><span>${this.drugs.length} 种药品</span></div><div class="bulk-grid" id="bulk-grid">${this.renderCards()}</div></div>
+                    <div class="bulk-inventory"><div class="bulk-section-title"><h2>${this.tr('inventory')}</h2><span>${this.tr('drug_count', this.drugs.length)}</span></div><div class="bulk-grid" id="bulk-grid">${this.renderCards()}</div></div>
                     <aside class="bulk-order" id="bulk-order">${this.renderOrder()}</aside>
                 </div>
             </section>`;
@@ -43,31 +49,31 @@ class BulkDealer {
     }
 
     renderCards() {
-        if (!this.drugs.length) return '<div class="bulk-empty">暂无可出售药品</div>';
+        if (!this.drugs.length) return `<div class="bulk-empty">${this.tr('empty')}</div>`;
         return this.drugs.map((drug) => {
             const locked = (this.skills.level || 1) < (drug.required_level || 1);
             const empty = (drug.quantity || 0) < 1;
             const active = this.currentDrug && drug.id === this.currentDrug.id ? ' active' : '';
             return `<button type="button" class="bulk-card${active}" data-drug-id="${drug.id}" ${locked || empty ? 'disabled' : ''}>
-                <div class="bulk-card-image">${drug.image ? `<img src="${drug.image}" alt="">` : '<span>药</span>'}</div>
-                <div class="bulk-card-info"><strong>${drug.label}</strong><small>${locked ? `需要等级 ${drug.required_level}` : `库存 ${drug.quantity} 件`}</small></div><span class="bulk-card-arrow">›</span>
+                <div class="bulk-card-image">${drug.image ? `<img src="${drug.image}" alt="">` : `<span>${this.tr('drug_symbol')}</span>`}</div>
+                <div class="bulk-card-info"><strong>${drug.label}</strong><small>${locked ? this.tr('required_level', drug.required_level) : this.tr('stock', drug.quantity)}</small></div><span class="bulk-card-arrow">›</span>
             </button>`;
         }).join('');
     }
 
     renderOrder() {
         const drug = this.currentDrug;
-        if (!drug) return '<div class="bulk-empty">请选择药品</div>';
+        if (!drug) return `<div class="bulk-empty">${this.tr('choose_drug')}</div>`;
         const locked = (this.skills.level || 1) < (drug.required_level || 1);
         const max = Math.max(0, drug.quantity || 0);
         const quantity = Math.min(this.quantity, max);
         const total = quantity * (drug.price || 0);
-        return `<div class="bulk-order-heading"><span>出售详情</span><span class="bulk-status ${locked ? 'locked' : ''}">${locked ? '等级不足' : '可交易'}</span></div>
-            <div class="bulk-product"><div class="bulk-product-image">${drug.image ? `<img src="${drug.image}" alt="">` : '<span>药</span>'}</div><div><h2>${drug.label}</h2><p>单价 <strong>$${drug.price}</strong></p></div></div>
-            <div class="bulk-order-rule"></div><div class="bulk-quantity-head"><label for="bulk-quantity">出售数量</label><span>最多 ${max} 件</span></div>
+        return `<div class="bulk-order-heading"><span>${this.tr('details')}</span><span class="bulk-status ${locked ? 'locked' : ''}">${locked ? this.tr('locked') : this.tr('available')}</span></div>
+            <div class="bulk-product"><div class="bulk-product-image">${drug.image ? `<img src="${drug.image}" alt="">` : `<span>${this.tr('drug_symbol')}</span>`}</div><div><h2>${drug.label}</h2><p>${this.tr('unit_price')} <strong>$${drug.price}</strong></p></div></div>
+            <div class="bulk-order-rule"></div><div class="bulk-quantity-head"><label for="bulk-quantity">${this.tr('quantity')}</label><span>${this.tr('maximum', max)}</span></div>
             <div class="bulk-quantity"><button type="button" data-step="-1" ${locked ? 'disabled' : ''}>−</button><input id="bulk-quantity" type="number" min="0" max="${max}" value="${quantity}" ${locked ? 'disabled' : ''}><button type="button" data-step="1" ${locked ? 'disabled' : ''}>+</button></div>
             <input class="bulk-range" id="bulk-range" type="range" min="0" max="${max}" value="${quantity}" ${locked ? 'disabled' : ''}>
-            <div class="bulk-total"><span>预计收入</span><strong>$${total}</strong></div><button type="button" class="bulk-submit" id="bulk-submit" ${locked || quantity < 1 || this.busy ? 'disabled' : ''}>确认出售 <span>→</span></button>`;
+            <div class="bulk-total"><span>${this.tr('estimated')}</span><strong>$${total}</strong></div><button type="button" class="bulk-submit" id="bulk-submit" ${locked || quantity < 1 || this.busy ? 'disabled' : ''}>${this.tr('submit')} <span>→</span></button>`;
     }
 
     bindEvents() {

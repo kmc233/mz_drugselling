@@ -4,6 +4,7 @@ local game_time = 0
 
 dealing_mode = 'dealing'
 config = { street_phone = true }
+lang = { dealing = { client = { offer_ui = {} } } }
 TARGET = 'ox_target'
 dofile('client/utils.lua')
 utils.requests.anim = function() end

@@ -240,6 +240,7 @@ end
 RegisterNetEvent('mz_drugselling:cl:open_street_offer', function(data)
     if not pending or not dealing_target or not DoesEntityExist(dealing_target) then return end
     SetNuiFocus(true, true)
+    data.locale = lang.dealing.client.offer_ui
     SendNUIMessage({ action = 'open_street_offer', data = data })
 end)
 
@@ -329,9 +330,9 @@ RegisterNetEvent('mz_drugselling:cl:street_result', function(result)
         release_ped(ped, false)
     end
     if result.outcome == 'unavailable' and not result.reason then
-        send_notification(lang.dealing.client.notifications.header, '当前无法和这名顾客交易。', 'error', 3500)
+        send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.unavailable, 'error', 3500)
     elseif result.outcome == 'refused' then
-        send_notification(lang.dealing.client.notifications.header, '顾客拒绝了交易。', 'error', 3500)
+        send_notification(lang.dealing.client.notifications.header, lang.dealing.client.notifications.refused, 'error', 3500)
     elseif result.outcome == 'stolen' then
         send_notification(lang.dealing.client.notifications.header, lang.dealing.server.notifications.drugs_stolen, 'error', 3500)
     end

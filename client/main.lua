@@ -61,7 +61,7 @@ local function script_setup(client_config)
                 sprite = b.sprite,
                 colour = b.colour,
                 scale = b.scale,
-                label = b.label,
+                label = lang.bulk_dealer.client.blip_label,
                 category = b.category,
                 show = b.show
             })
@@ -90,7 +90,7 @@ local function script_setup(client_config)
                     options = {
                         {
                             icon = p.actions[1].icon,
-                            label = p.actions[1].label,
+                            label = lang.bulk_dealer.client.target_label,
                             action = function()
                                 TriggerEvent(p.actions[1].action, p.actions[1].params)
                             end
@@ -102,7 +102,7 @@ local function script_setup(client_config)
                 exports.ox_target:addLocalEntity(created_ped, {
                     {
                         name = zone_name,
-                        label = p.actions[1].label,
+                        label = lang.bulk_dealer.client.target_label,
                         distance = p.distance,
                         onSelect = function()
                             TriggerEvent(p.actions[1].action, p.actions[1].params)

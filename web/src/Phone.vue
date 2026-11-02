@@ -15,7 +15,7 @@ const busy = ref(false);
 const deliveryData = ref({ orders: [], active_id: null, cooldown_until: 0, server_time: 0 });
 const locale = ref({});
 const smsDialogue = ref({});
-const t = (key, fallback = '') => key.split('.').reduce((value, part) => value?.[part], locale.value) ?? fallback;
+const t = (key) => locale.value[key] ?? key;
 const format = (value, ...args) => String(value).replace(/%[sd]/g, () => String(args.shift() ?? ''));
 function dialogue(key, order) {
   const variants = smsDialogue.value[key];
@@ -28,34 +28,34 @@ let clockTimer;
 let serverOffset = 0;
 
 const modes = computed(() => [
-  ...(streetPhone.value ? [{ id: 'dealing', title: t('mode_dealing', '主动街卖'), icon: ShoppingBag, accent: 'teal' }] : []),
-  { id: 'corner', title: t('mode_corner', '街角交易'), icon: Radio, accent: 'orange' },
-  { id: 'delivery', title: t('mode_delivery', '送货订单'), icon: MapPin, accent: 'red' }
+  ...(streetPhone.value ? [{ id: 'dealing', title: t('mode_dealing'), icon: ShoppingBag, accent: 'teal' }] : []),
+  { id: 'corner', title: t('mode_corner'), icon: Radio, accent: 'orange' },
+  { id: 'delivery', title: t('mode_delivery'), icon: MapPin, accent: 'red' }
 ]);
 const selectedMode = computed(() => modes.value.find((mode) => mode.id === view.value));
 const orders = computed(() => deliveryData.value.orders || []);
 const selectedOrder = computed(() => orders.value.find((order) => order.id === selectedOrderId.value));
 const activeOrder = computed(() => orders.value.find((order) => order.id === deliveryData.value.active_id));
 const leftLabel = computed(() => {
-  if (view.value === 'home') return t('select', '选择');
-  if (view.value === 'delivery_inbox') return deliveryReceiving.value ? t('stop_receiving', '停止接收') : t('receive_messages', '接收短信');
+  if (view.value === 'home') return t('select');
+  if (view.value === 'delivery_inbox') return deliveryReceiving.value ? t('stop_receiving') : t('receive_messages');
   if (view.value === 'delivery_thread') {
-    if (selectedOrder.value?.status === 'accepted' && selectedOrder.value.expires_at > now.value) return t('cancel_order', '取消订单');
+    if (selectedOrder.value?.status === 'accepted' && selectedOrder.value.expires_at > now.value) return t('cancel_order');
     return selectedOrder.value?.status === 'pending' && !activeOrder.value &&
-      selectedOrder.value.expires_at > now.value && deliveryData.value.cooldown_until <= now.value ? t('accept_order', '接单') : '';
+      selectedOrder.value.expires_at > now.value && deliveryData.value.cooldown_until <= now.value ? t('accept_order') : '';
   }
-  return activeMode.value && activeMode.value !== view.value ? '' : activeMode.value === view.value ? t('stop', '停止') : t('start', '开始');
+  return activeMode.value && activeMode.value !== view.value ? '' : activeMode.value === view.value ? t('stop') : t('start');
 });
-const rightLabel = computed(() => view.value === 'home' ? t('close', '关闭') : t('back', '返回'));
+const rightLabel = computed(() => view.value === 'home' ? t('close') : t('back'));
 const screenState = computed(() => {
-  if (view.value === 'delivery_inbox') return activeOrder.value ? t('state_delivery', '配送中') : deliveryReceiving.value ? t('state_receiving', '接收中') : t('state_not_receiving', '未接收');
-  if (view.value === 'dealing' || view.value === 'corner') return activeMode.value === view.value ? t('state_active', '进行中') : activeMode.value === 'delivery' ? t('state_delivery', '配送中') : t('state_not_started', '未开启');
+  if (view.value === 'delivery_inbox') return activeOrder.value ? t('state_delivery') : deliveryReceiving.value ? t('state_receiving') : t('state_not_receiving');
+  if (view.value === 'dealing' || view.value === 'corner') return activeMode.value === view.value ? t('state_active') : activeMode.value === 'delivery' ? t('state_delivery') : t('state_not_started');
   return '';
 });
-const statusText = computed(() => ({ pending: t('state_pending', '待回复'), accepted: t('state_delivery', '配送中'), completed: t('state_completed', '已完成'), expired: t('state_expired', '已失效'), cancelled: t('state_cancelled', '已取消') }));
+const statusText = computed(() => ({ pending: t('state_pending'), accepted: t('state_delivery'), completed: t('state_completed'), expired: t('state_expired'), cancelled: t('state_cancelled') }));
 function orderStatus(order) {
   return (order.status === 'pending' || order.status === 'accepted') && order.expires_at <= now.value
-    ? t('state_expired', '已失效') : statusText.value[order.status];
+    ? t('state_expired') : statusText.value[order.status];
 }
 function remaining(timestamp) {
   const seconds = Math.max(0, timestamp - now.value);
@@ -162,8 +162,8 @@ function softLeft() {
   if (view.value === 'home') return confirmSelection();
   if (view.value === 'delivery_inbox') return submit(deliveryReceiving.value ? 'stop' : 'start', 'delivery');
   if (view.value === 'delivery_thread') {
-    if (leftLabel.value === t('accept_order', '接单')) return postDelivery('delivery_accept', { id: selectedOrder.value.id });
-    if (leftLabel.value === t('cancel_order', '取消订单')) return postDelivery('delivery_cancel_order');
+    if (leftLabel.value === t('accept_order')) return postDelivery('delivery_accept', { id: selectedOrder.value.id });
+    if (leftLabel.value === t('cancel_order')) return postDelivery('delivery_cancel_order');
     return;
   }
   submit(activeMode.value === view.value ? 'stop' : 'start');
@@ -229,32 +229,32 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
 </script>
 
 <template>
-  <div v-if="visible" class="mz-phone" :aria-label="t('brand', 'MZ 手机')">
+  <div v-if="visible" class="mz-phone" :aria-label="t('brand')">
     <div class="phone-shell">
       <div class="shell-top"><span class="earpiece"></span><strong>MUZIA</strong></div>
       <div class="phone-screen">
         <div class="screen-status"><span>09:41</span><span class="status-icons"><Radio :size="13" /><span class="battery"><span></span></span></span></div>
         <div class="screen-heading">
-          <button v-if="view !== 'home'" class="screen-back" type="button" :title="t('back', '返回')" :aria-label="t('back', '返回')" @click="goBack"><ArrowLeft :size="20" /></button>
-          <div><span v-if="view === 'home'" class="screen-eyebrow">{{ t('network', 'MZ NETWORK') }}</span><h1>{{ view === 'home' ? t('home_title', '销售终端') : view === 'delivery_inbox' ? t('delivery_title', '送货订单') : view === 'delivery_thread' ? selectedOrder?.contact : selectedMode?.title }}</h1></div>
+          <button v-if="view !== 'home'" class="screen-back" type="button" :title="t('back')" :aria-label="t('back')" @click="goBack"><ArrowLeft :size="20" /></button>
+          <div><span v-if="view === 'home'" class="screen-eyebrow">{{ t('network') }}</span><h1>{{ view === 'home' ? t('home_title') : view === 'delivery_inbox' ? t('delivery_title') : view === 'delivery_thread' ? selectedOrder?.contact : selectedMode?.title }}</h1></div>
           <span v-if="screenState" class="screen-state">{{ screenState }}</span>
         </div>
         <div class="screen-body">
           <template v-if="view === 'home'">
-            <div class="section-caption">{{ t('section_sales_modes', '销售方式') }}</div>
+            <div class="section-caption">{{ t('section_sales_modes') }}</div>
             <div class="mode-list">
               <button v-for="(mode, index) in modes" :key="mode.id" type="button" class="mode-row"
                 :class="[{ focused: selectedIndex === index }, mode.accent]"
                 @click="selectMode(mode)" @mouseenter="selectedIndex = index">
                 <span class="mode-icon"><component :is="mode.icon" :size="22" /></span>
-                <span class="mode-name">{{ mode.title }}<small v-if="mode.id === 'delivery' ? activeOrder || deliveryReceiving : activeMode === mode.id">{{ mode.id === 'delivery' ? activeOrder ? t('state_delivery', '配送中') : t('state_receiving', '接收中') : t('state_active', '进行中') }}</small></span>
+                <span class="mode-name">{{ mode.title }}<small v-if="mode.id === 'delivery' ? activeOrder || deliveryReceiving : activeMode === mode.id">{{ mode.id === 'delivery' ? activeOrder ? t('state_delivery') : t('state_receiving') : t('state_active') }}</small></span>
                 <ChevronRight :size="18" class="row-arrow" />
               </button>
             </div>
           </template>
           <template v-else-if="view === 'delivery_inbox'">
-            <div class="inbox-toolbar"><span>{{ format(t('message_count', '%d 条短信'), orders.length) }}</span></div>
-            <div v-if="!orders.length" class="inbox-empty">{{ deliveryReceiving ? t('waiting_messages', '等待新订单短信') : t('no_messages', '暂无订单短信') }}</div>
+            <div class="inbox-toolbar"><span>{{ format(t('message_count'), orders.length) }}</span></div>
+            <div v-if="!orders.length" class="inbox-empty">{{ deliveryReceiving ? t('waiting_messages') : t('no_messages') }}</div>
             <div class="order-list">
               <button v-for="(order, index) in orders" :key="order.id" type="button" class="order-row" :class="{ focused: selectedIndex === index, active: order.id === deliveryData.active_id }" @click="openThread(order)" @mouseenter="selectedIndex = index">
                 <span class="order-row-top"><strong>{{ order.contact }}</strong><small>{{ orderStatus(order) }}</small></span>
@@ -271,13 +271,13 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
               <template v-if="selectedOrder.status !== 'pending'"><p v-if="selectedOrder.accepted_at" class="message outgoing">{{ dialogue('accept', selectedOrder) }}</p><p v-if="selectedOrder.accepted_at" class="message incoming">{{ dialogue('location', selectedOrder) }}</p><p v-if="selectedOrder.status === 'cancelled'" class="message outgoing">{{ dialogue('cancel', selectedOrder) }}</p><p v-if="selectedOrder.status !== 'accepted'" class="message incoming">{{ selectedOrder.status === 'completed' ? dialogue('completed', selectedOrder) : dialogue('closed', selectedOrder) }}</p></template>
             </div>
             <div class="thread-actions">
-              <button v-if="selectedOrder.status === 'pending' && !activeOrder && selectedOrder.expires_at > now" type="button" :disabled="busy || deliveryData.cooldown_until > now" @click="postDelivery('delivery_accept', { id: selectedOrder.id })"><Check :size="15" /> {{ deliveryData.cooldown_until > now ? format(t('cooldown', '%s 后可接'), remaining(deliveryData.cooldown_until)) : t('accept_with_location', '接单，发位置') }}</button>
-              <button v-if="selectedOrder.status === 'accepted' && selectedOrder.expires_at > now" type="button" :disabled="busy" @click="postDelivery('delivery_cancel_order')"><X :size="15" /> {{ t('cancel_order', '取消订单') }}</button>
+              <button v-if="selectedOrder.status === 'pending' && !activeOrder && selectedOrder.expires_at > now" type="button" :disabled="busy || deliveryData.cooldown_until > now" @click="postDelivery('delivery_accept', { id: selectedOrder.id })"><Check :size="15" /> {{ deliveryData.cooldown_until > now ? format(t('cooldown'), remaining(deliveryData.cooldown_until)) : t('accept_with_location') }}</button>
+              <button v-if="selectedOrder.status === 'accepted' && selectedOrder.expires_at > now" type="button" :disabled="busy" @click="postDelivery('delivery_cancel_order')"><X :size="15" /> {{ t('cancel_order') }}</button>
             </div>
           </template>
           <template v-else-if="view !== 'delivery_thread'">
-            <div class="mode-status"><span :class="{ running: activeMode === view }"></span>{{ activeMode === view ? t('running', '正在运行') : activeMode === 'delivery' ? t('state_delivery', '配送中') : activeMode ? t('other_mode', '其他销售方式进行中') : t('not_started', '尚未开启') }}</div>
-            <button v-if="leftLabel" type="button" class="mode-command" :disabled="busy" @click="softLeft"><component :is="activeMode === view ? X : Check" :size="17" />{{ activeMode === view ? t('stop', '停止') : t('start', '开始') }}{{ selectedMode?.title }}</button>
+            <div class="mode-status"><span :class="{ running: activeMode === view }"></span>{{ activeMode === view ? t('running') : activeMode === 'delivery' ? t('state_delivery') : activeMode ? t('other_mode') : t('not_started') }}</div>
+            <button v-if="leftLabel" type="button" class="mode-command" :disabled="busy" @click="softLeft"><component :is="activeMode === view ? X : Check" :size="17" />{{ activeMode === view ? t('stop') : t('start') }}{{ selectedMode?.title }}</button>
           </template>
         </div>
         <div class="screen-footer"><button type="button" :disabled="!leftLabel || busy" @click="softLeft">{{ leftLabel }}</button><button type="button" @click="goBack">{{ rightLabel }}</button></div>
@@ -285,15 +285,15 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
       <div class="phone-controls">
         <div class="control-cluster">
           <div class="side-keys">
-            <button type="button" class="utility-key" :title="leftLabel || t('no_action', '无操作')" :aria-label="leftLabel || t('no_action', '无操作')" :disabled="!leftLabel || busy" @click="softLeft"><span class="soft-key-mark"></span></button>
+            <button type="button" class="utility-key" :title="leftLabel || t('no_action')" :aria-label="leftLabel || t('no_action')" :disabled="!leftLabel || busy" @click="softLeft"><span class="soft-key-mark"></span></button>
             <span class="call-key answer-key" aria-hidden="true"><Phone :size="17" /></span>
           </div>
-          <div class="direction-pad" aria-label="导航键">
-            <button type="button" class="nav-key up" title="向上" aria-label="向上" @click="navigate('up')"><span class="direction-mark"></span></button>
-            <button type="button" class="nav-key left" title="向左" aria-label="向左" @click="navigate('left')"><span class="direction-mark"></span></button>
-            <button type="button" class="nav-key center" title="确认" aria-label="确认" @click="confirmSelection"><Check :size="19" /></button>
-            <button type="button" class="nav-key right" title="向右" aria-label="向右" @click="navigate('right')"><span class="direction-mark"></span></button>
-            <button type="button" class="nav-key down" title="向下" aria-label="向下" @click="navigate('down')"><span class="direction-mark"></span></button>
+          <div class="direction-pad" :aria-label="t('navigation')">
+            <button type="button" class="nav-key up" :title="t('up')" :aria-label="t('up')" @click="navigate('up')"><span class="direction-mark"></span></button>
+            <button type="button" class="nav-key left" :title="t('left')" :aria-label="t('left')" @click="navigate('left')"><span class="direction-mark"></span></button>
+            <button type="button" class="nav-key center" :title="t('confirm')" :aria-label="t('confirm')" @click="confirmSelection"><Check :size="19" /></button>
+            <button type="button" class="nav-key right" :title="t('right')" :aria-label="t('right')" @click="navigate('right')"><span class="direction-mark"></span></button>
+            <button type="button" class="nav-key down" :title="t('down')" :aria-label="t('down')" @click="navigate('down')"><span class="direction-mark"></span></button>
           </div>
           <div class="side-keys">
             <button type="button" class="utility-key" :title="rightLabel" :aria-label="rightLabel" @click="goBack"><span class="soft-key-mark"></span></button>

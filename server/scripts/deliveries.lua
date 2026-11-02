@@ -1,10 +1,5 @@
 local states = {}
 local next_order_id = 0
-local contacts = {
-    '阿杰', '夜班客', '南区熟人', '陌生号码', '老客户', '小林', '码头联系人', '派对客',
-    '阿凯', '小周', '酒吧老板', '东区熟客', '朋友介绍', '白天客户', '午夜联系人', '老陈',
-    '公寓住客', '赛车场客人', '仓库联系人', '阿豪', '俱乐部经理', '上次那个人', '小马', '匿名客户'
-}
 
 local function now()
     return os.time()
@@ -140,10 +135,10 @@ local function new_order(drugs)
         spawn_distance = math.max(0.0, tonumber(location.spawn_distance) or 100.0)
     }
     return {
-        id = next_order_id, contact = contacts[math.random(#contacts)],
+        id = next_order_id, contact = lang.deliveries.client.contacts[math.random(#lang.deliveries.client.contacts)],
         drug_id = drug.id, label = drug.label,
         quantity = math.random(min_quantity, max_quantity),
-        price = price, area = location.label or '指定地点', coords = coords, zone = zone,
+        price = price, area = location.label or lang.deliveries.client.phone.delivery_point, coords = coords, zone = zone,
         expires_at = now() + config.deliveries.offer_seconds, status = 'pending'
     }
 end

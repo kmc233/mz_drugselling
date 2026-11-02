@@ -187,7 +187,7 @@ utils.callback.register('mz_drugselling:sv:perform_phone_action', function(_src,
         cb(false, lang.general.server.phone_action_exploit)
         return
     end
-    if sale_modes[_src] then return cb(false, 'Stop the current sales mode first.') end
+    if sale_modes[_src] then return cb(false, lang.dealing.server.notifications.mode_active) end
     local actions = {
         dealing = {
             header = lang.dealing.server.notifications.header,
@@ -210,12 +210,12 @@ utils.callback.register('mz_drugselling:sv:perform_phone_action', function(_src,
     end
 
     if action == 'dealing' and not config.dealing.street_phone then
-        cb(false, 'Active selling does not require the phone.')
+        cb(false, lang.dealing.server.notifications.phone_not_required)
         return
     end
     if utils.cooldowns.check(_src, selected_action.cooldown, false) then
         send_notification(_src, selected_action.header, selected_action.message, 'error', 3500)
-        cb(false, 'action on cooldown')
+        cb(false, lang.dealing.server.notifications.action_cooldown)
         return
     end
     utils.cooldowns.add(_src, selected_action.cooldown, selected_action.duration, false)

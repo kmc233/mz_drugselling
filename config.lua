@@ -62,7 +62,6 @@ config.bulk_dealer = {
     enabled = true, -- Enable the bulk dealer.
     blip = {
         id = 'bulk_dealer',
-        label = 'Bulk Dealer',
         coords = vector3(-1763.38, 431.12, 127.27),
         category = 'drug_sales',
         sprite = 51,
@@ -83,7 +82,6 @@ config.bulk_dealer = {
         sprite = false,
         actions = {
             {
-                label = 'Speak To Madrazo',
                 icon = 'fa-solid fa-comments',
                 colour = '#4dcbc2',
                 action_type = 'client',
@@ -104,15 +102,15 @@ config.dealing = {
         models = { 'a_m_m_business_01', 'a_m_y_hipster_01', 'a_m_m_tramp_01', 'a_m_y_bevhills_01', 'g_m_y_ballaorig_01' }
     },
     ped_types = {
-        normal = { label = '普通顾客', buy = 55, steal = 10, refuse = 12, alert = 15, xp = 10 },
-        party = { label = '派对顾客', buy = 75, steal = 8, refuse = 5, alert = 10, xp = 12 },
-        addicted = { label = '成瘾者', buy = 78, steal = 22, refuse = 5, alert = 0, xp = 8 },
-        gang = { label = '帮派成员', buy = 58, steal = 25, refuse = 10, alert = 0, xp = 15, gang = true },
-        snitch = { label = '告密者', buy = 25, steal = 0, refuse = 45, alert = 55, xp = 30 },
-        dealer = { label = '街头商人', buy = 58, steal = 20, refuse = 10, alert = 0, xp = 20 },
-        rich = { label = '有钱人', buy = 85, steal = 0, refuse = 2, alert = 12, xp = 10 },
-        junkie = { label = '瘾君子', buy = 65, steal = 35, refuse = 10, alert = 0, xp = 5 },
-        undercover = { label = '卧底', buy = 30, steal = 0, refuse = 0, alert = 100, xp = 35 }
+        normal = { buy = 55, steal = 10, refuse = 12, alert = 15, xp = 10 },
+        party = { buy = 75, steal = 8, refuse = 5, alert = 10, xp = 12 },
+        addicted = { buy = 78, steal = 22, refuse = 5, alert = 0, xp = 8 },
+        gang = { buy = 58, steal = 25, refuse = 10, alert = 0, xp = 15, gang = true },
+        snitch = { buy = 25, steal = 0, refuse = 45, alert = 55, xp = 30 },
+        dealer = { buy = 58, steal = 20, refuse = 10, alert = 0, xp = 20 },
+        rich = { buy = 85, steal = 0, refuse = 2, alert = 12, xp = 10 },
+        junkie = { buy = 65, steal = 35, refuse = 10, alert = 0, xp = 5 },
+        undercover = { buy = 30, steal = 0, refuse = 0, alert = 100, xp = 35 }
     },
     ped_models = {
         party = {

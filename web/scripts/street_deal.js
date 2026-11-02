@@ -17,44 +17,46 @@ function closeStreetOffer() {
 function openStreetOffer(data) {
     const offers = Array.isArray(data.offers) ? data.offers : [];
     if (!offers.length) return;
+    const locale = data.locale || {};
+    const tr = (key, ...args) => String(locale[key] ?? key).replace(/%s/g, () => String(args.shift() ?? ''));
     const selected = offers.find((offer) => offer.id === lastSelectedDrugId) || offers[0];
     streetDeal = { offers, selected, price: selected.optimal, submitted: false,
-        mode: data.mode || 'street', saleId: data.sale_id };
+        mode: data.mode || 'street', saleId: data.sale_id, tr };
     const root = document.getElementById('main_container');
     root.innerHTML = `
-        <section class="street-panel" aria-label="Street sale">
+        <section class="street-panel" aria-label="${tr('sale')}">
             <header class="street-header">
-                <div><span class="street-kicker">${streetDeal.mode === 'delivery' ? 'DELIVERY' : 'STREET DEAL'}</span><h2>报价交易</h2></div>
-                <button type="button" class="street-icon" id="street-close" title="取消交易" aria-label="取消交易">
+                <div><span class="street-kicker">${streetDeal.mode === 'delivery' ? tr('delivery') : tr('sale')}</span><h2>${tr('title')}</h2></div>
+                <button type="button" class="street-icon" id="street-close" title="${tr('cancel')}" aria-label="${tr('cancel')}">
                     ×
                 </button>
             </header>
             <div class="street-customer"><i class="fa-solid fa-user"></i><span id="street-personality"></span></div>
-            <label class="street-label" for="street-drug">选择药品</label>
+            <label class="street-label" for="street-drug">${tr('choose_drug')}</label>
             <div class="street-select-wrap">
-                <button type="button" class="street-select" id="street-drug" aria-expanded="false">选择药品</button>
+                <button type="button" class="street-select" id="street-drug" aria-expanded="false">${tr('choose_drug')}</button>
                 <ul class="street-options" id="street-drug-options" hidden></ul>
             </div>
             <div class="street-pricing">
-                <div><span>单件报价</span><strong id="street-price"></strong></div>
-                <input type="range" id="street-range" step="1" aria-label="单件报价">
+                <div><span>${tr('unit_price')}</span><strong id="street-price"></strong></div>
+                <input type="range" id="street-range" step="1" aria-label="${tr('unit_price')}">
                 <div class="street-scale"><span id="street-min"></span><span id="street-optimal"></span><span id="street-max"></span></div>
             </div>
-            <button type="button" class="street-submit" id="street-submit">提交报价 <i class="fa-solid fa-arrow-right"></i></button>
+            <button type="button" class="street-submit" id="street-submit">${tr('submit')} <i class="fa-solid fa-arrow-right"></i></button>
         </section>`;
-    document.getElementById('street-personality').textContent = data.type_label || '普通顾客';
+    document.getElementById('street-personality').textContent = data.type_label || tr('customer');
     const drugSelect = document.getElementById('street-drug');
     const drugOptions = document.getElementById('street-drug-options');
     offers.forEach((offer) => {
         const option = document.createElement('li');
         option.className = 'street-option';
         option.dataset.value = offer.id;
-        option.textContent = `${offer.label} · ${offer.count} 件`;
+        option.textContent = `${offer.label} · ${tr('count', offer.count)}`;
         option.onclick = () => selectStreetDrug(offer.id);
         drugOptions.appendChild(option);
     });
     drugSelect.replaceChildren();
-    drugSelect.textContent = `${selected.label} · ${selected.count} 件`;
+    drugSelect.textContent = `${selected.label} · ${tr('count', selected.count)}`;
     drugSelect.onclick = () => {
         const open = drugOptions.hidden;
         drugOptions.hidden = !open;
@@ -82,8 +84,9 @@ function openStreetOffer(data) {
 
 function renderStreetSelection() {
     const selected = streetDeal.selected;
+    const tr = streetDeal.tr;
     const drugSelect = document.getElementById('street-drug');
-    drugSelect.textContent = `${selected.label} · ${selected.count} 件`;
+    drugSelect.textContent = `${selected.label} · ${tr('count', selected.count)}`;
     document.querySelectorAll('.street-option').forEach((option) => {
         option.classList.toggle('selected', option.dataset.value === String(selected.id));
     });
@@ -93,7 +96,7 @@ function renderStreetSelection() {
     range.value = streetDeal.price;
     document.getElementById('street-price').textContent = `$${streetDeal.price}`;
     document.getElementById('street-min').textContent = `$${selected.min}`;
-    document.getElementById('street-optimal').textContent = `建议 $${selected.optimal}`;
+    document.getElementById('street-optimal').textContent = tr('suggested', selected.optimal);
     document.getElementById('street-max').textContent = `$${selected.max}`;
 }
 

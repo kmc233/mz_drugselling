@@ -3,7 +3,8 @@ Locales = Locales or {}
 Locales.zh = {
     general = {
     client = {
-        no_valid_target = '未找到有效的交互目标。'
+        no_valid_target = '未找到有效的交互目标。',
+        unknown_area = '未知区域'
     },
     server = {
         missing_drug_config = '配置中未找到该药物。',
@@ -19,7 +20,26 @@ Locales.zh = {
     },
     bulk_dealer = {
     client = {
-
+        blip_label = '批量经销商',
+        target_label = '与马德拉索交谈',
+        dialogue = {
+            header = '批量经销商',
+            make_deal = '谈笔交易',
+            ask_offer = '你收什么货？',
+            offer_description = '批量出售的单价低于街头交易。',
+            goodbye = '下次再说。',
+            greeting = '有大批货要出手？我可以收。',
+            answer = { '我可以整批收下你的货，但价格要便宜些。', '街头零售利润更高，只是费时间。' },
+            back = '返回上一个问题'
+        },
+        ui = {
+            market = '批量交易', title = '大宗交易', description = '选择库存中的药品，批量出售给经销商。',
+            close = '关闭', level = '交易等级', experience = '经验值', inventory = '可出售库存',
+            drug_count = '%s 种药品', empty = '暂无可出售药品', drug_symbol = '药',
+            required_level = '需要等级 %s', stock = '库存 %s 件', choose_drug = '请选择药品',
+            details = '出售详情', locked = '等级不足', available = '可交易', unit_price = '单价',
+            quantity = '出售数量', maximum = '最多 %s 件', estimated = '预计收入', submit = '确认出售'
+        }
     },
     server = {
         notification_header = '批量经销商',
@@ -33,6 +53,9 @@ Locales.zh = {
             stopped = '你已停止交易。',
             started = '你已开始交易，去和当地人交谈吧。',
             corner_started = '街角交易已开启，顾客会主动走来。',
+            unavailable = '当前无法和这名顾客交易。',
+            refused = '顾客拒绝了交易。',
+            start_failed = '无法开启销售。',
             is_delivering = '你需要先停止所有配送才能开始交易..',
             not_dealing = '你当前未在交易。',
             already_tried = '你已经尝试过这个人了.. 换一个试试..',
@@ -48,6 +71,15 @@ Locales.zh = {
                 main_icon = 'fa-solid fa-user-secret',
                 action_icon = 'fa-solid fa-user-secret',
             }
+        },
+        personalities = {
+            normal = '普通顾客', party = '派对顾客', addicted = '成瘾者', gang = '帮派成员',
+            snitch = '告密者', dealer = '街头商人', rich = '有钱人', junkie = '瘾君子', undercover = '卧底'
+        },
+        offer_ui = {
+            sale = '街头交易', delivery = '送货交易', title = '报价交易', cancel = '取消交易',
+            customer = '普通顾客', choose_drug = '选择药品', unit_price = '单件报价', submit = '提交报价',
+            count = '%s 件', suggested = '建议 $%s'
         },
         dialogue = {
             header = {
@@ -68,6 +100,9 @@ Locales.zh = {
     server = {
         notifications = {
             header = '毒品交易',
+            mode_active = '请先停止当前销售模式。',
+            phone_not_required = '主动街卖无需通过手机开启。',
+            action_cooldown = '操作尚在冷却中。',
             cooldown_message = '你还不能再次开始交易，请先等待一段时间..',
             not_enough_police = '城市中警察数量不足。当前: %d 所需: %d',
             no_drugs = '你没有可出售的毒品..',
@@ -99,8 +134,9 @@ Locales.zh = {
             select = '选择', close = '关闭', back = '返回', stop_receiving = '停止接收', receive_messages = '接收短信', cancel_order = '取消订单',
             accept_order = '接单', start = '开始', stop = '停止', message_count = '%d 条短信', waiting_messages = '等待新订单短信', no_messages = '暂无订单短信',
             accept_with_location = '接单，发位置',
-            cooldown = '%s 后可接', deliver_order = '交付订单', delivery_point = '配送交货点', title = '联系人'
-            ,running = '正在运行', other_mode = '其他销售方式进行中', not_started = '尚未开启', no_action = '无操作'
+            cooldown = '%s 后可接', deliver_order = '交付订单', delivery_point = '配送交货点', title = '联系人',
+            running = '正在运行', other_mode = '其他销售方式进行中', not_started = '尚未开启', no_action = '无操作',
+            navigation = '导航键', up = '向上', down = '向下', left = '向左', right = '向右', confirm = '确认'
         },
         sms_dialogue = {
             request = {
@@ -130,6 +166,11 @@ Locales.zh = {
             closed = {
                 '这单已经结束。', '订单已关闭，改天再联系。', '这次的订单结束了。', '这单作废了，之后有需要再说。'
             }
+        },
+        contacts = {
+            '阿杰', '夜班客', '南区熟人', '陌生号码', '老客户', '小林', '码头联系人', '派对客',
+            '阿凯', '小周', '酒吧老板', '东区熟客', '朋友介绍', '白天客户', '午夜联系人', '老陈',
+            '公寓住客', '赛车场客人', '仓库联系人', '阿豪', '俱乐部经理', '上次那个人', '小马', '匿名客户'
         },
         target = {
             label = '出售毒品',

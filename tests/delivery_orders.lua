@@ -16,7 +16,7 @@ config = {
     }
 }
 lang = { deliveries = {
-    client = { notifications = { header = 'Delivery' } },
+    client = { notifications = { header = 'Delivery' }, contacts = { 'Test Contact' }, phone = { delivery_point = 'Delivery point' } },
     server = { notifications = {
         not_enough_police = 'Not enough police', new_order = 'New order', timed_out = 'Timed out',
         cancelled = 'Cancelled', insufficient_delivery = '%d %s missing', delivery_failed = 'Failed'

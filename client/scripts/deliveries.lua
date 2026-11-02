@@ -4,11 +4,11 @@ local delivery_zone = nil
 local delivery_spawn_token = 0
 
 local function delivery_area(coords)
-    if not coords then return '未知区域' end
+    if not coords then return lang.general.client.unknown_area end
     local zone = GetNameOfZone(coords.x, coords.y, coords.z)
     local label = zone and GetLabelText(zone)
     if label and label ~= 'NULL' and label ~= '' then return label end
-    return zone and zone ~= '' and zone or '未知区域'
+    return zone and zone ~= '' and zone or lang.general.client.unknown_area
 end
 
 local function clear_delivery_marker(ped)

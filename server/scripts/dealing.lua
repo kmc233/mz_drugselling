@@ -85,7 +85,7 @@ RegisterNetEvent('mz_drugselling:sv:prepare_street_sale', function(net_id)
 
     active_deals[player] = { ped = net_id, type_id = type_id, offers = offers, created = os.time(), mode = mode }
     TriggerClientEvent('mz_drugselling:cl:open_street_offer', player, {
-        type_label = personality.label,
+        type_label = lang.dealing.client.personalities[type_id] or lang.dealing.client.personalities.normal,
         offers = offers
     })
 end)

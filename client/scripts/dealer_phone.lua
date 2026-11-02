@@ -117,7 +117,7 @@ RegisterNUICallback('dealer_phone_action', function(data, cb)
             if success then
                 start_dealing(player_ped, mode)
             else
-                send_notification(lang.dealing.client.notifications.header, message or '无法开启销售。', 'error', 3500)
+                send_notification(lang.dealing.client.notifications.header, message or lang.dealing.client.notifications.start_failed, 'error', 3500)
             end
         end)
 

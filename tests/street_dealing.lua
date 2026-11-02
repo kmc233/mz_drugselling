@@ -40,7 +40,7 @@ config = {
         ped_types = { normal = { label = 'Normal', buy = 55, steal = 8, refuse = 12, alert = 15, xp = 25 } }
     }
 }
-lang = { dealing = { server = { notifications = {
+lang = { dealing = { client = { personalities = { normal = 'Normal' } }, server = { notifications = {
     header = 'Deals', no_drugs = 'No drugs', not_enough_police = '%d / %d',
     reclaimed_drugs = 'Recovered'
 } } } }
