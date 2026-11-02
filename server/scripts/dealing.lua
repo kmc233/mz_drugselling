@@ -77,7 +77,7 @@ RegisterNetEvent('mz_drugselling:sv:prepare_street_sale', function(net_id)
     local type_id = config.dealing.ped_model_types[GetEntityModel(ped)] or 'normal'
     local personality = config.dealing.ped_types[type_id]
     used_peds[player][net_id] = os.time()
-    if chance(personality.refuse) then
+    if mode ~= 'corner' and chance(personality.refuse) then
         if chance(personality.alert) then alert_police(player, 'dealing') end
         TriggerClientEvent('mz_drugselling:cl:street_result', player, { outcome = 'refused', early = true })
         return

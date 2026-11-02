@@ -111,6 +111,16 @@ assert(inventory == 7)
 recover(4)
 assert(inventory == 7)
 
+random_values(1, 10000)
+prepare(7)
+assert(sent.data.outcome == 'refused' and sent.data.early == true)
+
+sale_modes[1] = 'corner'
+random_values()
+prepare(8)
+assert(sent.name == 'mz_drugselling:cl:open_street_offer')
+handlers['mz_drugselling:sv:cancel_street_sale']()
+
 sale_modes[1] = nil
 config.dealing.street_phone = false
 random_values(10000, 1, 5000, 10000)
