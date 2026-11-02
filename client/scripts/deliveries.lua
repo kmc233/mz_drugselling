@@ -68,9 +68,11 @@ end)
 
 RegisterNetEvent('mz_drugselling:cl:clear_delivery', remove_delivery_ped)
 
-local function random_delivery_point(zone)
+local function create_delivery_ped(zone, token)
+    local models = zone.models or { 'csb_money', 'a_m_y_beachvesp_01' }
     local radius = math.max(0.0, tonumber(zone.radius) or 0.0)
-    for attempt = 1, 8 do
+    local safe
+    delivery_ped, safe = utils.peds.spawn_safe(models[math.random(#models)], 8, function(attempt)
         local x, y = zone.x, zone.y
         if radius > 0.0 and attempt < 8 then
             local angle = math.random() * math.pi * 2.0
@@ -78,28 +80,13 @@ local function random_delivery_point(zone)
             x = x + math.cos(angle) * distance
             y = y + math.sin(angle) * distance
         end
-        RequestCollisionAtCoord(x, y, zone.z)
-        local found, safe = GetSafeCoordForPed(x, y, zone.z, true, 16)
-        if found and safe then
-            return safe.x, safe.y, safe.z, math.random(0, 359) + 0.0
-        end
-    end
-end
-
-local function create_delivery_ped(zone, token)
-    local models = zone.models or { 'csb_money', 'a_m_y_beachvesp_01' }
-    local model = GetHashKey(models[math.random(#models)])
-    if not utils.requests.model(model) or token ~= delivery_spawn_token or not delivery_zone then return end
-    local x, y, z, heading = random_delivery_point(zone)
-    SetModelAsNoLongerNeeded(model)
-    if not x then return end
-    delivery_ped = CreatePed(4, model, x, y, z, heading, false, true)
-    if delivery_ped == 0 then return end
-    SetEntityAsMissionEntity(delivery_ped, true, true)
+        return x, y, zone.z, math.random(0, 359) + 0.0
+    end, { valid = function() return token == delivery_spawn_token and delivery_zone == zone end })
+    if not delivery_ped then return end
     SetEntityInvincible(delivery_ped, true)
     SetBlockingOfNonTemporaryEvents(delivery_ped, true)
     TaskStartScenarioInPlace(delivery_ped, 'WORLD_HUMAN_SMOKING', 0, true)
-    SetBlipCoords(delivery_blip, x, y, z)
+    SetBlipCoords(delivery_blip, safe.x, safe.y, safe.z)
     if TARGET == 'qb-target' then
         exports['qb-target']:AddEntityZone('mz_drugselling_delivery', delivery_ped, {
             name = 'mz_drugselling_delivery', heading = 0.0, debugPoly = false

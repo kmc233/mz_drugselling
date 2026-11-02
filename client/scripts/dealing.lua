@@ -161,30 +161,22 @@ RegisterNetEvent('mz_drugselling:cl:spawn_corner_customer', function()
         local models = config.corner and config.corner.models or {}
         if #models == 0 then return end
         local model_name = models[math.random(#models)]
-        local model = GetHashKey(model_name)
-        utils.requests.model(model_name)
         local origin = GetEntityCoords(player_ped)
-        local x, y, z
-        for _ = 1, 12 do
+        local generation = corner_generation
+        corner_ped = utils.peds.spawn_safe(model_name, 12, function()
             local angle = math.random() * math.pi * 2
             local distance = math.random(22, 30)
-            local candidate_x = origin.x + math.cos(angle) * distance
-            local candidate_y = origin.y + math.sin(angle) * distance
-            local found, safe = GetSafeCoordForPed(candidate_x, candidate_y, origin.z, true, 16)
-            if found and safe and not IsSphereVisible(safe.x, safe.y, safe.z, 2.0) then
-                x, y, z = safe.x, safe.y, safe.z
-                break
-            end
-        end
-        if not x then
-            SetModelAsNoLongerNeeded(model)
+            return origin.x + math.cos(angle) * distance,
+                origin.y + math.sin(angle) * distance, origin.z
+        end, {
+            networked = true,
+            accept = function(safe) return not IsSphereVisible(safe.x, safe.y, safe.z, 2.0) end,
+            valid = function() return dealing_mode == 'corner' and generation == corner_generation end
+        })
+        if not corner_ped then
             schedule_corner_customer()
             return
         end
-        corner_ped = CreatePed(4, model, x, y, z, 0.0, true, true)
-        SetModelAsNoLongerNeeded(model)
-        if not DoesEntityExist(corner_ped) then corner_ped = nil return end
-        SetEntityAsMissionEntity(corner_ped, true, true)
         spawned_peds[corner_ped] = true
         corner_spawned = true
     end

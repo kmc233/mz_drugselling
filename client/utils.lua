@@ -89,6 +89,29 @@ function utils.peds.create_ped(data)
     return ped
 end
 
+function utils.peds.spawn_safe(model_name, attempts, candidate, options)
+    options = options or {}
+    for attempt = 1, attempts do
+        local x, y, z, heading = candidate(attempt)
+        RequestCollisionAtCoord(x, y, z)
+        local found, safe = GetSafeCoordForPed(x, y, z, true, 16)
+        if found and safe and (not options.accept or options.accept(safe)) then
+            if not utils.requests.model(model_name) then return nil end
+            local model = type(model_name) == 'number' and model_name or GetHashKey(model_name)
+            if options.valid and not options.valid() then
+                SetModelAsNoLongerNeeded(model)
+                return nil
+            end
+            local ped = CreatePed(4, model, safe.x, safe.y, safe.z, heading or 0.0,
+                options.networked == true, true)
+            SetModelAsNoLongerNeeded(model)
+            if not ped or ped == 0 or not DoesEntityExist(ped) then return nil end
+            SetEntityAsMissionEntity(ped, true, true)
+            return ped, safe
+        end
+    end
+end
+
 function utils.peds.remove_peds_by_categories(categories)
     for _, entry in ipairs(peds) do
         for _, category in ipairs(categories) do

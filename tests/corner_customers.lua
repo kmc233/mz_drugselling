@@ -18,7 +18,7 @@ dealing_mode = 'corner'
 config = { corner = { interval = 8, models = { 'a_m_m_business_01' } } }
 lang = { dealing = { client = { notifications = { header = 'Sales' } } } }
 dofile('client/utils.lua')
-utils.requests.model = function() end
+utils.requests.model = function() return true end
 utils.requests.anim = function() end
 send_notification = function() end
 positions[1], positions[10] = vec(0, 0, 0), vec(15, 0, 0)
@@ -47,6 +47,7 @@ NetworkHasControlOfEntity = function() return true end
 NetworkGetNetworkIdFromEntity = function(ped) return ped end
 GetHashKey = function() return 123 end
 GetSafeCoordForPed = function(x, y, z) return true, vec(x, y, z) end
+RequestCollisionAtCoord = function() end
 IsSphereVisible = function() return false end
 CreatePed = function(_, _, x, y, z)
     created = created + 1
