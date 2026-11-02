@@ -45,6 +45,10 @@ local data
 get_data(1, {}, function(result) data = result end)
 assert(data.drugs[1].price == 8 and data.drugs[1].quantity == 10)
 assert(data.drugs[1].image == 'nui://ox_inventory/web/images/water.png')
+config.inventoryImagePath = 'auto'
+utils.fw.name = 'esx'
+get_data(1, {}, function(result) data = result end)
+assert(data.drugs[1].image == 'nui://ox_inventory/web/images/water.png')
 config.inventoryImagePath = 'https://images.example/items'
 get_data(1, {}, function(result) data = result end)
 assert(data.drugs[1].image == 'https://images.example/items/water.png')

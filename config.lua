@@ -31,7 +31,7 @@ config.skills = {
     }
 }
 
-config.inventoryImagePath = 'auto' -- Qbox: ox_inventory, QB: qb-inventory; set a path for custom inventory images.
+config.inventoryImagePath = 'auto' -- Qbox/ESX: ox_inventory, QB: qb-inventory. Example: 'nui://ox_inventory/web/images/'.
 config.drugs = {
     { 
         id = 'weed',

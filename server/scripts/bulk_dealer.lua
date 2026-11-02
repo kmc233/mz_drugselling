@@ -16,7 +16,7 @@ utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src,
     local player_skills = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1, current_xp = 0, required_xp = 1000 }
     local image_path = config.inventoryImagePath
     if image_path == 'auto' then
-        image_path = utils.fw.name == 'qbox' and 'nui://ox_inventory/web/images/'
+        image_path = (utils.fw.name == 'qbox' or utils.fw.name == 'esx') and 'nui://ox_inventory/web/images/'
             or utils.fw.name == 'qb' and 'nui://qb-inventory/html/images/' or nil
     end
     for _, drug in ipairs(config.drugs) do
