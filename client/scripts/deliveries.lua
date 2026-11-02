@@ -70,7 +70,7 @@ RegisterNetEvent('mz_drugselling:cl:clear_delivery', remove_delivery_ped)
 
 local function create_delivery_ped(zone, token)
     local models = {}
-    for _, group in pairs(config.dealing.ped_models) do
+    for _, group in pairs(config.ped_models or {}) do
         for _, model in ipairs(group) do models[#models + 1] = model end
     end
     if #models == 0 then return end

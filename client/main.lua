@@ -51,61 +51,57 @@ end
 --- Sets up interaction zones for targets based on configured methods.
 -- @lfunction script_setup
 local function script_setup(client_config)
-    local targets = {}
-
     if client_config.bulk_dealer then
-        if client_config.bulk_dealer.blip then
+        local p = client_config.bulk_dealer.ped
+        if p and client_config.bulk_dealer.blip and client_config.bulk_dealer.blip.enabled then
             local b = client_config.bulk_dealer.blip
             utils.blips.create_blip({
-                coords = b.coords,
+                coords = p.coords,
                 sprite = b.sprite,
                 colour = b.colour,
                 scale = b.scale,
                 label = lang.bulk_dealer.client.blip_label,
-                category = b.category,
-                show = b.show
+                category = 'drug_sales'
             })
         end
-        if client_config.bulk_dealer.ped then
-            local p = client_config.bulk_dealer.ped
+        if p then
             local ped_data = {
                 base_data = {
-                    id = p.id,
                     model = p.model,
                     coords = p.coords,
                     scenario = p.scenario,
-                    category = p.category,
-                    networked = p.networked
+                    category = 'drug_sales'
                 }
             }
             local created_ped = utils.peds.create_ped(ped_data)
+            if not created_ped then return end
             if TARGET == 'qb-target' then
-                local zone_name = 'zone_' .. p.id
+                local zone_name = 'zone_bulk_dealer'
                 exports['qb-target']:AddEntityZone(zone_name, created_ped, {
                     name = zone_name,
                     heading = p.coords.w,
-                    debugPoly = p.debug,
+                    debugPoly = false,
                 }, {
                     distance = p.distance,
                     options = {
                         {
-                            icon = p.actions[1].icon,
+                            icon = 'fa-solid fa-store',
                             label = lang.bulk_dealer.client.target_label,
                             action = function()
-                                TriggerEvent(p.actions[1].action, p.actions[1].params)
+                                TriggerEvent('mz_drugselling:cl:open_bulk_sales', { location = p.coords })
                             end
                         }
                     }
                 })
             elseif TARGET == 'ox_target' then
-                local zone_name = 'zone_' .. p.id
+                local zone_name = 'zone_bulk_dealer'
                 exports.ox_target:addLocalEntity(created_ped, {
                     {
                         name = zone_name,
                         label = lang.bulk_dealer.client.target_label,
                         distance = p.distance,
                         onSelect = function()
-                            TriggerEvent(p.actions[1].action, p.actions[1].params)
+                            TriggerEvent('mz_drugselling:cl:open_bulk_sales', { location = p.coords })
                         end
                     }
                 })

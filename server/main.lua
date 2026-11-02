@@ -166,6 +166,7 @@ utils.callback.register('mz_drugselling:sv:request_config', function(_src, data,
     client_config.street_phone = config.dealing.street_phone
     client_config.ped_types = config.dealing.ped_types
     client_config.ped_model_types = config.dealing.ped_model_types
+    client_config.ped_models = config.dealing.ped_models
     cb(client_config)
 end)
 

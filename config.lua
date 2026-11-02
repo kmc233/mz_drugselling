@@ -62,36 +62,16 @@ config.drugs = {
 config.bulk_dealer = {
     enabled = true, -- Enable the bulk dealer.
     blip = {
-        id = 'bulk_dealer',
-        coords = vector3(-1763.38, 431.12, 127.27),
-        category = 'drug_sales',
+        enabled = true, -- Show the bulk dealer on the map.
         sprite = 51,
         colour = 5,
-        scale = 0.7,
-        show = true
+        scale = 0.7
     },
     ped = {
-        id = 'bulk_dealer',
-        icon = 'fa-solid fa-cannabis',
         model = 'cs_martinmadrazo',
-        coords = vector4(-1757.21, 427.49, 127.70, 70.28),
+        coords = vector4(146.253845, 324.968170, 112.138855, 204.901550),
         scenario = 'WORLD_HUMAN_SMOKING',
-        category = 'drug_sales',
-        networked = false,
-        distance = 2.5,
-        debug = false,
-        sprite = false,
-        actions = {
-            {
-                icon = 'fa-solid fa-store',
-                colour = '#4dcbc2',
-                action_type = 'client',
-                action = 'mz_drugselling:cl:open_bulk_sales',
-                params = {
-                    location = vector4(-1757.21, 427.49, 127.70, 70.28), 
-                }
-            }
-        }
+        distance = 2.5
     }
 }
 
@@ -153,8 +133,9 @@ end
 
 config.deliveries = {
     locations = {
-        { coords = vector4(314.82, -1375.75, 31.92, 48.51), radius = 45.0, spawn_distance = 110.0 },
-        { coords = vector4(298.64, -1360.96, 31.94, 230.58), radius = 40.0, spawn_distance = 100.0 }
+        -- { coords = vector4(314.82, -1375.75, 31.92, 48.51), radius = 45.0, spawn_distance = 110.0 },
+        -- { coords = vector4(298.64, -1360.96, 31.94, 230.58), radius = 40.0, spawn_distance = 100.0 }
+        { coords = vector4(456.30, -761.75, 27.35, 79.94), radius = 40.0, spawn_distance = 100.0 }
     },
 
     max_pending_orders = 6, -- Maximum pending or active orders.
