@@ -13,9 +13,13 @@ delivery_ped = nil
 delivery_blip = nil
 is_delivering = true
 TARGET = 'ox_target'
+config = { dealing = { ped_models = { party = { 'party_model' }, gang = { 'gang_model' } } } }
 lang = { deliveries = { client = { phone = { delivery_point = 'Point', deliver_order = 'Deliver' }, target = { action_icon = 'icon' } } } }
 dofile('client/utils.lua')
-utils.requests.model = function() return true end
+utils.requests.model = function(model)
+    assert(model == 'party_model' or model == 'gang_model')
+    return true
+end
 exports = { ox_target = { addLocalEntity = function() end, removeLocalEntity = function() end } }
 RegisterNetEvent = function(name, handler) events[name] = handler end
 RegisterNUICallback = function() end

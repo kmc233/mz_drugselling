@@ -69,7 +69,11 @@ end)
 RegisterNetEvent('mz_drugselling:cl:clear_delivery', remove_delivery_ped)
 
 local function create_delivery_ped(zone, token)
-    local models = zone.models or { 'csb_money', 'a_m_y_beachvesp_01' }
+    local models = {}
+    for _, group in pairs(config.dealing.ped_models) do
+        for _, model in ipairs(group) do models[#models + 1] = model end
+    end
+    if #models == 0 then return end
     local radius = math.max(0.0, tonumber(zone.radius) or 0.0)
     local safe
     delivery_ped, safe = utils.peds.spawn_safe(models[math.random(#models)], 8, function(attempt)
