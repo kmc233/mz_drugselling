@@ -45,14 +45,14 @@ GetHashKey = function() return 123 end
 SetModelAsNoLongerNeeded = function() end
 CreatePed = function(_, _, x, y, z)
     created = created + 1
-    assert(x == 10 and y == 20 and z == 31.5)
+    assert(x == 10 and y == 20 and z == 30.5)
     return 9
 end
 SetEntityAsMissionEntity = function() end
 SetEntityInvincible = function() end
 SetBlockingOfNonTemporaryEvents = function() end
 TaskStartScenarioInPlace = function() end
-SetBlipCoords = function() end
+SetBlipCoords = function(_, x, y, z) assert(x == 10 and y == 20 and z == 30.5) end
 DoesEntityExist = function() return true end
 DeletePed = function() end
 

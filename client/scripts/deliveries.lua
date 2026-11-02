@@ -81,7 +81,7 @@ local function create_delivery_ped(zone, token)
             y = y + math.sin(angle) * distance
         end
         return x, y, zone.z, math.random(0, 359) + 0.0
-    end, { valid = function() return token == delivery_spawn_token and delivery_zone == zone end })
+    end, { z_offset = -1.0, valid = function() return token == delivery_spawn_token and delivery_zone == zone end })
     if not delivery_ped then return end
     SetEntityInvincible(delivery_ped, true)
     SetBlockingOfNonTemporaryEvents(delivery_ped, true)

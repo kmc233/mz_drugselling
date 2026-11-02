@@ -102,12 +102,13 @@ function utils.peds.spawn_safe(model_name, attempts, candidate, options)
                 SetModelAsNoLongerNeeded(model)
                 return nil
             end
-            local ped = CreatePed(4, model, safe.x, safe.y, safe.z, heading or 0.0,
+            local spawn_z = safe.z + (options.z_offset or 0.0)
+            local ped = CreatePed(4, model, safe.x, safe.y, spawn_z, heading or 0.0,
                 options.networked == true, true)
             SetModelAsNoLongerNeeded(model)
             if not ped or ped == 0 or not DoesEntityExist(ped) then return nil end
             SetEntityAsMissionEntity(ped, true, true)
-            return ped, safe
+            return ped, options.z_offset and { x = safe.x, y = safe.y, z = spawn_z } or safe
         end
     end
 end
