@@ -14,8 +14,14 @@ const selectedIndex = ref(0);
 const busy = ref(false);
 const deliveryData = ref({ orders: [], active_id: null, cooldown_until: 0, server_time: 0 });
 const locale = ref({});
+const smsDialogue = ref({});
 const t = (key, fallback = '') => key.split('.').reduce((value, part) => value?.[part], locale.value) ?? fallback;
 const format = (value, ...args) => String(value).replace(/%[sd]/g, () => String(args.shift() ?? ''));
+function dialogue(key, order) {
+  const variants = smsDialogue.value[key];
+  if (!Array.isArray(variants) || !variants.length) return '';
+  return variants[(Number(order?.id || 0) - 1) % variants.length];
+}
 const selectedOrderId = ref(null);
 const now = ref(Math.floor(Date.now() / 1000));
 let clockTimer;
@@ -76,6 +82,7 @@ function openThread(order) { selectedOrderId.value = order.id; view.value = 'del
 
 function open(data = {}) {
   locale.value = data.phone_locale || locale.value;
+  smsDialogue.value = data.sms_dialogue || smsDialogue.value;
   streetPhone.value = data.street_phone === true;
   activeMode.value = data.active_mode || null;
   deliveryReceiving.value = data.delivery_receiving === true;
@@ -259,9 +266,9 @@ defineExpose({ open, close, setMode, setReceiving, updateDelivery, openInbox });
           <template v-else-if="view === 'delivery_thread' && selectedOrder">
             <div class="thread-meta"><span>{{ orderStatus(selectedOrder) }}</span><span v-if="selectedOrder.status === 'pending' || selectedOrder.status === 'accepted'">{{ remaining(selectedOrder.expires_at) }}</span></div>
             <div class="thread-messages">
-              <p class="message incoming">{{ format(t('incoming_request', '听说你能送货。我需要 %d 个%s。'), selectedOrder.quantity, selectedOrder.label) }}</p>
-              <p class="message incoming">{{ format(t('incoming_total', '每个 $%d，总共 $%d。送到%s，能接吗？'), selectedOrder.price, selectedOrder.total, selectedOrder.area) }}</p>
-              <template v-if="selectedOrder.status !== 'pending'"><p v-if="selectedOrder.accepted_at" class="message outgoing">{{ t('outgoing_accept', '可以，发位置。') }}</p><p v-if="selectedOrder.accepted_at" class="message incoming">{{ t('incoming_location', '位置发你了，别迟到。') }}</p><p v-if="selectedOrder.status === 'cancelled'" class="message outgoing">{{ t('outgoing_cancel', '这单我不接了。') }}</p><p v-if="selectedOrder.status !== 'accepted'" class="message incoming">{{ selectedOrder.status === 'completed' ? t('incoming_completed', '收到货了，下次再联系。') : t('incoming_closed', '这单已经结束。') }}</p></template>
+              <p class="message incoming">{{ format(dialogue('request', selectedOrder), selectedOrder.quantity, selectedOrder.label) }}</p>
+              <p class="message incoming">{{ format(dialogue('offer', selectedOrder), selectedOrder.price, selectedOrder.total, selectedOrder.area) }}</p>
+              <template v-if="selectedOrder.status !== 'pending'"><p v-if="selectedOrder.accepted_at" class="message outgoing">{{ dialogue('accept', selectedOrder) }}</p><p v-if="selectedOrder.accepted_at" class="message incoming">{{ dialogue('location', selectedOrder) }}</p><p v-if="selectedOrder.status === 'cancelled'" class="message outgoing">{{ dialogue('cancel', selectedOrder) }}</p><p v-if="selectedOrder.status !== 'accepted'" class="message incoming">{{ selectedOrder.status === 'completed' ? dialogue('completed', selectedOrder) : dialogue('closed', selectedOrder) }}</p></template>
             </div>
             <div class="thread-actions">
               <button v-if="selectedOrder.status === 'pending' && !activeOrder && selectedOrder.expires_at > now" type="button" :disabled="busy || deliveryData.cooldown_until > now" @click="postDelivery('delivery_accept', { id: selectedOrder.id })"><Check :size="15" /> {{ deliveryData.cooldown_until > now ? format(t('cooldown', '%s 后可接'), remaining(deliveryData.cooldown_until)) : t('accept_with_location', '接单，发位置') }}</button>

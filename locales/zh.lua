@@ -97,11 +97,38 @@ Locales.zh = {
             state_pending = '待回复', state_completed = '已完成', state_expired = '已失效', state_cancelled = '已取消',
             select = '选择', close = '关闭', back = '返回', stop_receiving = '停止接收', receive_messages = '接收短信', cancel_order = '取消订单',
             accept_order = '接单', start = '开始', stop = '停止', message_count = '%d 条短信', waiting_messages = '等待新订单短信', no_messages = '暂无订单短信',
-            incoming_request = '听说你能送货。我需要 %d 个%s。', incoming_total = '每个 $%d，总共 $%d。送到%s，能接吗？',
-            outgoing_accept = '可以，发位置。', outgoing_cancel = '这单我不接了。', incoming_location = '位置发你了，别迟到。',
-            incoming_completed = '收到货了，下次再联系。', incoming_closed = '这单已经结束。', accept_with_location = '接单，发位置',
+            accept_with_location = '接单，发位置',
             cooldown = '%s 后可接', deliver_order = '交付订单', delivery_point = '配送交货点', title = '联系人'
             ,running = '正在运行', other_mode = '其他销售方式进行中', not_started = '尚未开启', no_action = '无操作'
+        },
+        sms_dialogue = {
+            request = {
+                '听说你能送货。我需要 %d 个%s。',
+                '你好，我想要 %d 个%s，现在方便送吗？',
+                '朋友说你能送货，我需要 %d 个%s。',
+                '我这边急着要 %d 个%s，能接这一单吗？'
+            },
+            offer = {
+                '每个 $%d，总共 $%d。送到%s，能接吗？',
+                '价格是每个 $%d，一共 $%d。地点在%s，可以吗？',
+                '这批货每个 $%d，总价 $%d，送到%s。你能赶过来吗？',
+                '我准备好 $%d 一份了，总共 $%d，送到%s就行。'
+            },
+            accept = {
+                '可以，发位置。', '没问题，把位置发给我。', '这单我接了，发定位吧。', '行，我马上过去，位置发来。'
+            },
+            location = {
+                '位置发你了，别迟到。', '定位发过去了，路上小心点。', '地点就在这，到了联系我。', '我把位置发你了，尽快过来。'
+            },
+            cancel = {
+                '这单我不接了。', '算了，这次先取消。', '我临时有事，这单不要了。', '不用送了，订单取消。'
+            },
+            completed = {
+                '收到货了，下次再联系。', '货没问题，合作愉快。', '东西收到了，有需要再找你。', '交易完成，下一单再聊。'
+            },
+            closed = {
+                '这单已经结束。', '订单已关闭，改天再联系。', '这次的订单结束了。', '这单作废了，之后有需要再说。'
+            }
         },
         target = {
             label = '出售毒品',

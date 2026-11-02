@@ -1,6 +1,6 @@
 
 config = config or {}
-config.locale = 'en' -- Language key from locales/*.lua.
+config.locale = 'zh' -- Language key from locales/*.lua.
 
 config.sales_adjustments = {
     delivery = {
