@@ -10,11 +10,13 @@
 .bulk-topbar p { color: #929b96; font-size: 13px; }
 .bulk-close { width: 30px; height: 30px; padding: 0; border: 0; background: transparent; color: #c3c9c5; font-size: 26px; line-height: 1; cursor: pointer; }
 .bulk-close:hover { color: #fff; }
-.bulk-summary { display: flex; align-items: center; gap: 18px; padding: 16px 0; }
-.bulk-level { display: flex; align-items: baseline; gap: 10px; min-width: 112px; }
+.bulk-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; padding: 16px 0; }
+.bulk-level { display: flex; flex: 0 1 235px; flex-direction: column; gap: 5px; min-width: 0; }
+.bulk-level div { display: flex; align-items: baseline; gap: 10px; }
+.bulk-level small { color: #9ca5a0; font-size: 12px; line-height: 1.35; }
 .bulk-level span, .bulk-xp-label { color: #9ca5a0; font-size: 13px; }
 .bulk-level strong { color: #e1b568; font-size: 18px; }
-.bulk-xp { flex: 1; min-width: 0; }
+.bulk-xp { flex: 1; min-width: 180px; }
 .bulk-xp-label { display: flex; justify-content: space-between; margin-bottom: 7px; }
 .bulk-xp-track { height: 6px; overflow: hidden; border-radius: 3px; background: #343a38; }
 .bulk-xp-track i { display: block; height: 100%; border-radius: inherit; background: #89918c; }

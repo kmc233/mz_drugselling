@@ -12,6 +12,8 @@ RegisterNetEvent('mz_drugselling:cl:open_bulk_sales', function(params)
                     location = location,
                     skills = bulk_data.skills,
                     drugs = bulk_data.drugs,
+                    price_multiplier = bulk_data.price_multiplier,
+                    price_per_level = bulk_data.price_per_level,
                     locale = lang.bulk_dealer.client.ui
                 }
             })

@@ -23,8 +23,8 @@ Locales.en = {
             blip_label = 'Bulk Dealer',
             target_label = 'Trade with Madrazo',
             ui = {
-                market = 'Bulk Sales', title = 'Bulk Deal', description = 'Choose drugs from your inventory to sell in bulk.',
-                close = 'Close', level = 'Dealing Level', experience = 'Experience', inventory = 'Available Inventory',
+                market = 'Bulk Sales', title = 'Bulk Deal', description = 'Base prices are about %s%% of suggested street prices.',
+                close = 'Close', level = 'Dealing Level', level_bonus = 'Each level adds %s%% to the purchase price', experience = 'Experience', inventory = 'Available Inventory',
                 drug_count = '%s drugs', empty = 'No drugs available to sell', drug_symbol = 'Drug',
                 required_level = 'Requires level %s', stock = '%s in stock', choose_drug = 'Choose a drug',
                 details = 'Sale Details', locked = 'Level too low', available = 'Available', unit_price = 'Unit price',

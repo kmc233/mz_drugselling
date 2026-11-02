@@ -1,6 +1,6 @@
 
 config = config or {}
-config.locale = 'zh' -- Language key from locales/*.lua.
+config.locale = 'en' -- Language key from locales/*.lua.
 config.framework = 'auto' -- auto, qbox, qb, or esx.
 
 config.sales_adjustments = {

@@ -7,14 +7,22 @@ class BulkDealer {
         this.quantity = 0;
         this.busy = false;
         this.locale = {};
+        this.priceMultiplier = 1;
+        this.pricePerLevel = 0;
     }
 
     tr(key, ...args) {
-        return String(this.locale[key] ?? key).replace(/%s/g, () => String(args.shift() ?? ''));
+        return String(this.locale[key] ?? key).replace(/%s/g, () => String(args.shift() ?? '')).replace(/%%/g, '%');
+    }
+
+    percent(value) {
+        return String(Number((value * 100).toFixed(2)));
     }
 
     init(data) {
         this.locale = data.locale || {};
+        this.priceMultiplier = Number(data.price_multiplier ?? 1);
+        this.pricePerLevel = Number(data.price_per_level ?? 0);
         this.location = data.location;
         this.skills = data.skills || this.skills;
         this.drugs = Array.isArray(data.drugs) ? data.drugs : Object.values(data.drugs || {});
@@ -33,11 +41,11 @@ class BulkDealer {
         document.getElementById('main_container').innerHTML = `
             <section class="bulk-shell" aria-label="${this.tr('market')}">
                 <header class="bulk-topbar">
-                    <div><span class="bulk-kicker">${this.tr('market')}</span><h1>${this.tr('title')}</h1><p>${this.tr('description')}</p></div>
+                    <div><span class="bulk-kicker">${this.tr('market')}</span><h1>${this.tr('title')}</h1><p>${this.tr('description', this.percent(this.priceMultiplier))}</p></div>
                     <button type="button" class="bulk-close" id="bulk-close" title="${this.tr('close')}" aria-label="${this.tr('close')}">×</button>
                 </header>
                 <div class="bulk-summary">
-                    <div class="bulk-level"><span>${this.tr('level')}</span><strong>LV ${this.skills.level || 1}</strong></div>
+                    <div class="bulk-level"><div><span>${this.tr('level')}</span><strong>LV ${this.skills.level || 1}</strong></div><small>${this.tr('level_bonus', this.percent(this.pricePerLevel))}</small></div>
                     <div class="bulk-xp"><div class="bulk-xp-label"><span>${this.tr('experience')}</span><span>${this.skills.current_xp || 0} / ${this.skills.required_xp || 0} XP</span></div><div class="bulk-xp-track"><i style="width:${xp}%"></i></div></div>
                 </div>
                 <div class="bulk-layout">

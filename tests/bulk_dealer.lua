@@ -19,6 +19,7 @@ config = {
     inventoryImagePath = 'nui://ox_inventory/web/images/',
     bulk_dealer = { enabled = true, ped = { coords = { x = 0, y = 0, z = 0 } } },
     sales_adjustments = { bulk = { price_multiplier = 0.5 } },
+    skills = { bulk = { price_per_level = 0.01 } },
     drugs = {{ id = 'water', label = 'Water', image = 'water.png',
         required_level = 1, price = { min = 10, optimal = 16, max = 20 }, quantity = { min = 1, max = 5 } }}
 }
@@ -44,6 +45,7 @@ local sell = callbacks['mz_drugselling:sv:bulk_sell_drugs']
 local data
 get_data(1, {}, function(result) data = result end)
 assert(data.drugs[1].price == 8 and data.drugs[1].quantity == 10)
+assert(data.price_multiplier == 0.5 and data.price_per_level == 0.01)
 assert(data.drugs[1].image == 'nui://ox_inventory/web/images/water.png')
 config.inventoryImagePath = 'auto'
 utils.fw.name = 'esx'

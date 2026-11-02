@@ -23,8 +23,8 @@ Locales.zh = {
         blip_label = '批量经销商',
         target_label = '与马德拉索交易',
         ui = {
-            market = '批量交易', title = '大宗交易', description = '选择库存中的药品，批量出售给经销商。',
-            close = '关闭', level = '交易等级', experience = '经验值', inventory = '可出售库存',
+            market = '批量交易', title = '大宗交易', description = '基础收购价约为建议街头单价的 %s%%。',
+            close = '关闭', level = '交易等级', level_bonus = '每升 1 级，收购价加成 %s%%', experience = '经验值', inventory = '可出售库存',
             drug_count = '%s 种药品', empty = '暂无可出售药品', drug_symbol = '药',
             required_level = '需要等级 %s', stock = '库存 %s 件', choose_drug = '请选择药品',
             details = '出售详情', locked = '等级不足', available = '可交易', unit_price = '单价',

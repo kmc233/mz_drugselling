@@ -33,7 +33,12 @@ utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src,
             }
         end
     end
-    cb({ skills = player_skills, drugs = player_drugs }, 'Success')
+    cb({
+        skills = player_skills,
+        drugs = player_drugs,
+        price_multiplier = tonumber(config.sales_adjustments and config.sales_adjustments.bulk and config.sales_adjustments.bulk.price_multiplier) or 1,
+        price_per_level = tonumber(config.skills and config.skills.bulk and config.skills.bulk.price_per_level) or 0
+    }, 'Success')
 end)
 
 --- Bulk sell drugs.
