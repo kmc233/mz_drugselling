@@ -70,16 +70,20 @@ RegisterNetEvent('mz_drugselling:cl:clear_delivery', remove_delivery_ped)
 
 local function random_delivery_point(zone)
     local radius = math.max(0.0, tonumber(zone.radius) or 0.0)
-    if radius <= 0.0 then return zone.x, zone.y, zone.z, zone.w or 0.0 end
-    for _ = 1, 8 do
-        local angle = math.random() * math.pi * 2.0
-        local distance = math.sqrt(math.random()) * radius
-        local x = zone.x + math.cos(angle) * distance
-        local y = zone.y + math.sin(angle) * distance
-        local found, ground_z = GetGroundZFor_3dCoord(x, y, zone.z + 50.0, false)
-        if found then return x, y, ground_z, math.random(0, 359) + 0.0 end
+    for attempt = 1, 8 do
+        local x, y = zone.x, zone.y
+        if radius > 0.0 and attempt < 8 then
+            local angle = math.random() * math.pi * 2.0
+            local distance = math.sqrt(math.random()) * radius
+            x = x + math.cos(angle) * distance
+            y = y + math.sin(angle) * distance
+        end
+        RequestCollisionAtCoord(x, y, zone.z)
+        local found, safe = GetSafeCoordForPed(x, y, zone.z, true, 16)
+        if found and safe then
+            return safe.x, safe.y, safe.z, math.random(0, 359) + 0.0
+        end
     end
-    return zone.x, zone.y, zone.z, zone.w or 0.0
 end
 
 local function create_delivery_ped(zone, token)
@@ -87,8 +91,9 @@ local function create_delivery_ped(zone, token)
     local model = GetHashKey(models[math.random(#models)])
     if not utils.requests.model(model) or token ~= delivery_spawn_token or not delivery_zone then return end
     local x, y, z, heading = random_delivery_point(zone)
-    delivery_ped = CreatePed(4, model, x, y, z - 1.0, heading, false, true)
     SetModelAsNoLongerNeeded(model)
+    if not x then return end
+    delivery_ped = CreatePed(4, model, x, y, z, heading, false, true)
     if delivery_ped == 0 then return end
     SetEntityAsMissionEntity(delivery_ped, true, true)
     SetEntityInvincible(delivery_ped, true)
@@ -111,6 +116,7 @@ local function create_delivery_ped(zone, token)
         }})
     end
     delivery_zone = nil
+    return true
 end
 
 RegisterNetEvent('mz_drugselling:cl:spawn_delivery_ped', function(location)
@@ -133,8 +139,7 @@ RegisterNetEvent('mz_drugselling:cl:spawn_delivery_ped', function(location)
             local player_coords = GetEntityCoords(PlayerPedId())
             local zone_coords = vector3(location.x, location.y, location.z)
             if #(player_coords - zone_coords) <= spawn_distance then
-                create_delivery_ped(location, token)
-                return
+                if create_delivery_ped(location, token) then return end
             end
             Wait(1000)
         end
