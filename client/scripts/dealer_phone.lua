@@ -70,7 +70,7 @@ local function start_dealing(player_ped, mode)
     SendNUIMessage({ action = 'phone_mode_changed', mode = mode })
     SendNUIMessage({ action = 'close_dealer_phone' })
     send_notification(lang.dealing.client.notifications.header,
-        mode == 'corner' and '站街模式已开启，顾客会主动走来。' or lang.dealing.client.notifications.started, 'info', 3500)
+        mode == 'corner' and lang.dealing.client.notifications.corner_started or lang.dealing.client.notifications.started, 'info', 3500)
     if mode == 'corner' then
         start_corner_dealing()
     else

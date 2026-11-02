@@ -29,7 +29,7 @@ let serverOffset = 0;
 
 const modes = computed(() => [
   ...(streetPhone.value ? [{ id: 'dealing', title: t('mode_dealing', '主动街卖'), icon: ShoppingBag, accent: 'teal' }] : []),
-  { id: 'corner', title: t('mode_corner', '站街模式'), icon: Radio, accent: 'orange' },
+  { id: 'corner', title: t('mode_corner', '街角交易'), icon: Radio, accent: 'orange' },
   { id: 'delivery', title: t('mode_delivery', '送货订单'), icon: MapPin, accent: 'red' }
 ]);
 const selectedMode = computed(() => modes.value.find((mode) => mode.id === view.value));

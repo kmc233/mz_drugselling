@@ -32,6 +32,7 @@ Locales.zh = {
             header = '毒品交易',
             stopped = '你已停止交易。',
             started = '你已开始交易，去和当地人交谈吧。',
+            corner_started = '街角交易已开启，顾客会主动走来。',
             is_delivering = '你需要先停止所有配送才能开始交易..',
             not_dealing = '你当前未在交易。',
             already_tried = '你已经尝试过这个人了.. 换一个试试..',
@@ -92,7 +93,7 @@ Locales.zh = {
         },
         phone = {
             brand = 'MZ 手机', network = 'MZ NETWORK', home_title = '销售终端', delivery_title = '送货订单',
-            section_sales_modes = '销售方式', mode_dealing = '主动街卖', mode_corner = '站街模式', mode_delivery = '送货订单',
+            section_sales_modes = '销售方式', mode_dealing = '主动街卖', mode_corner = '街角交易', mode_delivery = '送货订单',
             state_active = '进行中', state_delivery = '配送中', state_not_started = '未开启', state_receiving = '接收中', state_not_receiving = '未接收',
             state_pending = '待回复', state_completed = '已完成', state_expired = '已失效', state_cancelled = '已取消',
             select = '选择', close = '关闭', back = '返回', stop_receiving = '停止接收', receive_messages = '接收短信', cancel_order = '取消订单',
