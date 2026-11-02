@@ -1,6 +1,7 @@
 
 config = config or {}
 config.locale = 'zh' -- Language key from locales/*.lua.
+config.framework = 'auto' -- auto, qbox, qb, or esx.
 
 config.sales_adjustments = {
     delivery = {
@@ -30,7 +31,7 @@ config.skills = {
     }
 }
 
-config.inventoryImagePath = 'nui://ox_inventory/web/images/' -- Inventory image base path.
+config.inventoryImagePath = 'auto' -- Qbox: ox_inventory, QB: qb-inventory; set a path for custom inventory images.
 config.drugs = {
     { 
         id = 'weed',

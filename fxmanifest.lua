@@ -46,4 +46,4 @@ escrow_ignore {
     'shared/**/*'
 }
 
-dependencies { 'ox_lib', 'ox_inventory', 'qbx_core', 'ox_target' }
+dependencies { 'ox_lib' }

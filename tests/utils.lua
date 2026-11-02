@@ -7,14 +7,27 @@ local callbacks = {}
 local stored_xp = 0
 local inventory = { water = 5, dealer_phone = 1 }
 local notices = {}
+config = { framework = 'qbox' }
+local player = { PlayerData = { job = { name = 'police', onduty = true } }, Functions = {
+    AddMoney = function() return true end,
+    GetItemByName = function(item) return { amount = inventory[item] or 0 } end,
+    RemoveItem = function(item, amount)
+        if (inventory[item] or 0) < amount then return false end
+        inventory[item] = inventory[item] - amount
+        return true
+    end,
+    AddItem = function(item, amount)
+        inventory[item] = (inventory[item] or 0) + amount
+        return true
+    end
+} }
 
 lib = { callback = { register = function(name, handler) callbacks[name] = handler end } }
 exports = {
     qbx_core = {
         GetPlayer = function(_, source)
             if source ~= 1 then return nil end
-            return { PlayerData = { job = { name = 'police', onduty = true } },
-                Functions = { AddMoney = function() return true end } }
+            return player
         end,
         GetMetadata = function()
             if stored_xp == 0 then return end
@@ -22,18 +35,6 @@ exports = {
         end,
         SetMetadata = function(_, _, _, value) stored_xp = value end,
         CreateUseableItem = function() end
-    },
-    ox_inventory = {
-        GetItemCount = function(_, _, item) return inventory[item] or 0 end,
-        RemoveItem = function(_, _, item, amount)
-            if (inventory[item] or 0) < amount then return false end
-            inventory[item] = inventory[item] - amount
-            return true
-        end,
-        AddItem = function(_, _, item, amount)
-            inventory[item] = (inventory[item] or 0) + amount
-            return true
-        end
     }
 }
 GetPlayers = function() return { '1' } end

@@ -14,6 +14,11 @@ end
 utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src, data, cb)
     local player_drugs = {}
     local player_skills = utils.skills.get_skill(_src, 'drug_dealing') or { level = 1, current_xp = 0, required_xp = 1000 }
+    local image_path = config.inventoryImagePath
+    if image_path == 'auto' then
+        image_path = utils.fw.name == 'qbox' and 'nui://ox_inventory/web/images/'
+            or utils.fw.name == 'qb' and 'nui://qb-inventory/html/images/' or nil
+    end
     for _, drug in ipairs(config.drugs) do
         if drug.price and drug.quantity then
             local inventory_item = utils.fw.get_item(_src, drug.id)
@@ -21,7 +26,7 @@ utils.callback.register('mz_drugselling:sv:get_bulk_dealer_data', function(_src,
             player_drugs[#player_drugs + 1] = {
                 id = drug.id,
                 label = drug.label,
-                image = ('%s/%s'):format(config.inventoryImagePath:gsub('/+$', ''), drug.image or (drug.id .. '.png')),
+                image = image_path and ('%s/%s'):format(image_path:gsub('/+$', ''), drug.image or (drug.id .. '.png')) or nil,
                 required_level = drug.required_level or 1,
                 price = bulk_price(drug, player_skills.level),
                 quantity = quantity
