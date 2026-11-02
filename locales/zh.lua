@@ -1,6 +1,6 @@
 Locales = Locales or {}
 
-Locales.en = {
+Locales.zh = {
     general = {
     client = {
         no_valid_target = '未找到有效的交互目标。'
