@@ -1,45 +1,46 @@
-# Drug selling
+# MZ Drug Selling
 
-This resource keeps the BOII phone, deliveries, and bulk dealer, and adds priced street offers and corner selling.
+A FiveM drug selling resource featuring direct street sales, corner dealing, delivery orders by text, and bulk sales. Players earn money and dealing experience by negotiating prices, completing orders, and selling in bulk.
 
-## Sales modes
+This resource can be used with the free [Drugs Creator](https://muziscripts.com/scripts/7745731).
 
-| Mode | Entry | Sale rules |
+## Features
+
+| Mode | How to access | Description |
 | --- | --- | --- |
-| Street | Dealer phone: 1 | Target an ambient NPC; choose an item and set its unit price. |
-| Corner | Dealer phone: 2 | Customers approach automatically; uses the same offer rules as street sales. |
-| Delivery | Dealer phone: 3 | Choose one of six SMS orders, then travel to the customer and deliver at the listed fixed price. |
-| Bulk | Visit the configured bulk dealer | Choose an item and quantity at a fixed wholesale unit price. |
+| Street sales | Interact directly with pedestrians | Choose a drug and price. The customer type, offer, and available stock affect the outcome. |
+| Corner dealing | Start it on the phone | Customers approach the player and negotiate through the offer interface. |
+| Deliveries | Receive orders on the phone | Orders specify the drug, quantity, price, area, and deadline. Accept an order and travel to the delivery location. |
+| Bulk sales | Interact with the dealer at the configured location | Choose how much to sell. The unit price depends on your level and the bulk price multiplier. |
 
-Street outcomes are calculated on the server. The NPC model determines its personality, including direct refusal, buying, theft, police alert, and XP. The price changes the buying chance. The server also chooses the transaction quantity. Edit these rules in `server/config.lua`.
+Street sale and corner dealing customers may buy, refuse, or steal drugs. In direct street sales, customers may also refuse before receiving an offer. Each customer type has its own chance of calling the police. Deliveries have a configurable chance of triggering a police alert after a successful handoff. Alerts also require the configured number of online police officers and an active dispatch resource.
 
-Delivery orders arrive as individual SMS messages during a session, with six to eight total orders and a separate expiry time for each message. Each order specifies the item, quantity, price, area, and deadline when generated. Accepting an order marks its location; inventory is checked only at handoff. An incomplete order can be cancelled or expires, and another order can be accepted after the configured cooldown. The fixed bulk dealer remains an immediate, lower-price way to clear inventory without an order or deadline.
-
-The default `water` and `burger` entries are placeholders. Replace them with your inventory's drug item IDs, prices, quantities, and images before using the resource. The wholesale `price` is **per item** and should normally be below street prices.
-
-Sales pay `black_money` items equal to the total sale price (for example, a $60 sale gives 60 items). No payout amount is stored in item metadata.
+Delivery orders arrive at configurable intervals. The pending order limit, deadline, cancellation cooldown, and retention time for ended orders can all be configured. Police availability is checked before accepting an order, and inventory is checked at delivery. Accepting an order stops any active street sale or corner dealing mode.
 
 ## Dependencies
 
-This resource uses `qbx_core` for players, money and persistent dealing XP, `ox_inventory` for items, `ox_lib` for callbacks, notifications and the bulk-dealer menu, and `ox_target` by default for the bulk dealer. It no longer requires `boii_utils` or `boii_ui`. Start those resources before `mz_drugselling`.
+- Framework: Qbox (`qbx_core`), QBCore (`qb-core`), or ESX (`es_extended`).
+- `ox_lib`: callbacks and notifications.
+- Target system: `ox_target` or `qb-target`.
+- Optional dispatch system: `cd_dispatch`, `codem-dispatch`, `origen_police`, `ps-dispatch`, or `rcore_dispatch`.
 
-Add a `dealer_phone` item to `ox_inventory/data/items.lua` if it is not already defined, then restart `ox_inventory`. The resource registers its usable-item action with `qbx_core`. Dealing XP is stored in Qbox player metadata (`mz_drugselling_xp`): 1000 XP per level, starting at level 1. Existing `boii_utils` skill XP is not imported. Images and `.ttf` fonts are ignored by Git, so keep the required files in `ui/assets` on the server.
+## Installation
+
+1. Name the resource directory `mz_drugselling`. Ensure the framework, inventory, `ox_lib`, and selected target system start before this resource.
+2. Add the `dealer_phone` item to your inventory and ensure the configured drugs and payment items exist. The resource registers the phone as a usable item through the framework.
+3. Update the framework, language, items, payment, and location settings in `config.lua` for your server.
+4. Start `mz_drugselling`.
+
+For example, add the following to `ox_inventory/data/items.lua`:
 
 ```lua
 ['dealer_phone'] = {
-    label = 'Dealer Phone', weight = 200, stack = false, close = true,
+    label = 'Burner Phone',
+    weight = 200,
+    stack = false,
+    close = true,
     description = 'A phone for arranging sales.'
 },
 ```
 
-## Local checks
-
-```powershell
-lua tests/utils.lua
-lua tests/complete_sale.lua
-lua tests/street_dealing.lua
-lua tests/bulk_dealer.lua
-lua tests/delivery_orders.lua
-```
-
-These tests cover server-side sale decisions and bulk quantities. Target interactions, entity networking, UI focus, and framework integrations require an in-game test.
+For other inventory systems, add the same item ID using their item definition format. After changing item definitions, restart or refresh the inventory resource as required.
