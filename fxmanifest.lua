@@ -3,7 +3,7 @@ fx_version 'cerulean'
 games { 'gta5', 'rdr3' }
 
 name 'mz_drugselling'
-version '1.1.0'
+version '1.0.0'
 description 'MZ Drug Selling'
 lua54 'yes'
 
@@ -13,8 +13,6 @@ files {
     'web/index.html',
     'web/css/*.css',
     'web/scripts/*.js',
-    'web/assets/images/*',
-    'web/assets/fonts/*',
     'web/dist/css/*.css',
     'web/dist/scripts/*.js'
 }

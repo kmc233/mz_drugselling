@@ -27,4 +27,5 @@ npm-debug.log*
 *.ico
 *.avif
 *.svg
+*.txt
 
