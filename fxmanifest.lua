@@ -40,17 +40,4 @@ client_scripts {
     'client/scripts/*'
 }
 
-escrow_ignore {
-    'config.lua',
-    'locales/*.lua',
-    'shared/language.lua',
-    'server/utils.lua',
-    'server/alerts.lua',
-    'client/main.lua',
-    'client/alerts.lua',
-    'client/scripts/dealer_phone.lua',
-    'client/scripts/bulk_dealer.lua',
-    'web/**/*'
-}
-
 dependencies { 'ox_lib' }

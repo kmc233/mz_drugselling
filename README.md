@@ -1,5 +1,17 @@
 # MZ Drug Selling
 
+<p align="center">
+  <a href="https://muziscripts.com/">
+    <img src="https://img.shields.io/badge/Store-muziscripts.com-blue?style=for-the-badge" alt="Store">
+  </a>
+  <a href="https://discord.com/invite/Yp8ukQvsJv">
+    <img src="https://img.shields.io/badge/Discord-Join%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord">
+  </a>
+  <a href="https://youtu.be/iGY5geD-qyY">
+    <img src="https://img.shields.io/badge/YouTube-Preview-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube Preview">
+  </a>
+</p>
+
 A FiveM drug selling resource featuring direct street sales, corner dealing, delivery orders by text, and bulk sales. Players earn money and dealing experience by negotiating prices, completing orders, and selling in bulk.
 
 This resource can be used with the free [Drugs Creator](https://muziscripts.com/scripts/7745731).
@@ -27,7 +39,7 @@ Delivery orders arrive at configurable intervals. The pending order limit, deadl
 ## Installation
 
 1. Name the resource directory `mz_drugselling`. Ensure the framework, inventory, `ox_lib`, and selected target system start before this resource.
-2. Add the `dealer_phone` item to your inventory and ensure the configured drugs and payment items exist. The resource registers the phone as a usable item through the framework.
+2. Add the `dealer_phone` item to your inventory and ensure the configured drugs and payment items exist. An item image is included at `install_first/dealer_phone.png`. The resource registers the phone as a usable item through the framework.
 3. Update the framework, language, items, payment, and location settings in `config.lua` for your server.
 4. Start `mz_drugselling`.
 
@@ -44,3 +56,13 @@ For example, add the following to `ox_inventory/data/items.lua`:
 ```
 
 For other inventory systems, add the same item ID using their item definition format. After changing item definitions, restart or refresh the inventory resource as required.
+
+## Copyright
+
+Copyright © 2026 Muzi Scripts
+
+MZ Drug Selling is free software licensed under the GNU General Public License, version 3 or any later version. You may use, modify, and redistribute it under the terms of that license.
+
+The software is provided without warranty, including implied warranties of merchantability or fitness for a particular purpose.
+
+The complete license terms and disclaimer are available in [LICENSE](LICENSE).

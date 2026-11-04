@@ -12,13 +12,13 @@ node_modules/
 .npm-cache/
 .vite/
 .cache/
-web/dist/
 *.log
 npm-debug.log*
 
 # Fonts and images
 *.ttf
 *.png
+!install_first/dealer_phone.png
 *.jpg
 *.jpeg
 *.gif
@@ -28,4 +28,7 @@ npm-debug.log*
 *.avif
 *.svg
 *.txt
+
+# Local release archives
+release/
 
