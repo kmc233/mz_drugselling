@@ -1,6 +1,4 @@
 
---- Hobo life main functions.
--- @script client/main.lua
 
 --- Stores client side relevant config options retrieved from server.
 config = config or {}

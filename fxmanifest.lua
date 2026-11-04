@@ -1,10 +1,12 @@
 
 fx_version 'cerulean'
-games { 'gta5', 'rdr3' }
+game 'gta5'
 
+author 'Muzi Scripts'
 name 'mz_drugselling'
-version '1.0.0'
 description 'MZ Drug Selling'
+version '1.0.0'
+
 lua54 'yes'
 
 ui_page 'web/index.html'
@@ -39,9 +41,16 @@ client_scripts {
 }
 
 escrow_ignore {
-    'server/**/*',
-    'client/**/*',
-    'shared/**/*'
+    'config.lua',
+    'locales/*.lua',
+    'shared/language.lua',
+    'server/utils.lua',
+    'server/alerts.lua',
+    'client/main.lua',
+    'client/alerts.lua',
+    'client/scripts/dealer_phone.lua',
+    'client/scripts/bulk_dealer.lua',
+    'web/**/*'
 }
 
 dependencies { 'ox_lib' }

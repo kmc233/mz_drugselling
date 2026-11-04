@@ -1,6 +1,4 @@
 
---- @section Local function
-
 --- Stop dealing.
 -- @param player_ped: The players ped id.
 local function stop_dealing(player_ped, for_delivery)

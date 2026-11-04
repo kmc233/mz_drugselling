@@ -1,6 +1,4 @@
 
---- Opens bulk dealer UI
--- @field params: Parameters table.
 RegisterNetEvent('mz_drugselling:cl:open_bulk_sales', function(params)
     local location = params.location
     utils.callback.cb('mz_drugselling:sv:get_bulk_dealer_data', nil, function(bulk_data, message)
